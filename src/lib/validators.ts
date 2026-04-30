@@ -126,7 +126,7 @@ export const generateEntitiesSchema = z.object({
   prompt: z.string().max(5000).optional(),
   universeId: z.string().cuid(),
   context: z.string().max(10000).optional(),
-  targetGroupId: z.string().cuid().optional(),
+  targetGroupId: z.string().cuid().nullable().optional(),
   count: z.number().int().min(1).max(10).optional(),
 });
 
@@ -146,7 +146,7 @@ export const confirmEntitiesSchema = z.object({
     targetIndex: z.number().int().min(0),
     label: z.string().min(1).max(200),
   })).max(50).optional(),
-  targetGroupId: z.string().cuid().optional(),
+  targetGroupId: z.string().cuid().nullable().optional(),
 });
 
 export const generateGroupsSchema = z.object({

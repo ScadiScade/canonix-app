@@ -617,7 +617,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               <button onClick={() => { setAction(null); }} className="text-ink-3 hover:text-ink">
                 ← {t("common.back")}
               </button>
-              <span className="text-[18px] text-ink">{t("ai.entityGenTitle")} (5 {t("common.credits")})</span>
+              <span className="text-[18px] text-ink">{t("ai.entityGenTitle")} ({entityCount} {t("common.credits")})</span>
             </div>
             {groups.length === 0 && (
               <div className="bg-amber-50 border border-amber-200 rounded-md px-3 py-2 text-[17px] text-amber-700">
@@ -681,7 +681,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               className="w-full py-2 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              {prompt.trim() ? `${t("ai.generateCards")} ${entityCount} (5 ${t("common.credits")})` : `${t("ai.autoGen")} ${entityCount} (5 ${t("common.credits")})`}
+              {prompt.trim() ? `${t("ai.generateCards")} ${entityCount} (${entityCount} ${t("common.credits")})` : `${t("ai.autoGen")} ${entityCount} (${entityCount} ${t("common.credits")})`}
             </button>
           </div>
         )}
