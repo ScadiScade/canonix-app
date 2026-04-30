@@ -467,6 +467,10 @@ const en: Translations = {
   "timeline.setDefault": "Default",
   "timeline.deleteScale": "Delete scale",
   "timeline.manageScales": "Manage scales",
+  "timeline.noScaleHint": "Dates sorted as numbers. Create a scale for eras (BBY/ABY etc.)",
+  "timeline.scaleHelp": "A scale defines how dates are sorted. Create eras with abbreviations (e.g. BBY, ABY), counting direction and offset. Entity dates are written like «5 BBY» — the system knows this is earlier than «1 BBY».",
+  "timeline.eraDirectionHelp": "Backward — counts down (5 BBY is earlier than 1 BBY). Forward — counts up (1 ABY is earlier than 5 ABY).",
+  "timeline.eraOffsetHelp": "Number where the era starts. For BBY=0, ABY=0. For BC/AD you can set 0 and 0.",
 
   // GroupForm
   "groupForm.namePlaceholder": "Transport",

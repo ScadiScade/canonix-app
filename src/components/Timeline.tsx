@@ -116,7 +116,7 @@ export function Timeline({ entities, groups = [], timelineScales = [], onSelect 
     <div>
       {/* Scale selector + Mode switcher */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
-        {timelineScales.length > 1 && (
+        {timelineScales.length > 0 && (
           <div className="flex items-center gap-1 mr-2">
             {timelineScales.map(s => (
               <button
@@ -129,6 +129,11 @@ export function Timeline({ entities, groups = [], timelineScales = [], onSelect 
                 {s.name}
               </button>
             ))}
+          </div>
+        )}
+        {timelineScales.length === 0 && (
+          <div className="text-[13px] text-ink-3 mr-2 italic">
+            {t("timeline.noScaleHint")}
           </div>
         )}
         <div className="flex items-center gap-1">

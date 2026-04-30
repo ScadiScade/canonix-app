@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TimelineScaleData, TimelineEra } from "@/lib/types";
 import { useLocale } from "@/lib/i18n";
-import { X, Plus, Trash2, Settings } from "lucide-react";
+import { X, Plus, Trash2, Settings, HelpCircle } from "lucide-react";
 
 interface TimelineScaleFormProps {
   universeId: string;
@@ -26,6 +26,7 @@ export function TimelineScaleForm({ universeId, scales, onCreated, onUpdated, on
   const { t } = useLocale();
   const [editing, setEditing] = useState<TimelineScaleData | null>(null);
   const [creating, setCreating] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Form state
   const [name, setName] = useState("");
@@ -126,27 +127,53 @@ export function TimelineScaleForm({ universeId, scales, onCreated, onUpdated, on
 
   return (
     <div className="fixed inset-0 bg-ink/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-surface rounded-xl border border-ink-3/15 shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-surface rounded-xl border border-ink-3/15 shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-3 border-b border-ink-3/10">
           <span className="text-[17px] font-medium text-ink">{t("timeline.manageScales")}</span>
-          <button onClick={onClose} className="p-1.5 rounded-md hover:bg-ink-3/10 text-ink-3"><X size={16} /></button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setShowHelp(!showHelp)} className={`p-1.5 rounded-md transition-colors ${showHelp ? "bg-accent/10 text-accent" : "hover:bg-ink-3/10 text-ink-3"}`}>
+              <HelpCircle size={16} />
+            </button>
+            <button onClick={onClose} className="p-1.5 rounded-md hover:bg-ink-3/10 text-ink-3"><X size={16} /></button>
+          </div>
         </div>
+
+        {/* Help panel */}
+        {showHelp && (
+          <div className="px-5 py-3 bg-accent/5 border-b border-ink-3/10 text-[14px] text-ink-2 space-y-2">
+            <p>{t("timeline.scaleHelp")}</p>
+            <p className="text-[13px] text-ink-3">{t("timeline.eraDirectionHelp")}</p>
+            <p className="text-[13px] text-ink-3">{t("timeline.eraOffsetHelp")}</p>
+            <div className="text-[13px] text-ink-3 bg-surface rounded-md p-2 mt-1 font-mono">
+              Пример: «5 ДБЯ» → ДБЯ backward → сортировка = -5<br/>
+              «3 ПБЯ» → ПБЯ forward → сортировка = 3<br/>
+              Итог: 5 ДБЯ идёт раньше 3 ПБЯ ✓
+            </div>
+          </div>
+        )}
 
         <div className="p-5 space-y-4">
           {/* Existing scales */}
-          {scales.map(s => (
+          {scales.length > 0 && scales.map(s => (
             <div key={s.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
               editing?.id === s.id ? "border-accent bg-accent/5" : "border-ink-3/10 hover:border-ink-3/20"
             }`}>
-              <div className="flex items-center gap-2" onClick={() => startEdit(s)}>
-                <Settings size={14} className="text-ink-3" />
-                <span className="text-[15px] text-ink">{s.name}</span>
-                <span className="text-[13px] text-ink-3">({s.eras.map(e => e.abbreviation).join(", ")})</span>
-                {s.isDefault && <span className="text-[11px] bg-accent/10 text-accent px-1.5 rounded">{t("timeline.setDefault")}</span>}
+              <div className="flex items-center gap-2 flex-1 min-w-0" onClick={() => startEdit(s)}>
+                <Settings size={14} className="text-ink-3 flex-shrink-0" />
+                <span className="text-[15px] text-ink truncate">{s.name}</span>
+                <span className="text-[13px] text-ink-3 flex-shrink-0">({s.eras.map(e => e.abbreviation).join(", ")})</span>
+                {s.isDefault && <span className="text-[11px] bg-accent/10 text-accent px-1.5 rounded flex-shrink-0">{t("timeline.setDefault")}</span>}
               </div>
-              <button onClick={() => handleDelete(s.id)} className="p-1 rounded hover:bg-red-50 text-ink-3 hover:text-red-500"><Trash2 size={14} /></button>
+              <button onClick={() => handleDelete(s.id)} className="p-1 rounded hover:bg-red-50 text-ink-3 hover:text-red-500 flex-shrink-0"><Trash2 size={14} /></button>
             </div>
           ))}
+
+          {scales.length === 0 && !creating && (
+            <div className="text-center py-6 text-ink-3">
+              <p className="text-[15px] mb-1">{t("timeline.noScaleHint")}</p>
+              <p className="text-[13px] text-ink-3/60">{t("timeline.scaleHelp")}</p>
+            </div>
+          )}
 
           {/* Create / Edit form */}
           {(creating || editing) && (
@@ -154,11 +181,11 @@ export function TimelineScaleForm({ universeId, scales, onCreated, onUpdated, on
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[13px] text-ink-3 block mb-1">{t("timeline.scaleName")}</label>
-                  <input value={name} onChange={e => setName(e.target.value)} className="w-full px-2.5 py-1.5 rounded-md border border-ink-3/15 text-[15px] bg-background" />
+                  <input value={name} onChange={e => setName(e.target.value)} placeholder="Star Wars" className="w-full px-2.5 py-1.5 rounded-md border border-ink-3/15 text-[15px] bg-background focus:outline-none focus:border-accent" />
                 </div>
                 <div>
                   <label className="text-[13px] text-ink-3 block mb-1">{t("timeline.scaleSlug")}</label>
-                  <input value={slug} onChange={e => setSlug(e.target.value)} className="w-full px-2.5 py-1.5 rounded-md border border-ink-3/15 text-[15px] bg-background" />
+                  <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="star-wars" className="w-full px-2.5 py-1.5 rounded-md border border-ink-3/15 text-[15px] bg-background focus:outline-none focus:border-accent" />
                 </div>
               </div>
 
@@ -169,37 +196,41 @@ export function TimelineScaleForm({ universeId, scales, onCreated, onUpdated, on
 
               {/* Eras */}
               <div className="space-y-2">
-                <span className="text-[14px] text-ink-3 font-medium">Эры:</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[14px] text-ink-3 font-medium">{t("timeline.eraName")}:</span>
+                  <button onClick={addEra} className="flex items-center gap-1 text-[13px] text-accent hover:underline"><Plus size={12} />{t("timeline.addEra")}</button>
+                </div>
+
+                {/* Era header labels */}
+                <div className="grid grid-cols-[1fr_70px_90px_60px_24px] gap-1.5 text-[11px] text-ink-3/50 uppercase tracking-wider px-0.5">
+                  <span>{t("timeline.eraName")}</span>
+                  <span>{t("timeline.eraAbbr")}</span>
+                  <span>{t("timeline.eraDirection")}</span>
+                  <span>{t("timeline.eraOffset")}</span>
+                  <span></span>
+                </div>
+
                 {eras.map((era, idx) => (
-                  <div key={idx} className="grid grid-cols-5 gap-2 items-end">
-                    <div className="col-span-2">
-                      <input value={era.name} onChange={e => updateEra(idx, "name", e.target.value)} placeholder={t("timeline.eraName")} className="w-full px-2 py-1 rounded border border-ink-3/15 text-[14px] bg-background" />
-                    </div>
-                    <div>
-                      <input value={era.abbreviation} onChange={e => updateEra(idx, "abbreviation", e.target.value)} placeholder={t("timeline.eraAbbr")} className="w-full px-2 py-1 rounded border border-ink-3/15 text-[14px] bg-background" />
-                    </div>
-                    <div>
-                      <select value={era.direction} onChange={e => updateEra(idx, "direction", e.target.value)} className="w-full px-2 py-1 rounded border border-ink-3/15 text-[14px] bg-background">
-                        <option value="backward">{t("timeline.eraBackward")}</option>
-                        <option value="forward">{t("timeline.eraForward")}</option>
-                      </select>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <input value={era.offsetStr} onChange={e => updateEra(idx, "offsetStr", e.target.value)} placeholder={t("timeline.eraOffset")} className="w-full px-2 py-1 rounded border border-ink-3/15 text-[14px] bg-background" />
-                      <button onClick={() => removeEra(idx)} className="p-1 text-ink-3 hover:text-red-500"><Trash2 size={12} /></button>
-                    </div>
+                  <div key={idx} className="grid grid-cols-[1fr_70px_90px_60px_24px] gap-1.5 items-center">
+                    <input value={era.name} onChange={e => updateEra(idx, "name", e.target.value)} placeholder="До Битвы при Явине" className="w-full px-2 py-1.5 rounded border border-ink-3/15 text-[14px] bg-background focus:outline-none focus:border-accent" />
+                    <input value={era.abbreviation} onChange={e => updateEra(idx, "abbreviation", e.target.value)} placeholder="ДБЯ" className="w-full px-2 py-1.5 rounded border border-ink-3/15 text-[14px] bg-background focus:outline-none focus:border-accent" />
+                    <select value={era.direction} onChange={e => updateEra(idx, "direction", e.target.value)} className="w-full px-1.5 py-1.5 rounded border border-ink-3/15 text-[14px] bg-background focus:outline-none focus:border-accent">
+                      <option value="backward">↓ {t("timeline.eraBackward")}</option>
+                      <option value="forward">↑ {t("timeline.eraForward")}</option>
+                    </select>
+                    <input value={era.offsetStr} onChange={e => updateEra(idx, "offsetStr", e.target.value)} placeholder="0" className="w-full px-2 py-1.5 rounded border border-ink-3/15 text-[14px] bg-background focus:outline-none focus:border-accent" />
+                    <button onClick={() => removeEra(idx)} className="p-1 text-ink-3 hover:text-red-500"><Trash2 size={12} /></button>
                   </div>
                 ))}
-                <button onClick={addEra} className="flex items-center gap-1 text-[13px] text-accent hover:underline"><Plus size={12} />{t("timeline.addEra")}</button>
               </div>
 
               {error && <div className="text-red-500 text-[14px]">{error}</div>}
 
               <div className="flex gap-2">
-                <button onClick={handleSave} disabled={saving || !name || !slug || eras.length === 0} className="px-4 py-1.5 bg-accent text-white rounded-md text-[14px] hover:bg-accent/90 disabled:opacity-50">
+                <button onClick={handleSave} disabled={saving || !name || !slug || eras.length === 0 || eras.some(e => !e.name || !e.abbreviation)} className="px-4 py-1.5 bg-accent text-white rounded-md text-[14px] hover:bg-accent/90 disabled:opacity-50 transition-colors">
                   {saving ? "..." : t("common.save")}
                 </button>
-                <button onClick={() => { setCreating(false); setEditing(null); }} className="px-4 py-1.5 text-ink-3 rounded-md text-[14px] hover:text-ink">
+                <button onClick={() => { setCreating(false); setEditing(null); }} className="px-4 py-1.5 text-ink-3 rounded-md text-[14px] hover:text-ink transition-colors">
                   {t("common.cancel")}
                 </button>
               </div>
