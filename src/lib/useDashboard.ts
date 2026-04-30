@@ -56,7 +56,10 @@ export function useDashboard() {
   const fetchUniverses = useCallback(async () => {
     try {
       const res = await fetch("/api/universes");
-      if (res.ok) setUniverses(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setUniverses(Array.isArray(data) ? data : data.universes || []);
+      }
     } catch (e) { console.error("fetchUniverses:", e); } finally { setLoading(false); }
   }, []);
 
