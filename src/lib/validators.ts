@@ -138,7 +138,7 @@ export const confirmEntitiesSchema = z.object({
     description: z.string().max(10000).optional(),
     customFields: z.record(z.string(), z.any()).optional(),
     notes: z.array(z.union([z.string(), z.object({ title: z.string(), content: z.string() })])).optional(),
-    date: z.string().max(100).optional(),
+    date: z.string().max(100).nullable().optional(),
     _link: z.string().max(200).optional(),
   })).min(1).max(10),
   relations: z.array(z.object({
