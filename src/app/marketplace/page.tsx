@@ -118,7 +118,7 @@ export default function MarketplacePage() {
                 </button>
               ))}
             </div>
-            <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-sm">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
               <input
                 value={search}

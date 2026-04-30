@@ -74,6 +74,7 @@ body {
   font-size: 12px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
   /* Always reserve scrollbar gutter so layout never shifts */
   scrollbar-gutter: stable;
 }
@@ -116,13 +117,26 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes scaleIn {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+/* Bottom sheet animation for mobile modals */
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Apply slideUpSheet to mobile bottom sheets */
+@media (max-width: 639px) {
+  .fixed.inset-0 [class*="rounded-t-2xl"] {
+    animation: slideUpSheet 0.25s ease-out !important;
+  }
 }
 
 /* Modal backdrop animation */

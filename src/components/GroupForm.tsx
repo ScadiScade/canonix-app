@@ -98,8 +98,8 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
   };
 
   return (
-    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-center justify-center" onClick={onClose} role="dialog" aria-modal="true" aria-label={t("group.title")}>
-      <div className="bg-surface rounded-lg border border-ink-3/20 w-full max-w-md max-h-[85vh] flex flex-col min-h-0 overflow-hidden p-6 shadow-xl" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
+    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={t("group.title")}>
+      <div className="bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/20 w-full sm:max-w-md max-h-[85vh] flex flex-col min-h-0 overflow-hidden p-6 shadow-xl" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
         <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <h3 className="font-serif text-[20px] font-light">{t("group.title")}</h3>
           <button onClick={onClose} aria-label={t("common.close")} className="p-1 rounded-md hover:bg-ink-3/10 text-ink-3">

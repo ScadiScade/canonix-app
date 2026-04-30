@@ -33,11 +33,11 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
   ];
 
   return (
-    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-center justify-center" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("createUniverse.title")}>
+    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("createUniverse.title")}>
       <form
         onClick={e => e.stopPropagation()}
         onSubmit={handleSubmit}
-        className="bg-surface rounded-lg border border-ink-3/20 w-full max-w-md shadow-xl max-h-[90vh] flex flex-col min-h-0 overflow-hidden"
+        className="bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/20 w-full sm:max-w-md shadow-xl max-h-[90vh] flex flex-col min-h-0 overflow-hidden"
         style={{ animation: "scaleIn 0.15s ease-out" }}
       >
         <div className="flex items-center justify-between mb-5 p-6 pb-0 flex-shrink-0">

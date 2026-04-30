@@ -472,7 +472,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-[420px] max-h-[85vh] bg-surface border border-ink-3/20 rounded-xl shadow-xl z-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-x-3 bottom-3 sm:inset-x-auto sm:left-auto sm:right-6 sm:bottom-6 sm:w-[420px] max-h-[85vh] bg-surface border border-ink-3/20 rounded-xl shadow-xl z-50 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-ink-3/10">
         <div className="flex items-center gap-2">

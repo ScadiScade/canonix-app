@@ -63,19 +63,19 @@ function EntityDetailModal({ selected, groups, onClose, onAddRelation, onEdit, o
 
   return (
     <div
-      className="fixed inset-0 bg-ink/40 dark:bg-white/20 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-ink/40 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={selected.name}
     >
       <div
-        className="w-full max-w-2xl max-h-[85vh] bg-surface rounded-xl border border-ink-3/15 shadow-2xl overflow-hidden flex flex-col min-h-0"
+        className="w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] bg-surface sm:rounded-xl rounded-t-2xl border border-ink-3/15 shadow-2xl overflow-hidden flex flex-col min-h-0"
         style={{ animation: "scaleIn 0.15s ease-out" }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-ink-3/10 flex-shrink-0">
-          <div className="w-8 h-1 bg-ink-3/30 rounded-full md:hidden" />
+          <div className="w-8 h-1 bg-ink-3/30 rounded-full sm:hidden" />
           <button
             onClick={onClose}
             aria-label={t("common.close")}
@@ -286,43 +286,74 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
             )}
 
             {/* Toolbar */}
-            <div className="flex items-center gap-2 md:gap-3 mt-3 md:mt-4 flex-wrap">
-              {/* View switcher */}
-              <div className="flex bg-surface rounded-xl border border-ink-3/15 p-0.5">
-                {([
-                  ["grid", LayoutGrid, "Bento"],
-                  ["graph", GitBranch, t("universe.graph")],
-                  ["timeline", Clock, t("universe.timeline")],
-                ] as const).map(([mode, Icon, label]) => (
+            <div className="mt-3 md:mt-4 space-y-2">
+              {/* Row 1: View switcher + actions */}
+              <div className="flex items-center gap-2 md:gap-3">
+                {/* View switcher */}
+                <div className="flex bg-surface rounded-xl border border-ink-3/15 p-0.5">
+                  {([
+                    ["grid", LayoutGrid, "Bento"],
+                    ["graph", GitBranch, t("universe.graph")],
+                    ["timeline", Clock, t("universe.timeline")],
+                  ] as const).map(([mode, Icon, label]) => (
+                    <button
+                      key={mode}
+                      onClick={() => setView(mode as ViewMode)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] tracking-[0.1em] uppercase transition-colors ${
+                        view === mode ? "bg-accent text-white" : "text-ink-2 hover:text-ink"
+                      }`}
+                    >
+                      <Icon size={12} />
+                      <span className="hidden sm:inline">{label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div className="relative flex-1 md:flex-none md:w-44">
+                  <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" />
+                  <input
+                    value={search}
+                    onChange={e => {
+                      setSearch(e.target.value);
+                      if (searchTimer.current) clearTimeout(searchTimer.current);
+                      searchTimer.current = setTimeout(() => setSearchQuery(e.target.value), 200);
+                    }}
+                    placeholder={t("universe.searchPlaceholder")}
+                    className="bg-surface border border-ink-3/15 rounded-xl pl-7 pr-3 py-1.5 text-[13px] text-ink focus:outline-none focus:border-accent w-full"
+                  />
+                </div>
+
+                {/* Universe actions */}
+                <div className="ml-auto flex items-center gap-1.5">
                   <button
-                    key={mode}
-                    onClick={() => setView(mode as ViewMode)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] tracking-[0.1em] uppercase transition-colors ${
-                      view === mode ? "bg-accent text-white" : "text-ink-2 hover:text-ink"
-                    }`}
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/s/${universe.slug}`);
+                      toast(t("universe.linkCopied"), "info");
+                    }}
+                    className="p-2 rounded-lg hover:bg-ink-3/10 text-ink-3 hover:text-accent transition-colors"
+                    title={t("universe.share")}
                   >
-                    <Icon size={12} />
-                    {label}
+                    <Share2 size={14} />
                   </button>
-                ))}
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="p-2 rounded-lg hover:bg-ink-3/10 text-ink-3 hover:text-ink transition-colors"
+                    title={t("universe.settings")}
+                  >
+                    <Settings size={14} />
+                  </button>
+                  <button
+                    onClick={() => setShowForm(groups[0]?.slug || "character")}
+                    className="flex items-center gap-1.5 bg-accent text-white rounded-xl px-3 py-2 text-[12px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors"
+                  >
+                    <Plus size={12} />
+                    <span className="hidden sm:inline">{t("universe.entity")}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Search */}
-              <div className="relative order-last md:order-none w-full md:w-auto">
-                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" />
-                <input
-                  value={search}
-                  onChange={e => {
-                    setSearch(e.target.value);
-                    if (searchTimer.current) clearTimeout(searchTimer.current);
-                    searchTimer.current = setTimeout(() => setSearchQuery(e.target.value), 200);
-                  }}
-                  placeholder={t("universe.searchPlaceholder")}
-                  className="bg-surface border border-ink-3/15 rounded-xl pl-7 pr-3 py-1.5 text-[13px] text-ink focus:outline-none focus:border-accent w-full md:w-44"
-                />
-              </div>
-
-              {/* Type filters — dynamic from groups */}
+              {/* Row 2: Type filters */}
               <div className="flex gap-1 flex-wrap">
                 <button
                   onClick={() => setFilter("all")}
@@ -351,34 +382,6 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                   title={t("universe.manageGroups")}
                 >
                   + {t("universe.group")}
-                </button>
-              </div>
-
-              {/* Universe actions */}
-              <div className="ml-auto flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/s/${universe.slug}`);
-                    toast(t("universe.linkCopied"), "info");
-                  }}
-                  className="p-2 rounded-lg hover:bg-ink-3/10 text-ink-3 hover:text-accent transition-colors"
-                  title={t("universe.share")}
-                >
-                  <Share2 size={14} />
-                </button>
-                <button
-                  onClick={() => setShowSettings(true)}
-                  className="p-2 rounded-lg hover:bg-ink-3/10 text-ink-3 hover:text-ink transition-colors"
-                  title={t("universe.settings")}
-                >
-                  <Settings size={14} />
-                </button>
-                <button
-                  onClick={() => setShowForm(groups[0]?.slug || "character")}
-                  className="flex items-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[12px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors"
-                >
-                  <Plus size={12} />
-                  {t("universe.entity")}
                 </button>
               </div>
             </div>
@@ -423,7 +426,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
             )}
 
             {view === "graph" && (
-              <div className="h-[calc(100vh-200px)]">
+              <div className="h-[calc(100vh-220px)] sm:h-[calc(100vh-200px)]">
                 <GraphView
                   entities={filtered}
                   relations={universe.relations.filter(r =>
@@ -473,8 +476,8 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
       {/* Create/Edit Entity Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-center justify-center" onClick={() => { setShowForm(null); setEditEntity(null); }} role="dialog" aria-modal="true" aria-label={editEntity ? t("entityForm.editEntity") : t("entityForm.newEntity")}>
-          <div className="w-full max-w-lg max-h-[90vh] flex flex-col min-h-0 bg-surface rounded-lg border border-ink-3/15 shadow-xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
+        <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={() => { setShowForm(null); setEditEntity(null); }} role="dialog" aria-modal="true" aria-label={editEntity ? t("entityForm.editEntity") : t("entityForm.newEntity")}>
+          <div className="w-full sm:max-w-lg max-h-[90vh] flex flex-col min-h-0 bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/15 shadow-xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
             <EntityForm
               type={showForm}
               universeId={universe.id}
@@ -496,12 +499,12 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
       {/* Add Entity Type Selector — show when creating new entity */}
       {showForm && !editEntity && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex gap-1.5 bg-surface rounded-xl border border-ink-3/15 p-1 shadow-lg">
+        <div className="fixed bottom-6 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto z-40 flex gap-1.5 bg-surface rounded-xl border border-ink-3/15 p-1 shadow-lg overflow-x-auto">
           {groups.map(g => (
             <button
               key={g.slug}
               onClick={() => setShowForm(g.slug)}
-              className={`px-3 py-1.5 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors flex items-center gap-1 whitespace-nowrap ${
                 showForm === g.slug ? "text-white" : "text-ink-2 hover:text-ink"
               }`}
               style={showForm === g.slug ? { backgroundColor: g.color } : undefined}

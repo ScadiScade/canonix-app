@@ -45,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('canonix-theme');var d=t==='dark'||(t==='system'||!t)&&matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}})()` }} />
       </head>
       <body className={`${geistMono.variable} antialiased bg-background text-ink pt-topbar`}>

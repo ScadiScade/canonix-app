@@ -258,8 +258,8 @@ function LoginPageInner() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-10">
-        <div className="w-full max-w-[380px]">
+      <div className="flex-1 flex items-center justify-center px-5 sm:px-6 py-8 sm:py-10">
+        <div className="w-full max-w-[400px]">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 no-underline mb-3">
