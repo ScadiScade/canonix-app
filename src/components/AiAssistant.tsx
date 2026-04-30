@@ -630,12 +630,12 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
             <p className="text-[17px] text-ink-3">{t("ai.entityGenHint")}</p>
             <div className="flex items-center gap-2">
               <span className="text-[16px] text-ink-3">{t("ai.count")}:</span>
-              <div className="flex gap-1">
-                {[3, 5, 7, 10].map(n => (
+              <div className="flex gap-0.5 flex-wrap">
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
                   <button
                     key={n}
                     onClick={() => setEntityCount(n)}
-                    className={`w-8 h-8 rounded-md text-[15px] flex items-center justify-center transition-colors ${
+                    className={`w-7 h-7 rounded text-[13px] flex items-center justify-center transition-colors ${
                       entityCount === n ? "bg-accent text-white" : "bg-background border border-ink-3/15 text-ink-2 hover:border-accent/30"
                     }`}
                   >
