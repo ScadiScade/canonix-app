@@ -83,6 +83,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
   const [genRelations, setGenRelations] = useState<GeneratedRelation[]>([]);
   const [confirming, setConfirming] = useState(false);
   const [targetGroupId, setTargetGroupId] = useState<string | null>(null);
+  const [entityCount, setEntityCount] = useState<number>(5);
 
   // Entity edit state
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
@@ -157,7 +158,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
       const res = await fetch("/api/ai/generate-entities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim() || undefined, universeId, context: universeContext, targetGroupId }),
+        body: JSON.stringify({ prompt: prompt.trim() || undefined, universeId, context: universeContext, targetGroupId, count: entityCount }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -496,6 +497,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
             setImagePrompt("");
             setGenEntities([]);
             setGenRelations([]);
+            setEntityCount(5);
             setEditEntityId(null);
             setEditUpdates(null);
             setGenGroups([]);
@@ -626,6 +628,22 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               </div>
             )}
             <p className="text-[17px] text-ink-3">{t("ai.entityGenHint")}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-[16px] text-ink-3">{t("ai.count")}:</span>
+              <div className="flex gap-1">
+                {[3, 5, 7, 10].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setEntityCount(n)}
+                    className={`w-8 h-8 rounded-md text-[15px] flex items-center justify-center transition-colors ${
+                      entityCount === n ? "bg-accent text-white" : "bg-background border border-ink-3/15 text-ink-2 hover:border-accent/30"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
@@ -663,7 +681,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               className="w-full py-2 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-              {prompt.trim() ? `${t("ai.generateCards")} (5 ${t("common.credits")})` : `${t("ai.autoGen")} (5 ${t("common.credits")})`}
+              {prompt.trim() ? `${t("ai.generateCards")} ${entityCount} (5 ${t("common.credits")})` : `${t("ai.autoGen")} ${entityCount} (5 ${t("common.credits")})`}
             </button>
           </div>
         )}

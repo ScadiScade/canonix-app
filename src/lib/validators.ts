@@ -46,8 +46,8 @@ export const createEntitySchema = z.object({
   universeId: z.string().cuid(),
   groupId: z.string().cuid().nullable().optional(),
   description: z.string().max(10000).optional(),
-  customFields: z.record(z.string(), z.string()).optional(),
-  notes: z.array(z.string()).optional(),
+  customFields: z.record(z.string(), z.any()).optional(),
+  notes: z.array(z.union([z.string(), z.object({ title: z.string(), content: z.string() })])).optional(),
   date: z.string().max(100).optional(),
   imageUrl: z.string().url().max(2048).optional(),
   position: z.number().optional(),
@@ -127,6 +127,7 @@ export const generateEntitiesSchema = z.object({
   universeId: z.string().cuid(),
   context: z.string().max(10000).optional(),
   targetGroupId: z.string().cuid().optional(),
+  count: z.number().int().min(1).max(10).optional(),
 });
 
 export const confirmEntitiesSchema = z.object({
@@ -135,11 +136,11 @@ export const confirmEntitiesSchema = z.object({
     name: z.string().min(1).max(200),
     type: z.string().min(1).max(100),
     description: z.string().max(10000).optional(),
-    customFields: z.record(z.string(), z.string()).optional(),
-    notes: z.array(z.string()).optional(),
+    customFields: z.record(z.string(), z.any()).optional(),
+    notes: z.array(z.union([z.string(), z.object({ title: z.string(), content: z.string() })])).optional(),
     date: z.string().max(100).optional(),
     _link: z.string().max(200).optional(),
-  })).min(1).max(50),
+  })).min(1).max(10),
   relations: z.array(z.object({
     sourceIndex: z.number().int().min(0),
     targetIndex: z.number().int().min(0),

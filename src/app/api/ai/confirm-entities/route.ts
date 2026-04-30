@@ -51,6 +51,18 @@ export async function POST(req: NextRequest) {
     const linkName = fields._link as string | undefined;
     delete fields._link;
 
+    // Normalize customFields: ensure all values are strings
+    const cleanFields: Record<string, string> = {};
+    for (const [k, v] of Object.entries(fields)) {
+      cleanFields[k] = v === null || v === undefined ? "" : String(v);
+    }
+
+    // Normalize notes: convert {title,content} objects to strings
+    const rawNotes = Array.isArray(e.notes) ? e.notes : [];
+    const cleanNotes: string[] = rawNotes.map((n: string | { title: string; content: string }) =>
+      typeof n === "string" ? n : `${n.title}\n${n.content}`
+    );
+
     const entity = await prisma.entity.create({
       data: {
         name: e.name,
@@ -59,8 +71,8 @@ export async function POST(req: NextRequest) {
         groupId: targetGroupId || groupBySlug[e.type] || null,
         description: e.description || null,
         date: e.date || null,
-        customFields: JSON.stringify(fields),
-        notes: JSON.stringify(e.notes || []),
+        customFields: JSON.stringify(cleanFields),
+        notes: JSON.stringify(cleanNotes),
       },
     });
     idMap[i] = entity.id;

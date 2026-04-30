@@ -192,6 +192,7 @@ const en: Translations = {
   "ai.entityGenPlaceholder": "Leave empty for auto-generation or describe: Three friends — a doctor, journalist and scientist...",
   "ai.autoGen": "Auto-generate",
   "ai.generateCards": "Generate cards",
+  "ai.count": "Count",
   "ai.groupGenTitle": "Group generation",
   "ai.groupGenHint": "Describe the theme — AI will suggest groups with fields",
   "ai.groupGenPlaceholder": "For example: Space opera with alien races, interstellar wars and trade guilds...",
