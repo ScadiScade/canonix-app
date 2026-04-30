@@ -450,6 +450,10 @@ const en: Translations = {
 
   // Timeline
   "timeline.noDatedEvents": "No events with dates",
+  "timeline.chronological": "Chronological",
+  "timeline.byGroup": "By group",
+  "timeline.compact": "Compact",
+  "timeline.other": "Other",
 
   // GroupForm
   "groupForm.namePlaceholder": "Transport",

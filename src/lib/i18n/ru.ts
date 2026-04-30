@@ -448,6 +448,10 @@ const ru = {
 
   // Timeline
   "timeline.noDatedEvents": "Нет событий с датами",
+  "timeline.chronological": "Хронология",
+  "timeline.byGroup": "По группам",
+  "timeline.compact": "Компакт",
+  "timeline.other": "Другие",
 
   // GroupForm
   "groupForm.namePlaceholder": "Транспорт",
