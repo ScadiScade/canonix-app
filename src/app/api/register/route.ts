@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import prisma from "@/lib/prisma";
+import { isEmailAllowed } from "@/lib/email-validation";
+import { checkEmailExists } from "@/lib/email-exists";
+import { Resend } from "resend";
+import crypto from "crypto";
+import { validateBody, registerSchema } from "@/lib/validators";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return null;
+  return new Resend(key);
+}
+
+export async function POST(req: NextRequest) {
+  const rl = checkRateLimit(req.headers.get("x-forwarded-for") || "global", "auth");
+  if (rl) return rl;
+
+  const body = await req.json();
+  const parsed = validateBody(registerSchema, body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { name, email, password } = parsed.data;
+
+  const emailCheck = isEmailAllowed(email);
+  if (!emailCheck.allowed) {
+    return NextResponse.json({ error: emailCheck.reason }, { status: 400 });
+  }
+
+  if (password.length < 6) {
+    return NextResponse.json({ error: "Пароль должен быть не менее 6 символов" }, { status: 400 });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return NextResponse.json({ error: "Этот email уже зарегистрирован" }, { status: 409 });
+  }
+
+  // Check if email actually exists (MX + SMTP verification)
+  const existsCheck = await checkEmailExists(email);
+  if (!existsCheck.valid) {
+    return NextResponse.json({ error: existsCheck.reason || "Почтовый ящик не существует" }, { status: 400 });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const user = await prisma.user.create({
+    data: {
+      name: name || null,
+      email,
+      password: hashedPassword,
+      aiCredits: {
+        create: { balance: 50 }, // Free credits on signup
+      },
+    },
+  });
+
+  // Send verification email (non-blocking — don't fail registration if email can't be sent)
+  const resend = getResend();
+  if (resend) {
+    try {
+      const token = crypto.randomBytes(32).toString("hex");
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      await prisma.verificationToken.create({
+        data: {
+          identifier: `email-verify:${user.id}`,
+          token,
+          expires,
+        },
+      });
+
+      const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3001";
+      const verifyUrl = `${baseUrl}/api/auth/verify/confirm?token=${token}`;
+
+      await resend.emails.send({
+        from: process.env.RESEND_FROM || "Canonix <noreply@canonix.app>",
+        to: user.email,
+        subject: "Подтвердите ваш email — Canonix",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+            <h2 style="font-size: 20px; font-weight: 300; color: #1a1a1a; margin-bottom: 24px;">Подтверждение email</h2>
+            <p style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 24px;">
+              Нажмите кнопку ниже, чтобы подтвердить ваш email <strong>${user.email}</strong> на Canonix.
+              Ссылка действительна 24 часа.
+            </p>
+            <a href="${verifyUrl}" style="display: inline-block; background: #6366f1; color: #fff; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 500;">
+              Подтвердить email
+            </a>
+            <p style="font-size: 12px; color: #999; margin-top: 24px;">
+              Если вы не регистрировались на Canonix, просто проигнорируйте это письмо.
+            </p>
+          </div>
+        `,
+      });
+    } catch (e) {
+      console.error("Failed to send verification email:", e);
+    }
+  }
+
+  return NextResponse.json({ id: user.id, email: user.email, name: user.name }, { status: 201 });
+}

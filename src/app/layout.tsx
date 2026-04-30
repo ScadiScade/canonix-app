@@ -1,0 +1,56 @@
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import AuthProvider from "@/components/AuthProvider";
+import { CreditProvider } from "@/components/CreditProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { LocaleProvider } from "@/lib/i18n";
+import { HtmlLang } from "@/components/HtmlLang";
+import "./globals.css";
+
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "Canonix — Map Any Universe",
+    template: "%s — Canonix",
+  },
+  description: "Create structured maps of fictional and real universes — characters, events, places, organizations and their relationships. Visualize, explore, share.",
+  keywords: ["worldbuilding", "universe builder", "entity map", "fictional worlds", "canonix", "lore manager", "relationship graph"],
+  openGraph: {
+    type: "website",
+    siteName: "Canonix",
+    locale: "ru_RU",
+    alternateLocale: ["en_US"],
+    title: "Canonix — Map Any Universe",
+    description: "Create structured maps of fictional and real universes — characters, events, places, organizations and their relationships.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Canonix — Map Any Universe",
+    description: "Create structured maps of fictional and real universes.",
+  },
+  robots: { index: true, follow: true },
+  alternates: { canonical: "https://canonix.app" },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('canonix-theme');var d=t==='dark'||(t==='system'||!t)&&matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.classList.toggle('dark',d)}catch(e){}})()` }} />
+      </head>
+      <body className={`${geistMono.variable} antialiased bg-background text-ink pt-topbar`}>
+        <a href="#main-content" className="skip-to-content">Skip to content</a>
+        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider>{children}</CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
+      </body>
+    </html>
+  );
+}

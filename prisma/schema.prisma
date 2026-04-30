@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  bio           String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
+  universes     Universe[]
+  aiCredits     AiCredit[]
+  subscription  Subscription?
+  memberships      TeamMember[]
+  sentInvites      TeamInvitation[] @relation("Inviter")
+  receivedInvites  TeamInvitation[] @relation("Invitee")
+  ownedTeams       Team[]           @relation("TeamOwner")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Universe {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  visibility  String        @default("private") // private, link, public
+  license     String        @default("none")    // none, open, paid
+  price       Int           @default(0)         // Price in rubles (0 = free for open license)
+  listedAt    DateTime?                          // When listed on marketplace (null = not listed)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId      String?                            // If owned by a team
+  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  entities    Entity[]
+  relations   Relation[]
+  groups      EntityGroup[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+}
+
+model EntityGroup {
+  id         String   @id @default(cuid())
+  name       String   // e.g. "Персонаж", "Транспорт", "Раса"
+  slug       String   // e.g. "character", "transport", "race"
+  color      String   @default("#78716C") // hex color
+  icon       String   @default("Tag")     // lucide icon name
+  fields     String   @default("[]")      // JSON array of field names: ["Раса","Пол","Рост"]
+  universeId String
+  universe   Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  entities   Entity[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([slug, universeId])
+}
+
+model Entity {
+  id           String      @id @default(cuid())
+  name         String
+  type         String      // slug of EntityGroup (character, planet, transport, race, etc.)
+  universeId   String
+  universe     Universe    @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  groupId      String?
+  group        EntityGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  description  String?
+  customFields String      @default("{}") // JSONB stored as string in SQLite
+  notes        String      @default("[]") // JSON array of collapsible notes
+  date         String?     // For events & characters (birth/death dates)
+  imageUrl     String?
+  position     Float       @default(0) // For graph positioning
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  sourceRelations Relation[] @relation("SourceEntity")
+  targetRelations Relation[] @relation("TargetEntity")
+
+  @@index([universeId])
+  @@index([groupId])
+}
+
+model Relation {
+  id         String   @id @default(cuid())
+  sourceId   String
+  targetId   String
+  label      String   // Type of relation: "участвовал", "член", "союзник" etc
+  universeId String
+  universe   Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  source     Entity   @relation("SourceEntity", fields: [sourceId], references: [id], onDelete: Cascade)
+  target     Entity   @relation("TargetEntity", fields: [targetId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([universeId])
+  @@index([sourceId])
+  @@index([targetId])
+}
+
+model AiCredit {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance     Int      @default(50)   // Free credits on signup
+  totalUsed   Int      @default(0)
+  totalBought Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            String   @default("free") // free, pro, corporate
+  stripeCustomerId String?
+  stripePriceId    String?
+  stripeSubId      String?
+  status          String   @default("active") // active, canceled, past_due
+  currentPeriodEnd DateTime?
+  team            Team?    // Team created for corporate plan
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Team {
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  ownerId       String          // Subscription owner = team admin
+  owner         User            @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  subscriptionId String         @unique
+  subscription  Subscription    @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  members       TeamMember[]
+  invitations   TeamInvitation[]
+  universes     Universe[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model TeamMember {
+  id       String   @id @default(cuid())
+  teamId   String
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String   @default("member") // admin, member
+  joinedAt DateTime @default(now())
+
+  @@unique([teamId, userId])
+
+  @@index([userId])
+}
+
+model TeamInvitation {
+  id         String   @id @default(cuid())
+  teamId     String
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  inviterId  String
+  inviter    User     @relation("Inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId  String
+  invitee    User     @relation("Invitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  status     String   @default("pending") // pending, accepted, rejected
+  createdAt  DateTime @default(now())
+
+  @@unique([teamId, inviteeId], name: "unique_team_invite")
+
+  @@index([inviteeId])
+  @@index([teamId])
+}
