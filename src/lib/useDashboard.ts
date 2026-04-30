@@ -73,10 +73,17 @@ export function useDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    setShowCreate(false);
-    fetchUniverses();
-    if (res.ok) toast(t("dashboard.universeCreated"));
-    else toast(t("common.error"), "error");
+    if (res.ok) {
+      const universe = await res.json();
+      setShowCreate(false);
+      fetchUniverses();
+      toast(t("dashboard.universeCreated"));
+      return universe.slug as string;
+    } else {
+      const err = await res.json();
+      toast(err.error || t("common.error"), "error");
+      return null;
+    }
   }, [fetchUniverses, toast, t]);
 
   const confirmDeleteUniverse = useCallback(async () => {

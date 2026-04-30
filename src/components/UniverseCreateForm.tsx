@@ -1,29 +1,39 @@
 ﻿"use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { X, Globe, Lock, Link2 } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 import { useModalBehavior } from "@/lib/useModalBehavior";
 
 interface UniverseCreateFormProps {
-  onSubmit: (data: { name: string; description: string; visibility: string }) => void;
+  onSubmit: (data: { name: string; description: string; visibility: string }) => Promise<string | null>;
   onCancel: () => void;
 }
 
 export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormProps) {
   const { t } = useLocale();
+  const router = useRouter();
   useModalBehavior(true, onCancel);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState("private");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || submitting) return;
     setSubmitting(true);
-    await onSubmit({ name: name.trim(), description: description.trim(), visibility });
+    setError(null);
+    const slug = await onSubmit({ name: name.trim(), description: description.trim(), visibility });
     setSubmitting(false);
+    if (slug) {
+      setName("");
+      setDescription("");
+      setVisibility("private");
+      router.push(`/u/${slug}`);
+    }
   };
 
   const visOptions = [
@@ -48,6 +58,10 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
         </div>
 
         <div className="flex-1 overflow-y-auto min-h-0 p-6 py-4 space-y-4">
+          {error && (
+            <div className="bg-red-50 text-red-600 text-[15px] rounded-lg px-3 py-2">{error}</div>
+          )}
+
           <div>
             <label htmlFor="universe-name" className="text-[15px] tracking-[0.2em] uppercase text-ink-3 block mb-1">{t("common.name")}</label>
             <input

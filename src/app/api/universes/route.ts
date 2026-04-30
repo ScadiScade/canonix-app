@@ -104,15 +104,19 @@ export async function POST(req: Request) {
     .replace(/[^a-zа-яё0-9\s-]/gi, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
     .trim();
 
-  const existing = await prisma.universe.findUnique({ where: { slug } });
-  const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
+  // Fallback if slug is empty (e.g. name was only special chars)
+  const finalSlug = slug || `universe-${Date.now()}`;
+
+  const existing = await prisma.universe.findUnique({ where: { slug: finalSlug } });
+  const uniqueSlug = existing ? `${finalSlug}-${Date.now()}` : finalSlug;
 
   const universe = await prisma.universe.create({
     data: {
       name,
-      slug: finalSlug,
+      slug: uniqueSlug,
       description: description || null,
       visibility: visibility || "private",
       userId: session.user.id,
