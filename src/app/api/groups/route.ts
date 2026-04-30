@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = validateBody(createGroupSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { universeId, name, slug, color, icon, fields } = parsed.data;
+  const { universeId, name, slug, color, icon, fields, isContainer } = parsed.data;
 
   const universe = await prisma.universe.findUnique({ where: { id: universeId } });
   if (!universe || universe.userId !== session.user.id) {
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       color: color || "#78716C",
       icon: icon || "Tag",
       fields: JSON.stringify(fields || []),
+      isContainer: isContainer || false,
       universeId,
     },
   });
@@ -53,7 +54,7 @@ export async function PUT(req: NextRequest) {
   const body = await req.json();
   const parsed = validateBody(updateGroupSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { id, name, slug, color, icon, fields } = parsed.data;
+  const { id, name, slug, color, icon, fields, isContainer } = parsed.data;
 
   const group = await prisma.entityGroup.findUnique({
     where: { id },
@@ -71,6 +72,7 @@ export async function PUT(req: NextRequest) {
       ...(color !== undefined && { color }),
       ...(icon !== undefined && { icon }),
       ...(fields !== undefined && { fields: JSON.stringify(fields) }),
+      ...(isContainer !== undefined && { isContainer }),
     },
   });
 

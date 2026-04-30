@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
-import { EntityType, EntityGroupData } from "@/lib/types";
+import { EntityType, EntityGroupData, TimelineScaleData } from "@/lib/types";
 import Topbar from "@/components/Topbar";
 import { EntityCard } from "@/components/EntityCard";
 import { EntityDetail } from "@/components/EntityDetail";
@@ -13,6 +13,7 @@ import { RelationForm } from "@/components/RelationForm";
 import { UniverseSettings } from "@/components/UniverseSettings";
 import { AiAssistant } from "@/components/AiAssistant";
 import { GroupForm } from "@/components/GroupForm";
+import { TimelineScaleForm } from "@/components/TimelineScaleForm";
 import { useLocale } from "@/lib/i18n";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useModalBehavior } from "@/lib/useModalBehavior";
@@ -44,6 +45,9 @@ interface Entity {
   customFields: string;
   notes: string;
   imageUrl?: string | null;
+  parentId?: string | null;
+  parent?: { id: string; name: string; type: string } | null;
+  children?: { id: string; name: string; type: string }[];
   sourceRelations: { id: string; label: string; target: { id: string; name: string; type: EntityType } }[];
   targetRelations: { id: string; label: string; source: { id: string; name: string; type: EntityType } }[];
 }
@@ -114,6 +118,7 @@ interface GroupData {
   color: string;
   icon: string;
   fields: string;
+  isContainer?: boolean;
 }
 
 interface UniverseData {
@@ -128,6 +133,7 @@ interface UniverseData {
   entities: Entity[];
   relations: Relation[];
   groups: GroupData[];
+  timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
 }
 
 function UniversePageInner({ params }: { params: { slug: string } }) {
@@ -145,6 +151,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
   const [showRelForm, setShowRelForm] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showGroupForm, setShowGroupForm] = useState(false);
+  const [showScaleForm, setShowScaleForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -172,7 +179,19 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
   const groups: EntityGroupData[] = useMemo(() => {
     if (!universe) return [];
     if (universe.groups.length === 0) return [];
-    return universe.groups.map(g => ({ ...g, fields: safeJsonParse(g.fields, []) }));
+    return universe.groups.map(g => ({ ...g, fields: safeJsonParse(g.fields, []), isContainer: g.isContainer || false }));
+  }, [universe]);
+
+  // Parse timeline scales
+  const timelineScales: TimelineScaleData[] = useMemo(() => {
+    if (!universe) return [];
+    return (universe.timelineScales || []).map((s: { id: string; name: string; slug: string; eras: string; isDefault: boolean }) => ({
+      id: s.id,
+      name: s.name,
+      slug: s.slug,
+      eras: safeJsonParse(s.eras, []),
+      isDefault: s.isDefault,
+    }));
   }, [universe]);
 
   useEffect(() => {
@@ -440,9 +459,18 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
             {view === "timeline" && (
               <div className="max-w-xl">
+                <div className="flex items-center justify-end mb-2">
+                  <button
+                    onClick={() => setShowScaleForm(true)}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[13px] text-ink-3 hover:text-ink hover:bg-ink-3/5 transition-colors"
+                  >
+                    <Settings size={12} />{t("timeline.manageScales")}
+                  </button>
+                </div>
                 <Timeline
                   entities={filtered}
                   groups={groups}
+                  timelineScales={timelineScales}
                   onSelect={setSelectedId}
                 />
               </div>
@@ -563,6 +591,17 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
           onUpdated={() => { fetchUniverse(); toast(t("universe.groupUpdated")); }}
           onDeleted={() => { fetchUniverse(); toast(t("universe.groupDeleted"), "info"); }}
           onClose={() => setShowGroupForm(false)}
+        />
+      )}
+
+      {showScaleForm && universe && (
+        <TimelineScaleForm
+          universeId={universe.id}
+          scales={timelineScales}
+          onCreated={() => { fetchUniverse(); toast(t("common.save")); }}
+          onUpdated={() => { fetchUniverse(); toast(t("common.save")); }}
+          onDeleted={() => { fetchUniverse(); toast(t("common.delete"), "info"); }}
+          onClose={() => setShowScaleForm(false)}
         />
       )}
 

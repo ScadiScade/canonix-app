@@ -63,40 +63,42 @@ model VerificationToken {
 }
 
 model Universe {
-  id          String        @id @default(cuid())
-  name        String
-  slug        String        @unique
-  description String?
-  visibility  String        @default("private") // private, link, public
-  license     String        @default("none")    // none, open, paid
-  price       Int           @default(0)         // Price in rubles (0 = free for open license)
-  listedAt    DateTime?                          // When listed on marketplace (null = not listed)
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teamId      String?                            // If owned by a team
-  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  entities    Entity[]
-  relations   Relation[]
-  groups      EntityGroup[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id            String          @id @default(cuid())
+  name          String
+  slug          String          @unique
+  description   String?
+  visibility    String          @default("private") // private, link, public
+  license       String          @default("none")    // none, open, paid
+  price         Int             @default(0)         // Price in rubles (0 = free for open license)
+  listedAt      DateTime?                            // When listed on marketplace (null = not listed)
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId        String?                              // If owned by a team
+  team          Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  entities      Entity[]
+  relations     Relation[]
+  groups        EntityGroup[]
+  timelineScales TimelineScale[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([userId])
   @@index([teamId])
 }
 
 model EntityGroup {
-  id         String   @id @default(cuid())
-  name       String   // e.g. "Персонаж", "Транспорт", "Раса"
-  slug       String   // e.g. "character", "transport", "race"
-  color      String   @default("#78716C") // hex color
-  icon       String   @default("Tag")     // lucide icon name
-  fields     String   @default("[]")      // JSON array of field names: ["Раса","Пол","Рост"]
+  id         String      @id @default(cuid())
+  name       String      // e.g. "Персонаж", "Транспорт", "Раса"
+  slug       String      // e.g. "character", "transport", "race"
+  color      String      @default("#78716C") // hex color
+  icon       String      @default("Tag")     // lucide icon name
+  fields     String      @default("[]")      // JSON array of field names: ["Раса","Пол","Рост"]
+  isContainer Boolean     @default(false)    // If true, this group can contain other entities
   universeId String
-  universe   Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  universe   Universe    @relation(fields: [universeId], references: [id], onDelete: Cascade)
   entities   Entity[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
   @@unique([slug, universeId])
 }
@@ -109,6 +111,9 @@ model Entity {
   universe     Universe    @relation(fields: [universeId], references: [id], onDelete: Cascade)
   groupId      String?
   group        EntityGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  parentId     String?     // Container entity this belongs to
+  parent       Entity?     @relation("EntityContainment", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Entity[]    @relation("EntityContainment")
   description  String?
   customFields String      @default("{}") // JSONB stored as string in SQLite
   notes        String      @default("[]") // JSON array of collapsible notes
@@ -123,6 +128,7 @@ model Entity {
 
   @@index([universeId])
   @@index([groupId])
+  @@index([parentId])
 }
 
 model Relation {
@@ -139,6 +145,21 @@ model Relation {
   @@index([universeId])
   @@index([sourceId])
   @@index([targetId])
+}
+
+model TimelineScale {
+  id         String   @id @default(cuid())
+  name       String   // e.g. "Звёздные войны", "Реальная история"
+  slug       String   // e.g. "star-wars", "real-history"
+  universeId String
+  universe   Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  eras       String   @default("[]") // JSON: [{name:"ДБЯ", abbreviation:"BBY", direction:"backward", offset:0}, ...]
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([slug, universeId])
+  @@index([universeId])
 }
 
 model AiCredit {

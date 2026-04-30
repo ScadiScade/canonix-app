@@ -18,6 +18,24 @@ export interface EntityGroupData {
   color: string;
   icon: string;
   fields: string[]; // field names like ["Раса", "Пол", "Рост"]
+  isContainer?: boolean; // If true, entities of this group can contain other entities
+}
+
+// Timeline era definition
+export interface TimelineEra {
+  name: string;        // "До Битвы при Явине"
+  abbreviation: string; // "ДБЯ" / "BBY"
+  direction: "forward" | "backward"; // backward = numbers decrease toward 0, forward = numbers increase
+  offset: number;      // offset from epoch (for multi-era scales)
+}
+
+// A timeline scale definition
+export interface TimelineScaleData {
+  id: string;
+  name: string;
+  slug: string;
+  eras: TimelineEra[];
+  isDefault: boolean;
 }
 
 // Default groups are no longer auto-created — users create their own via AI or manually

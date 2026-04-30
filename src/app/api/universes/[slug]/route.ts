@@ -14,12 +14,15 @@ export async function GET(
       entities: {
         include: {
           group: true,
+          parent: { select: { id: true, name: true, type: true } },
+          children: { select: { id: true, name: true, type: true } },
           sourceRelations: { include: { target: true } },
           targetRelations: { include: { source: true } },
         },
         orderBy: { createdAt: "asc" },
       },
       relations: true,
+      timelineScales: { orderBy: { createdAt: "asc" } },
     },
   });
 

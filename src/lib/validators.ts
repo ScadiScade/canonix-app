@@ -51,6 +51,7 @@ export const createEntitySchema = z.object({
   date: z.string().max(100).optional(),
   imageUrl: z.string().url().max(2048).optional(),
   position: z.number().optional(),
+  parentId: z.string().cuid().nullable().optional(),
 });
 
 export const updateEntitySchema = createEntitySchema.extend({
@@ -69,6 +70,7 @@ export const createGroupSchema = z.object({
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   icon: z.string().min(1).max(50).optional(),
   fields: z.array(z.string().max(50)).max(20).optional(),
+  isContainer: z.boolean().optional(),
 });
 
 export const updateGroupSchema = createGroupSchema.extend({
@@ -194,6 +196,32 @@ export const translateSchema = z.object({
   description: z.string().max(10000).optional(),
   fields: z.record(z.string(), z.string()).optional(),
   fieldNames: z.array(z.string()).optional(),
+});
+
+export const createTimelineScaleSchema = z.object({
+  name: z.string().min(1).max(200),
+  slug: z.string().min(1).max(100),
+  universeId: z.string().cuid(),
+  eras: z.array(z.object({
+    name: z.string().min(1).max(200),
+    abbreviation: z.string().min(1).max(20),
+    direction: z.enum(["forward", "backward"]),
+    offset: z.number(),
+  })).min(1),
+  isDefault: z.boolean().optional(),
+});
+
+export const updateTimelineScaleSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string().min(1).max(200).optional(),
+  slug: z.string().min(1).max(100).optional(),
+  eras: z.array(z.object({
+    name: z.string().min(1).max(200),
+    abbreviation: z.string().min(1).max(20),
+    direction: z.enum(["forward", "backward"]),
+    offset: z.number(),
+  })).min(1).optional(),
+  isDefault: z.boolean().optional(),
 });
 
 // ── Helper ──

@@ -452,9 +452,23 @@ const ru = {
   "timeline.byGroup": "По группам",
   "timeline.compact": "Компакт",
   "timeline.other": "Другие",
+  "timeline.addScale": "Добавить шкалу",
+  "timeline.scaleName": "Название шкалы",
+  "timeline.scaleSlug": "Slug шкалы",
+  "timeline.eraName": "Название эры",
+  "timeline.eraAbbr": "Аббревиатура",
+  "timeline.eraDirection": "Направление",
+  "timeline.eraForward": "Прямое",
+  "timeline.eraBackward": "Обратное",
+  "timeline.eraOffset": "Смещение",
+  "timeline.addEra": "Добавить эру",
+  "timeline.setDefault": "По умолчанию",
+  "timeline.deleteScale": "Удалить шкалу",
+  "timeline.manageScales": "Управление шкалами",
 
   // GroupForm
   "groupForm.namePlaceholder": "Транспорт",
+  "group.isContainer": "Контейнер (может содержать другие карточки)",
 
   // Public view
   "public.viewUniverse": "Просмотр вселенной",

@@ -454,9 +454,23 @@ const en: Translations = {
   "timeline.byGroup": "By group",
   "timeline.compact": "Compact",
   "timeline.other": "Other",
+  "timeline.addScale": "Add scale",
+  "timeline.scaleName": "Scale name",
+  "timeline.scaleSlug": "Scale slug",
+  "timeline.eraName": "Era name",
+  "timeline.eraAbbr": "Abbreviation",
+  "timeline.eraDirection": "Direction",
+  "timeline.eraForward": "Forward",
+  "timeline.eraBackward": "Backward",
+  "timeline.eraOffset": "Offset",
+  "timeline.addEra": "Add era",
+  "timeline.setDefault": "Default",
+  "timeline.deleteScale": "Delete scale",
+  "timeline.manageScales": "Manage scales",
 
   // GroupForm
   "groupForm.namePlaceholder": "Transport",
+  "group.isContainer": "Container (can contain other cards)",
 
   // Public view
   "public.viewUniverse": "View universe",

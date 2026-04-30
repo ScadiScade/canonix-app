@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validateBody(createEntitySchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { name, type, universeId, description, date, customFields, notes } = parsed.data;
+  const { name, type, universeId, description, date, customFields, notes, parentId } = parsed.data;
 
   const owner = await checkOwner(universeId);
   if (!owner) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       date: date || null,
       customFields: JSON.stringify(customFields || {}),
       notes: JSON.stringify(notes || []),
+      ...(parentId && { parentId }),
     },
   });
 
@@ -46,7 +47,7 @@ export async function PUT(req: Request) {
   const body = await req.json();
   const parsed = validateBody(updateEntitySchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { id, name, type, description, date, customFields, notes, imageUrl } = parsed.data;
+  const { id, name, type, description, date, customFields, notes, imageUrl, parentId } = parsed.data;
 
   // Verify ownership via entity's universe
   const entity = await prisma.entity.findUnique({ where: { id }, include: { universe: true } });
@@ -64,6 +65,7 @@ export async function PUT(req: Request) {
       ...(customFields !== undefined && { customFields: JSON.stringify(customFields) }),
       ...(notes !== undefined && { notes: JSON.stringify(notes) }),
       ...(imageUrl !== undefined && { imageUrl }),
+      ...(parentId !== undefined && { parentId: parentId || null }),
     },
   });
 

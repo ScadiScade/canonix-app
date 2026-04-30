@@ -212,7 +212,7 @@ function countNeighbors(entities: { id: string }[], relations: { sourceId: strin
 type TypeFilter = string | "all";
 
 interface GraphViewProps {
-  entities: { id: string; name: string; type: string; description?: string | null }[];
+  entities: { id: string; name: string; type: string; description?: string | null; parentId?: string | null; children?: { id: string }[] }[];
   relations: { id: string; sourceId: string; targetId: string; label: string }[];
   groups?: EntityGroupData[];
   onNodeClick?: (entityId: string) => void;
@@ -291,7 +291,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
   // Obsidian-style edges: labels hidden by default, shown on hover
   const initialEdges: Edge[] = useMemo(() => {
     const hasActive = !!activeNodeId;
-    return filteredRelations.map(r => {
+    const relEdges = filteredRelations.map(r => {
       const isActive = activeEdgeIds.has(r.id);
       const isDimmed = hasActive && !isActive;
       const sourceType = filteredEntities.find(e => e.id === r.sourceId)?.type;
@@ -301,7 +301,6 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         id: r.id,
         source: r.sourceId,
         target: r.targetId,
-        // Show label only when this edge is active (hovered/selected)
         label: isActive ? r.label : undefined,
         animated: isActive,
         style: {
@@ -322,7 +321,37 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         type: "default",
       };
     });
-  }, [filteredRelations, activeEdgeIds, activeNodeId, filteredEntities, groups]);
+
+    // Containment edges (parent → child) as dashed lines
+    const containmentEdges: Edge[] = filteredEntities
+      .filter(e => e.parentId && filteredEntityIds.has(e.parentId))
+      .map(e => {
+        const isActive = activeNodeId === e.id || activeNodeId === e.parentId;
+        const isDimmed = hasActive && !isActive;
+        const parentType = filteredEntities.find(p => p.id === e.parentId)?.type;
+        const edgeColor = parentType ? resolveGroup(parentType, groups).color : "#78716C";
+        return {
+          id: `contain-${e.id}`,
+          source: e.parentId!,
+          target: e.id,
+          label: isActive ? "∈" : undefined,
+          style: {
+            stroke: isActive ? edgeColor : "#A8A29E",
+            strokeWidth: isActive ? 2 : 1,
+            strokeDasharray: "4 3",
+            opacity: isDimmed ? 0.06 : isActive ? 0.8 : 0.25,
+            transition: "stroke 0.15s, stroke-width 0.15s, opacity 0.15s",
+          },
+          labelStyle: { fontSize: 10, fontWeight: 600, fill: edgeColor },
+          labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.9 },
+          labelBgPadding: [3, 2] as [number, number],
+          labelBgBorderRadius: 3,
+          type: "default",
+        };
+      });
+
+    return [...relEdges, ...containmentEdges];
+  }, [filteredRelations, activeEdgeIds, activeNodeId, filteredEntities, filteredEntityIds, groups]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);

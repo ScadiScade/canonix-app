@@ -38,6 +38,7 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
   const [color, setColor] = useState("#78716C");
   const [icon, setIcon] = useState("Tag");
   const [fields, setFields] = useState<string[]>([]);
+  const [isContainer, setIsContainer] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newField, setNewField] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +54,7 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
       const res = await fetch("/api/groups", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editingId, name, slug: slug || autoSlug(name), color, icon, fields }),
+        body: JSON.stringify({ id: editingId, name, slug: slug || autoSlug(name), color, icon, fields, isContainer }),
       });
       if (res.ok) { setEditingId(null); setName(""); setSlug(""); setFields([]); onUpdated(); toast(t("universe.groupUpdated")); }
       else toast(t("common.error"), "error");
@@ -61,7 +62,7 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
       const res = await fetch("/api/groups", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ universeId, name, slug: slug || autoSlug(name), color, icon, fields }),
+        body: JSON.stringify({ universeId, name, slug: slug || autoSlug(name), color, icon, fields, isContainer }),
       });
       if (res.ok) { setName(""); setSlug(""); setFields([]); onCreated(); toast(t("universe.groupCreated")); }
       else toast(t("common.error"), "error");
@@ -94,6 +95,7 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
     setColor(g.color);
     setIcon(g.icon);
     setFields(g.fields);
+    setIsContainer(g.isContainer || false);
     setNewField("");
   };
 
@@ -248,6 +250,17 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
             </div>
           </div>
 
+          {/* Container toggle */}
+          <label className="flex items-center gap-2 cursor-pointer py-1">
+            <input
+              type="checkbox"
+              checked={isContainer}
+              onChange={e => setIsContainer(e.target.checked)}
+              className="accent-accent w-4 h-4"
+            />
+            <span className="text-[15px] text-ink-2">{t("group.isContainer")}</span>
+          </label>
+
           <div className="flex gap-2 pt-1">
             <button type="submit" disabled={submitting} className="bg-accent text-white rounded-xl px-5 py-2 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors flex items-center gap-1.5 disabled:opacity-60">
               <Plus size={12} />
@@ -256,7 +269,7 @@ export function GroupForm({ universeId, groups, onCreated, onUpdated, onDeleted,
             {editingId && (
               <button
                 type="button"
-                onClick={() => { setEditingId(null); setName(""); setSlug(""); setFields([]); setColor("#78716C"); setIcon("Tag"); }}
+                onClick={() => { setEditingId(null); setName(""); setSlug(""); setFields([]); setColor("#78716C"); setIcon("Tag"); setIsContainer(false); }}
                 className="bg-background text-ink-2 rounded-xl px-5 py-2 text-[17px] tracking-[0.1em] uppercase hover:bg-ink-3/10 transition-colors"
               >
                 {t("common.cancel")}
