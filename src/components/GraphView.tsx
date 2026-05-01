@@ -38,6 +38,7 @@ function CustomNode({ data }: NodeProps<Node<GraphNodeData>>) {
   const label = g.name;
   const isDimmed = data.dimmed && !data.selected;
   const isSelected = data.selected;
+  const handleStyle = { opacity: 0, width: 1, height: 1, minWidth: 0, minHeight: 0, background: 'transparent', border: 'none' };
 
   return (
     <div
@@ -52,7 +53,14 @@ function CustomNode({ data }: NodeProps<Node<GraphNodeData>>) {
         transform: isSelected ? "scale(1.08)" : "scale(1)",
       }}
     >
-      <Handle type="target" position={Position.Top} style={{ background: color, width: 6, height: 6, opacity: isDimmed ? 0.15 : 1 }} />
+      <Handle type="source" position={Position.Top} id="top" style={handleStyle} />
+      <Handle type="source" position={Position.Bottom} id="bottom" style={handleStyle} />
+      <Handle type="source" position={Position.Left} id="left" style={handleStyle} />
+      <Handle type="source" position={Position.Right} id="right" style={handleStyle} />
+      <Handle type="target" position={Position.Top} id="t-top" style={handleStyle} />
+      <Handle type="target" position={Position.Bottom} id="t-bottom" style={handleStyle} />
+      <Handle type="target" position={Position.Left} id="t-left" style={handleStyle} />
+      <Handle type="target" position={Position.Right} id="t-right" style={handleStyle} />
       <div className="flex items-center gap-1.5 mb-0.5">
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
         <span className="text-[14px] tracking-[0.2em] uppercase" style={{ color }}>
@@ -65,7 +73,6 @@ function CustomNode({ data }: NodeProps<Node<GraphNodeData>>) {
       <div className="font-serif text-[19px] font-light text-ink leading-tight">
         {data.label}
       </div>
-      <Handle type="source" position={Position.Bottom} style={{ background: color, width: 6, height: 6, opacity: isDimmed ? 0.15 : 1 }} />
     </div>
   );
 }
@@ -78,19 +85,22 @@ interface SimNode { id: string; x: number; y: number; vx: number; vy: number; ty
 function forceDirectedLayout(
   entities: { id: string; type: string }[],
   relations: { sourceId: string; targetId: string }[],
-  iterations = 200,
-  width = 900,
-  height = 700
+  iterations = 300,
 ): Record<string, { x: number; y: number }> {
-  // Node dimensions for collision (minWidth=140, height~60)
-  const NODE_W = 140;
-  const NODE_H = 60;
-  const MIN_GAP = 20; // minimum gap between node edges
+  // Node dimensions for collision
+  const NODE_W = 160;
+  const NODE_H = 70;
+  const MIN_GAP = 40; // generous gap between node edges
+
+  // Scale canvas to entity count to avoid crowding
+  const n = entities.length;
+  const width = Math.max(900, Math.sqrt(n) * 250);
+  const height = Math.max(700, Math.sqrt(n) * 200);
 
   const nodes: SimNode[] = entities.map(e => ({
     id: e.id, type: e.type,
-    x: width / 2 + (Math.random() - 0.5) * 400,
-    y: height / 2 + (Math.random() - 0.5) * 400,
+    x: width / 2 + (Math.random() - 0.5) * width * 0.6,
+    y: height / 2 + (Math.random() - 0.5) * height * 0.6,
     vx: 0, vy: 0,
   }));
   const nodeMap = new Map(nodes.map(n => [n.id, n]));
@@ -112,11 +122,11 @@ function forceDirectedLayout(
     };
   });
 
-  const repulsion = 12000;
-  const attraction = 0.006;
-  const centerGravity = 0.01;
-  const typeGravity = 0.004;
-  const damping = 0.82;
+  const repulsion = 20000;
+  const attraction = 0.004;
+  const centerGravity = 0.008;
+  const typeGravity = 0.003;
+  const damping = 0.85;
 
   for (let iter = 0; iter < iterations; iter++) {
     const temp = 1 - iter / iterations; // cooling
@@ -127,7 +137,11 @@ function forceDirectedLayout(
         const a = nodes[i], b = nodes[j];
         const dx = a.x - b.x, dy = a.y - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = repulsion / (dist * dist) * temp;
+        const minDist = NODE_W + MIN_GAP;
+        // Stronger repulsion when close
+        const force = dist < minDist
+          ? repulsion * 2 / (dist * dist) * temp
+          : repulsion / (dist * dist) * temp;
         const fx = (dx / dist) * force, fy = (dy / dist) * force;
         a.vx += fx; a.vy += fy;
         b.vx -= fx; b.vy -= fy;
@@ -138,7 +152,8 @@ function forceDirectedLayout(
     for (const { source, target } of edges) {
       const dx = target.x - source.x, dy = target.y - source.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      const force = dist * attraction * temp;
+      const idealDist = NODE_W * 2 + MIN_GAP;
+      const force = (dist - idealDist) * attraction * temp;
       const fx = (dx / dist) * force, fy = (dy / dist) * force;
       source.vx += fx; source.vy += fy;
       target.vx -= fx; target.vy -= fy;
@@ -167,16 +182,14 @@ function forceDirectedLayout(
 
     // Collision resolution — push overlapping nodes apart
     // Run multiple passes for thorough resolution
-    for (let pass = 0; pass < 3; pass++) {
+    for (let pass = 0; pass < 5; pass++) {
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const a = nodes[i], b = nodes[j];
-          // Check AABB overlap with gap
           const overlapX = (NODE_W + MIN_GAP) - Math.abs(a.x - b.x);
           const overlapY = (NODE_H + MIN_GAP) - Math.abs(a.y - b.y);
           if (overlapX > 0 && overlapY > 0) {
-            // Resolve along the axis of least overlap
-            const strength = 0.6 * temp + 0.4; // always at least 0.4 strength
+            const strength = 0.5 * temp + 0.5;
             if (overlapX < overlapY) {
               const sign = a.x < b.x ? -1 : 1;
               a.x += sign * overlapX * strength / 2;
@@ -288,6 +301,17 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
     }));
   }, [filteredEntities, positions, activeNodeId, activeNeighborIds, selectedNodeId, neighborCounts, groups]);
 
+  // Pick the best handle based on relative node positions
+  const getHandle = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }, prefix: string) => {
+    const dx = targetPos.x - sourcePos.x;
+    const dy = targetPos.y - sourcePos.y;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return dx > 0 ? `${prefix}right` : `${prefix}left`;
+    } else {
+      return dy > 0 ? `${prefix}bottom` : `${prefix}top`;
+    }
+  };
+
   // Obsidian-style edges: labels hidden by default, shown on hover
   const initialEdges: Edge[] = useMemo(() => {
     const hasActive = !!activeNodeId;
@@ -296,11 +320,15 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
       const isDimmed = hasActive && !isActive;
       const sourceType = filteredEntities.find(e => e.id === r.sourceId)?.type;
       const edgeColor = sourceType ? resolveGroup(sourceType, groups).color : "#78716C";
+      const srcPos = positions[r.sourceId];
+      const tgtPos = positions[r.targetId];
 
       return {
         id: r.id,
         source: r.sourceId,
         target: r.targetId,
+        sourceHandle: srcPos && tgtPos ? getHandle(srcPos, tgtPos, "") : undefined,
+        targetHandle: srcPos && tgtPos ? getHandle(tgtPos, srcPos, "t-") : undefined,
         label: isActive ? r.label : undefined,
         animated: isActive,
         style: {
@@ -318,7 +346,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.95, color: edgeColor },
         labelBgPadding: [5, 3] as [number, number],
         labelBgBorderRadius: 4,
-        type: "default",
+        type: "smoothstep",
       };
     });
 
@@ -330,10 +358,14 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         const isDimmed = hasActive && !isActive;
         const parentType = filteredEntities.find(p => p.id === e.parentId)?.type;
         const edgeColor = parentType ? resolveGroup(parentType, groups).color : "#78716C";
+        const srcPos = positions[e.parentId!];
+        const tgtPos = positions[e.id];
         return {
           id: `contain-${e.id}`,
           source: e.parentId!,
           target: e.id,
+          sourceHandle: srcPos && tgtPos ? getHandle(srcPos, tgtPos, "") : undefined,
+          targetHandle: srcPos && tgtPos ? getHandle(tgtPos, srcPos, "t-") : undefined,
           label: isActive ? "∈" : undefined,
           style: {
             stroke: isActive ? edgeColor : "#A8A29E",
@@ -346,12 +378,12 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
           labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.9 },
           labelBgPadding: [3, 2] as [number, number],
           labelBgBorderRadius: 3,
-          type: "default",
+          type: "smoothstep",
         };
       });
 
     return [...relEdges, ...containmentEdges];
-  }, [filteredRelations, activeEdgeIds, activeNodeId, filteredEntities, filteredEntityIds, groups]);
+  }, [filteredRelations, activeEdgeIds, activeNodeId, filteredEntities, filteredEntityIds, groups, positions]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
