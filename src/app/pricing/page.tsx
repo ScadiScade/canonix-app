@@ -70,8 +70,8 @@ const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: nu
 
 const CREDIT_PACKS = [
   { id: "pack-50", credits: 50, price: 149, labelKey: "pricing.pack50" },
-  { id: "pack-200", credits: 200, price: 499, labelKey: "pricing.pack200", popular: true },
-  { id: "pack-500", credits: 500, price: 999, labelKey: "pricing.pack500" },
+  { id: "pack-200", credits: 200, price: 490, labelKey: "pricing.pack200", popular: true },
+  { id: "pack-500", credits: 500, price: 990, labelKey: "pricing.pack500" },
 ];
 
 // Upgrade pricing constants
@@ -312,13 +312,20 @@ export default function PricingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {CREDIT_PACKS.map(pack => (
+            {CREDIT_PACKS.map(pack => {
+              const basePerCredit = CREDIT_PACKS[0].price / CREDIT_PACKS[0].credits;
+              const thisPerCredit = pack.price / pack.credits;
+              const savings = Math.round((1 - thisPerCredit / basePerCredit) * 100);
+              return (
               <div
                 key={pack.id}
                 className={`bg-surface rounded-xl border p-5 flex flex-col items-center ${
                   pack.popular ? "border-accent/30" : "border-ink-3/10"
                 }`}
               >
+                {savings > 0 && (
+                  <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 mb-1.5">−{savings}%</span>
+                )}
                 {pack.popular && (
                   <span className="text-[14px] tracking-[0.2em] uppercase text-accent mb-2">{t("pricing.bestValue")}</span>
                 )}
@@ -327,7 +334,8 @@ export default function PricingPage() {
                   <span className="text-[22px] font-light text-ink">{pack.credits}</span>
                   <span className="text-[17px] text-ink-3">{t("pricing.creditsShort")}</span>
                 </div>
-                <span className="text-[20px] font-light text-ink mb-4">{pack.price} ₽</span>
+                <span className="text-[20px] font-light text-ink mb-1">{pack.price} ₽</span>
+                <span className="text-[13px] text-ink-3 mb-3">{(pack.price / pack.credits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
                 <button
                   onClick={() => handleBuyCredits(pack.id)}
                   disabled={loadingPack === pack.id}
@@ -343,7 +351,8 @@ export default function PricingPage() {
                   )}
                 </button>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
 

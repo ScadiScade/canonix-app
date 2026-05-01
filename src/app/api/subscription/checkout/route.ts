@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   if (!stripeKey) {
     // Dev mode: directly update the plan without Stripe
-    const creditBonuses: Record<string, number> = { pro: 200, corporate: 1000 };
+    const creditBonuses: Record<string, number> = { pro: 200, corporate: 800 };
 
     let sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
     if (!sub) {
