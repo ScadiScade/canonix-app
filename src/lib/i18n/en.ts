@@ -360,6 +360,8 @@ const en: Translations = {
   "pricing.popular": "Popular",
   "pricing.current": "Current",
   "pricing.currentPlan": "Current plan",
+  "pricing.lowerPlan": "Below current",
+  "pricing.upgrade": "Upgrade",
   "pricing.startFree": "Start for free",
   "pricing.subscribe": "Subscribe",
   "pricing.yourBalance": "Your balance",

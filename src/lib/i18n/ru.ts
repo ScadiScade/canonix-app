@@ -358,6 +358,8 @@ const ru = {
   "pricing.popular": "Популярный",
   "pricing.current": "Текущий",
   "pricing.currentPlan": "Текущий план",
+  "pricing.lowerPlan": "Ниже текущего",
+  "pricing.upgrade": "Улучшить",
   "pricing.startFree": "Начать бесплатно",
   "pricing.subscribe": "Подписаться",
   "pricing.yourBalance": "Ваш баланс",

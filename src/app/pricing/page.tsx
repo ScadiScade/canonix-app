@@ -195,75 +195,105 @@ export default function PricingPage() {
 
         {/* Plans */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 mb-16">
-          {PLANS.map(p => (
-            <div
-              key={p.id}
-              className={`relative bg-surface rounded-xl border p-6 flex flex-col transition-all hover:shadow-md ${
-                p.popular ? "border-accent/40 shadow-lg shadow-accent/5" : "border-ink-3/10"
-              } ${plan === p.id ? "ring-2 ring-accent/30" : ""}`}
-            >
-              {p.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-[15px] tracking-[0.15em] uppercase px-3 py-1 rounded-full">
-                  {t("pricing.popular")}
-                </div>
-              )}
-              {plan === p.id && (
-                <div className="absolute -top-3 right-4 bg-accent-light text-accent text-[15px] tracking-[0.15em] uppercase px-3 py-1 rounded-full">
-                  {t("pricing.current")}
-                </div>
-              )}
+          {PLANS.map(p => {
+            // Tier ordering: free < pro < corporate
+            const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
+            const currentTier = tierOrder[plan] ?? 0;
+            const planTier = tierOrder[p.id] ?? 0;
+            const isBelow = planTier < currentTier;
+            const isCurrent = plan === p.id;
 
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${p.color}15`, color: p.color }}>
-                  {p.icon}
-                </div>
-                <div>
-                  <h3 className="font-serif text-[20px] font-light text-ink">{t(p.nameKey)}</h3>
-                </div>
-              </div>
+            // Upgrade pricing: if user has pro, corporate shows (corporate - pro + 1₽)
+            const proPrice = PLANS.find(x => x.id === "pro")?.price ?? 0;
+            const displayPrice = (plan === "pro" && p.id === "corporate")
+              ? p.price - proPrice + 1
+              : p.price;
+            const isUpgrade = plan === "pro" && p.id === "corporate";
 
-              <div className="mb-5">
-                <span className="text-[32px] font-light text-ink">{p.price === 0 ? "0 ₽" : `${p.price} ₽`}</span>
-                <span className="text-[18px] text-ink-3 ml-1">{t(p.periodKey)}</span>
-              </div>
-
-              <ul className="space-y-2.5 mb-6 flex-1">
-                {p.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    {f.included ? (
-                      <Check size={14} className="text-accent flex-shrink-0 mt-0.5" />
-                    ) : (
-                      <X size={14} className="text-ink-3/40 flex-shrink-0 mt-0.5" />
-                    )}
-                    <span className={`text-[18px] ${f.included ? "text-ink" : "text-ink-3"}`}>{t(f.textKey)}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => handleSubscribe(p.id)}
-                disabled={loadingPlan === p.id || plan === p.id}
-                className={`w-full py-2.5 rounded-lg text-[18px] tracking-[0.1em] uppercase flex items-center justify-center gap-2 transition-colors ${
-                  plan === p.id
-                    ? "bg-ink-3/5 text-ink-3 cursor-default"
-                    : p.popular
-                    ? "bg-accent text-white hover:bg-accent/90"
-                    : "bg-background border border-ink-3/20 text-ink hover:border-accent/40"
-                } disabled:opacity-50`}
+            return (
+              <div
+                key={p.id}
+                className={`relative bg-surface rounded-xl border p-6 flex flex-col transition-all ${
+                  isBelow ? "opacity-40 border-ink-3/5" : p.popular ? "border-accent/40 shadow-lg shadow-accent/5 hover:shadow-md" : "border-ink-3/10 hover:shadow-md"
+                } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}
               >
-                {loadingPlan === p.id ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : plan === p.id ? (
-                  t("pricing.currentPlan")
-                ) : (
-                  <>
-                    {p.price === 0 ? t("pricing.startFree") : t("pricing.subscribe")}
-                    <ArrowRight size={12} />
-                  </>
+                {p.popular && !isBelow && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-[15px] tracking-[0.15em] uppercase px-3 py-1 rounded-full">
+                    {t("pricing.popular")}
+                  </div>
                 )}
-              </button>
-            </div>
-          ))}
+                {isCurrent && (
+                  <div className="absolute -top-3 right-4 bg-accent-light text-accent text-[15px] tracking-[0.15em] uppercase px-3 py-1 rounded-full">
+                    {t("pricing.current")}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${p.color}15`, color: p.color }}>
+                    {p.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-[20px] font-light text-ink">{t(p.nameKey)}</h3>
+                  </div>
+                </div>
+
+                <div className="mb-5">
+                  {isUpgrade && p.price > 0 ? (
+                    <>
+                      <span className="text-[32px] font-light text-ink">{displayPrice} ₽</span>
+                      <span className="text-[18px] text-ink-3 ml-1">{t(p.periodKey)}</span>
+                      <div className="text-[13px] text-ink-3 mt-0.5 line-through">{p.price} ₽</div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-[32px] font-light text-ink">{displayPrice === 0 ? "0 ₽" : `${displayPrice} ₽`}</span>
+                      <span className="text-[18px] text-ink-3 ml-1">{t(p.periodKey)}</span>
+                    </>
+                  )}
+                </div>
+
+                <ul className="space-y-2.5 mb-6 flex-1">
+                  {p.features.map((f, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      {f.included ? (
+                        <Check size={14} className="text-accent flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <X size={14} className="text-ink-3/40 flex-shrink-0 mt-0.5" />
+                      )}
+                      <span className={`text-[18px] ${f.included ? "text-ink" : "text-ink-3"}`}>{t(f.textKey)}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => handleSubscribe(p.id)}
+                  disabled={loadingPlan === p.id || isCurrent || isBelow}
+                  className={`w-full py-2.5 rounded-lg text-[18px] tracking-[0.1em] uppercase flex items-center justify-center gap-2 transition-colors ${
+                    isBelow
+                      ? "bg-ink-3/5 text-ink-3/50 cursor-not-allowed"
+                      : isCurrent
+                      ? "bg-ink-3/5 text-ink-3 cursor-default"
+                      : p.popular
+                      ? "bg-accent text-white hover:bg-accent/90"
+                      : "bg-background border border-ink-3/20 text-ink hover:border-accent/40"
+                  } disabled:opacity-50`}
+                >
+                  {loadingPlan === p.id ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : isBelow ? (
+                    t("pricing.lowerPlan")
+                  ) : isCurrent ? (
+                    t("pricing.currentPlan")
+                  ) : (
+                    <>
+                      {isUpgrade ? t("pricing.upgrade") : p.price === 0 ? t("pricing.startFree") : t("pricing.subscribe")}
+                      <ArrowRight size={12} />
+                    </>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {/* Credit packs */}
