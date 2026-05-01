@@ -406,6 +406,8 @@ const ru = {
   "pricing.topupSuccess": "Кошелёк пополнен на {amount} ₽",
   "pricing.insufficientBalance": "Недостаточно средств на кошельке",
   "pricing.payFromWallet": "Оплата с кошелька",
+  "pricing.topupPrompt": "Для покупки {label} нужно ещё {deficit} ₽",
+  "pricing.topupAndBuy": "Пополнить и купить",
   "pricing.pack50": "50 кредитов",
   "pricing.pack200": "200 кредитов",
   "pricing.pack500": "500 кредитов",

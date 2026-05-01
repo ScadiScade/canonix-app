@@ -87,6 +87,7 @@ export default function PricingPage() {
   const [topupAmount, setTopupAmount] = useState<number>(500);
   const [loadingTopup, setLoadingTopup] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [topupPrompt, setTopupPrompt] = useState<{ deficitRub: number; label: string; retryAction?: () => void } | null>(null);
 
   // Auto-dismiss success
   useEffect(() => {
@@ -136,7 +137,8 @@ export default function PricingPage() {
         const data = await res.json().catch(() => ({}));
         if (data.error === "Insufficient wallet balance") {
           const deficit = Math.ceil((data.deficit || 0) / 100);
-          setSuccessMsg(t("pricing.insufficientBalance") + ` (−${deficit} ₽)`);
+          setTopupPrompt({ deficitRub: deficit, label: planId === "pro" ? "Pro" : t("pricing.corporate"), retryAction: () => handleSubscribe(planId) });
+          setTopupAmount(deficit);
         } else {
           console.error("Checkout failed:", res.status, data);
         }
@@ -170,7 +172,9 @@ export default function PricingPage() {
       const data = await res.json();
       if (res.status === 402 && data.error === "Insufficient wallet balance") {
         const deficit = Math.ceil((data.deficit || 0) / 100);
-        setSuccessMsg(t("pricing.insufficientBalance") + ` (−${deficit} ₽)`);
+        const pack = CREDIT_PACKS.find(p => p.id === packId);
+        setTopupPrompt({ deficitRub: deficit, label: `${pack?.credits || ""} ${t("common.credits")}`, retryAction: () => handleBuyCredits(packId) });
+        setTopupAmount(deficit);
         return;
       }
       if (data.url) {
@@ -187,7 +191,7 @@ export default function PricingPage() {
     }
   };
 
-  const handleTopup = async () => {
+  const handleTopup = async (andRetry?: () => void) => {
     if (!session) { window.location.href = "/login"; return; }
     setLoadingTopup(true);
     try {
@@ -197,8 +201,13 @@ export default function PricingPage() {
         body: JSON.stringify({ amount: topupAmount }),
       });
       if (res.ok) {
-        refreshBalance();
+        await refreshBalance();
+        setTopupPrompt(null);
         setSuccessMsg(t("pricing.topupSuccess", { amount: topupAmount }));
+        if (andRetry) {
+          // Small delay to let state settle after refreshBalance
+          setTimeout(andRetry, 300);
+        }
       } else {
         const data = await res.json().catch(() => ({}));
         console.error("Topup failed:", data.error);
@@ -254,21 +263,53 @@ export default function PricingPage() {
                 <span className="text-[16px] text-ink-2">{t("pricing.walletBalance")}</span>
                 <span className="text-[22px] font-light text-ink">{walletRub} ₽</span>
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Top-up prompt */}
+              {topupPrompt && (
+                <div className="mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-lg px-3 py-2.5">
+                  <p className="text-[15px] text-amber-700 dark:text-amber-300 mb-2">
+                    {t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}
+                  </p>
+                  <button
+                    onClick={() => handleTopup(topupPrompt.retryAction)}
+                    disabled={loadingTopup}
+                    className="w-full bg-accent text-white rounded-lg px-4 py-2 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : t("pricing.topupAndBuy")}
+                    <span>{topupPrompt.deficitRub} ₽</span>
+                  </button>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 flex-wrap">
                 {[300, 500, 1000, 3000].map(v => (
                   <button
                     key={v}
-                    onClick={() => setTopupAmount(v)}
+                    onClick={() => { setTopupAmount(v); setTopupPrompt(null); }}
                     className={`px-3 py-1.5 rounded-lg text-[14px] transition-colors ${
-                      topupAmount === v ? "bg-accent text-white" : "bg-ink-3/5 text-ink hover:bg-ink-3/10"
+                      topupAmount === v && !topupPrompt ? "bg-accent text-white" : "bg-ink-3/5 text-ink hover:bg-ink-3/10"
                     }`}
                   >
                     {v} ₽
                   </button>
                 ))}
+                <input
+                  type="number"
+                  min={100}
+                  max={50000}
+                  step={100}
+                  value={topupAmount > 3000 ? topupAmount : ""}
+                  onChange={e => {
+                    const v = parseInt(e.target.value);
+                    if (v >= 100 && v <= 50000) setTopupAmount(v);
+                  }}
+                  onFocus={() => { if (topupAmount <= 3000) setTopupAmount(0); setTopupPrompt(null); }}
+                  placeholder="₽"
+                  className="w-20 px-2 py-1.5 rounded-lg text-[14px] bg-ink-3/5 border border-ink-3/10 text-ink focus:outline-none focus:border-accent transition-colors"
+                />
                 <button
-                  onClick={handleTopup}
-                  disabled={loadingTopup}
+                  onClick={() => handleTopup(topupPrompt?.retryAction)}
+                  disabled={loadingTopup || topupAmount < 100}
                   className="ml-auto px-4 py-1.5 bg-accent text-white rounded-lg text-[14px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {loadingTopup ? <Loader2 size={12} className="animate-spin" /> : t("pricing.topup")}

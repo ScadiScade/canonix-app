@@ -408,6 +408,8 @@ const en: Translations = {
   "pricing.topupSuccess": "Wallet topped up by {amount} ₽",
   "pricing.insufficientBalance": "Insufficient wallet balance",
   "pricing.payFromWallet": "Pay from wallet",
+  "pricing.topupPrompt": "You need {deficit} ₽ more to buy {label}",
+  "pricing.topupAndBuy": "Top up & buy",
   "pricing.pack50": "50 credits",
   "pricing.pack200": "200 credits",
   "pricing.pack500": "500 credits",

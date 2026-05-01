@@ -585,6 +585,61 @@ function LoginPageInner() {
             )}
           </div>
 
+          {/* Dev quick-login (only in development) */}
+          {process.env.NODE_ENV !== "production" && (
+            <>
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-ink-3/15" />
+                <span className="text-[13px] tracking-[0.2em] uppercase text-ink-3/50">dev</span>
+                <div className="flex-1 h-px bg-ink-3/15" />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    const devRes = await fetch("/api/auth/dev-login", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", role: "dev" }),
+                    });
+                    if (devRes.ok) {
+                      const devData = await devRes.json();
+                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/dashboard" });
+                      if (result?.ok) window.location.href = "/dashboard";
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg px-3 py-2 text-[14px] text-purple-600 hover:bg-purple-500/20 transition-colors disabled:opacity-50"
+                >
+                  👑 Dev (Corporate)
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    const devRes = await fetch("/api/auth/dev-login", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", role: "tester" }),
+                    });
+                    if (devRes.ok) {
+                      const devData = await devRes.json();
+                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/pricing" });
+                      if (result?.ok) window.location.href = "/pricing";
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-[14px] text-amber-600 hover:bg-amber-500/20 transition-colors disabled:opacity-50"
+                >
+                  🧪 Tester (Free)
+                </button>
+              </div>
+            </>
+          )}
+
           {/* Footer */}
           <p className="text-center text-[16px] text-ink-3 mt-6">
             {mode === "login" ? (
