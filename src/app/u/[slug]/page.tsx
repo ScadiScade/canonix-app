@@ -292,24 +292,35 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
     <div className="min-h-screen bg-background">
       <Topbar universeName={universe.name} universeSlug={universe.slug} />
 
-      <main id="main-content" className="flex flex-col md:flex-row h-screen">
+      <main id="main-content" className="flex flex-col md:flex-row h-screen pt-topbar">
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Universe header */}
-          <div className="px-4 md:px-7 pt-4 md:pt-6 pb-3 md:pb-4">
-            <h1 className="font-serif text-[30px] font-light text-ink leading-tight">
-              {universe.name}
-            </h1>
-            {universe.description && (
-              <p className="text-ink-2 text-[13px] mt-1">{universe.description}</p>
-            )}
+          <div className="px-3 sm:px-4 md:px-7 pt-3 sm:pt-4 md:pt-6 pb-2 sm:pb-3 md:pb-4">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h1 className="font-serif text-[22px] sm:text-[30px] font-light text-ink leading-tight truncate">
+                  {universe.name}
+                </h1>
+                {universe.description && (
+                  <p className="text-ink-2 text-[12px] sm:text-[13px] mt-0.5 line-clamp-1 sm:line-clamp-none">{universe.description}</p>
+                )}
+              </div>
+              {/* Mobile: add button in header */}
+              <button
+                onClick={() => setShowForm(groups[0]?.slug || "character")}
+                className="sm:hidden flex items-center gap-1 bg-accent text-white rounded-xl px-2.5 py-1.5 text-[11px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0"
+              >
+                <Plus size={12} />
+              </button>
+            </div>
 
             {/* Toolbar */}
-            <div className="mt-3 md:mt-4 space-y-2">
-              {/* Row 1: View switcher + actions */}
-              <div className="flex items-center gap-2 md:gap-3">
+            <div className="mt-2 sm:mt-3 md:mt-4 space-y-2">
+              {/* Row 1: View switcher + search + actions */}
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
                 {/* View switcher */}
-                <div className="flex bg-surface rounded-xl border border-ink-3/15 p-0.5">
+                <div className="flex bg-surface rounded-xl border border-ink-3/15 p-0.5 shrink-0">
                   {([
                     ["grid", LayoutGrid, "Bento"],
                     ["graph", GitBranch, t("universe.graph")],
@@ -318,7 +329,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                     <button
                       key={mode}
                       onClick={() => setView(mode as ViewMode)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] tracking-[0.1em] uppercase transition-colors ${
+                      className={`flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-xl text-[12px] tracking-[0.1em] uppercase transition-colors ${
                         view === mode ? "bg-accent text-white" : "text-ink-2 hover:text-ink"
                       }`}
                     >
@@ -329,7 +340,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                 </div>
 
                 {/* Search */}
-                <div className="relative flex-1 md:flex-none md:w-44">
+                <div className="relative flex-1 min-w-0 sm:flex-none sm:w-44">
                   <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3" />
                   <input
                     value={search}
@@ -343,8 +354,8 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                   />
                 </div>
 
-                {/* Universe actions */}
-                <div className="ml-auto flex items-center gap-1.5">
+                {/* Universe actions — hidden on mobile (add btn in header, settings in topbar menu) */}
+                <div className="hidden sm:flex ml-auto items-center gap-1.5">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`${window.location.origin}/s/${universe.slug}`);
@@ -367,16 +378,16 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                     className="flex items-center gap-1.5 bg-accent text-white rounded-xl px-3 py-2 text-[12px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors"
                   >
                     <Plus size={12} />
-                    <span className="hidden sm:inline">{t("universe.entity")}</span>
+                    {t("universe.entity")}
                   </button>
                 </div>
               </div>
 
-              {/* Row 2: Type filters */}
-              <div className="flex gap-1 flex-wrap">
+              {/* Row 2: Type filters — horizontal scroll on mobile */}
+              <div className="flex gap-1 overflow-x-auto no-scrollbar -mx-3 px-3 sm:mx-0 sm:px-0 sm:flex-wrap">
                 <button
                   onClick={() => setFilter("all")}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors ${
+                  className={`px-2.5 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors whitespace-nowrap ${
                     filter === "all" ? "bg-ink text-surface" : "bg-surface text-ink-2 hover:text-ink border border-ink-3/15"
                   }`}
                 >
@@ -386,7 +397,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                   <button
                     key={g.slug}
                     onClick={() => setFilter(g.slug)}
-                    className={`px-2.5 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors flex items-center gap-1 ${
+                    className={`px-2.5 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase transition-colors flex items-center gap-1 whitespace-nowrap ${
                       filter === g.slug ? "text-white" : "text-ink-2 hover:text-ink border border-ink-3/15"
                     }`}
                     style={filter === g.slug ? { backgroundColor: g.color } : undefined}
@@ -397,7 +408,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                 ))}
                 <button
                   onClick={() => setShowGroupForm(true)}
-                  className="px-2 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase text-ink-3 hover:text-ink border border-dashed border-ink-3/20 hover:border-ink-3/40 transition-colors"
+                  className="px-2 py-1 rounded-xl text-[11px] tracking-[0.2em] uppercase text-ink-3 hover:text-ink border border-dashed border-ink-3/20 hover:border-ink-3/40 transition-colors whitespace-nowrap"
                   title={t("universe.manageGroups")}
                 >
                   + {t("universe.group")}
@@ -407,9 +418,9 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-auto px-4 md:px-7 pb-4 md:pb-7">
+          <div className="flex-1 overflow-auto px-3 sm:px-4 md:px-7 pb-3 sm:pb-4 md:pb-7">
             {view === "grid" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[10px]">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-[10px]">
                 {filtered.map(e => (
                   <EntityCard
                     key={e.id}
@@ -458,7 +469,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
             )}
 
             {view === "timeline" && (
-              <div className="max-w-xl">
+              <div className="max-w-none sm:max-w-xl">
                 <div className="flex items-center justify-end mb-2">
                   <button
                     onClick={() => setShowScaleForm(true)}
@@ -527,7 +538,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
       {/* Add Entity Type Selector — show when creating new entity */}
       {showForm && !editEntity && (
-        <div className="fixed bottom-6 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto z-40 flex gap-1.5 bg-surface rounded-xl border border-ink-3/15 p-1 shadow-lg overflow-x-auto">
+        <div className="fixed bottom-4 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:bottom-6 z-40 flex gap-1.5 bg-surface rounded-xl border border-ink-3/15 p-1 shadow-lg overflow-x-auto no-scrollbar">
           {groups.map(g => (
             <button
               key={g.slug}

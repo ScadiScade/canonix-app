@@ -52,27 +52,27 @@ export function EntityCard({ entity, groups = [], onClick, onAddRelation, onDele
         className="bg-surface rounded-lg cursor-pointer hover:shadow-md transition-shadow border border-transparent hover:border-ink-3/20 overflow-hidden"
       >
         {entity.imageUrl ? (
-          <div className="h-24 overflow-hidden relative">
+          <div className="h-20 sm:h-24 overflow-hidden relative">
             <Image src={entity.imageUrl} alt={entity.name} fill className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-[10px_14px]">
-              <div className="flex items-center gap-2">
-                <h3 className="font-serif text-[22px] font-light leading-tight text-white drop-shadow">{entity.name}</h3>
+            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-[10px_14px]">
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-serif text-[16px] sm:text-[22px] font-light leading-tight text-white drop-shadow truncate">{entity.name}</h3>
                 <TypePill type={entity.type} groups={groups} />
               </div>
             </div>
           </div>
         ) : (
-          <div className="p-[18px_20px]">
-            <div className="flex items-start justify-between mb-1">
-              <h3 className="font-serif text-[24px] font-light leading-tight">{entity.name}</h3>
+          <div className="p-3 sm:p-[18px_20px]">
+            <div className="flex items-start justify-between gap-1 mb-0.5 sm:mb-1">
+              <h3 className="font-serif text-[18px] sm:text-[24px] font-light leading-tight truncate">{entity.name}</h3>
               <TypePill type={entity.type} groups={groups} />
             </div>
             {entity.date && (
-              <p className="text-[15px] tracking-[0.2em] uppercase text-ink-3 mb-1">{entity.date}</p>
+              <p className="text-[12px] sm:text-[15px] tracking-[0.2em] uppercase text-ink-3 mb-0.5 sm:mb-1">{entity.date}</p>
             )}
             {entity.description && (
-              <p className="text-ink-2 text-[17px] line-clamp-2">{entity.description}</p>
+              <p className="text-ink-2 text-[14px] sm:text-[17px] line-clamp-2">{entity.description}</p>
             )}
           </div>
         )}

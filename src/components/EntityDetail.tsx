@@ -135,13 +135,13 @@ export function EntityDetail({ entity, groups = [], onAddRelation, onEdit, onDel
       </div>
 
       {/* Title area */}
-      <div className="px-5 pt-3 relative">
+      <div className="px-4 sm:px-5 pt-3 relative">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <TypePill type={entity.type} groups={groups} />
-            <h2 className="font-serif text-[28px] font-light leading-tight mt-1.5 text-ink">{displayName}</h2>
+            <h2 className="font-serif text-[24px] sm:text-[28px] font-light leading-tight mt-1.5 text-ink truncate">{displayName}</h2>
             {entity.date && (
-              <p className="text-[15px] tracking-[0.2em] uppercase text-ink-3 mt-1">{entity.date}</p>
+              <p className="text-[13px] sm:text-[15px] tracking-[0.2em] uppercase text-ink-3 mt-1">{entity.date}</p>
             )}
           </div>
           <div className="flex gap-0.5 ml-2 flex-shrink-0">
@@ -168,10 +168,10 @@ export function EntityDetail({ entity, groups = [], onAddRelation, onEdit, onDel
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-5 pb-5">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-5 pb-5">
         {/* Description */}
         {displayDescription && (
-          <p className="text-ink-2 text-[18px] leading-relaxed mt-3">{displayDescription}</p>
+          <p className="text-ink-2 text-[16px] sm:text-[18px] leading-relaxed mt-3">{displayDescription}</p>
         )}
 
         {/* Custom fields — key-value pairs */}
@@ -185,8 +185,8 @@ export function EntityDetail({ entity, groups = [], onAddRelation, onEdit, onDel
                 if (!val) return null;
                 return (
                   <div key={field} className="flex items-baseline gap-2">
-                    <span className="text-[16px] text-ink-3 w-24 flex-shrink-0">{field}</span>
-                    <span className="text-[18px] text-ink">{val}</span>
+                    <span className="text-[14px] sm:text-[16px] text-ink-3 w-20 sm:w-24 flex-shrink-0">{field}</span>
+                    <span className="text-[16px] sm:text-[18px] text-ink">{val}</span>
                   </div>
                 );
               })}
