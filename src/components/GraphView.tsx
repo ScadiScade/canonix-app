@@ -10,12 +10,15 @@ import {
   Node,
   Edge,
   NodeProps,
+  EdgeProps,
   Handle,
   Position,
   useNodesState,
   useEdgesState,
   useReactFlow,
   ReactFlowProvider,
+  getSmoothStepPath,
+  NodeChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { EntityGroupData, resolveGroup } from "@/lib/types";
@@ -79,6 +82,36 @@ function CustomNode({ data }: NodeProps<Node<GraphNodeData>>) {
 }
 
 const nodeTypes = { custom: CustomNode };
+
+// ─── Dual-color edge ─────────────────────────────────────────────
+function DualColorEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, style, markerEnd }: EdgeProps) {
+  const [edgePath] = getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition });
+  const sourceColor = (data as { sourceColor?: string })?.sourceColor || "#A8A29E";
+  const targetColor = (data as { targetColor?: string })?.targetColor || "#A8A29E";
+  const sameColor = sourceColor === targetColor;
+  const strokeWidth = style?.strokeWidth ?? 1.5;
+  const opacity = style?.opacity ?? 1;
+  const strokeDasharray = (style as { strokeDasharray?: string })?.strokeDasharray;
+
+  if (sameColor) {
+    return <path id={id} d={edgePath} stroke={sourceColor} strokeWidth={strokeWidth} opacity={opacity} strokeDasharray={strokeDasharray} fill="none" markerEnd={markerEnd} />;
+  }
+
+  const gradId = `grad-${id}`;
+  return (
+    <>
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1={sourceX} y1={sourceY} x2={targetX} y2={targetY}>
+          <stop offset="50%" stopColor={sourceColor} />
+          <stop offset="50%" stopColor={targetColor} />
+        </linearGradient>
+      </defs>
+      <path id={id} d={edgePath} stroke={`url(#${gradId})`} strokeWidth={strokeWidth} opacity={opacity} strokeDasharray={strokeDasharray} fill="none" markerEnd={markerEnd} />
+    </>
+  );
+}
+
+const edgeTypes = { dualColor: DualColorEdge };
 
 // ─── Force-directed layout ──────────────────────────────────────
 interface SimNode { id: string; x: number; y: number; vx: number; vy: number; type: string }
@@ -279,6 +312,9 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
 
   const neighborCounts = useMemo(() => countNeighbors(entities, relations), [entities, relations]);
 
+  // Persisted positions — user drags are preserved across re-renders
+  const [userPositions, setUserPositions] = useState<Record<string, { x: number; y: number }>>({});
+
   // Compute layout — always force-directed, no mode switching
   const positions = useMemo(() => {
     return forceDirectedLayout(filteredEntities, filteredRelations);
@@ -289,7 +325,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
     return filteredEntities.map(e => ({
       id: e.id,
       type: "custom",
-      position: positions[e.id] || { x: 200, y: 200 },
+      position: userPositions[e.id] || positions[e.id] || { x: 200, y: 200 },
       data: {
         label: e.name,
         type: e.type,
@@ -300,7 +336,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         dimmed: hasActive ? !activeNeighborIds.has(e.id) : false,
       },
     }));
-  }, [filteredEntities, positions, activeNodeId, activeNeighborIds, selectedNodeId, neighborCounts, groups]);
+  }, [filteredEntities, positions, userPositions, activeNodeId, activeNeighborIds, selectedNodeId, neighborCounts, groups]);
 
   // Pick the best handle based on relative node positions
   const getHandle = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }, prefix: string) => {
@@ -313,14 +349,16 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
     }
   };
 
-  // Obsidian-style edges: labels hidden by default, shown on hover
+  // Obsidian-style edges: dual-color, labels hidden by default, shown on hover
   const initialEdges: Edge[] = useMemo(() => {
     const hasActive = !!activeNodeId;
     const relEdges = filteredRelations.map(r => {
       const isActive = activeEdgeIds.has(r.id);
       const isDimmed = hasActive && !isActive;
       const sourceType = filteredEntities.find(e => e.id === r.sourceId)?.type;
-      const edgeColor = sourceType ? resolveGroup(sourceType, groups).color : "#78716C";
+      const targetType = filteredEntities.find(e => e.id === r.targetId)?.type;
+      const sourceColor = sourceType ? resolveGroup(sourceType, groups).color : "#78716C";
+      const targetColor = targetType ? resolveGroup(targetType, groups).color : "#78716C";
       const srcPos = positions[r.sourceId];
       const tgtPos = positions[r.targetId];
 
@@ -332,22 +370,25 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         targetHandle: srcPos && tgtPos ? getHandle(tgtPos, srcPos, "t-") : undefined,
         label: isActive ? r.label : undefined,
         animated: isActive,
+        type: "dualColor",
+        data: {
+          sourceColor: isActive ? sourceColor : "#A8A29E",
+          targetColor: isActive ? targetColor : "#A8A29E",
+        },
         style: {
-          stroke: isActive ? edgeColor : "#A8A29E",
           strokeWidth: isActive ? 2.5 : 1,
           opacity: isDimmed ? 0.08 : isActive ? 1 : 0.35,
-          transition: "stroke 0.15s, stroke-width 0.15s, opacity 0.15s",
+          transition: "stroke-width 0.15s, opacity 0.15s",
         },
         labelStyle: {
           fontSize: 10,
           fontWeight: 600,
           fontFamily: "Geist Mono, monospace",
-          fill: edgeColor,
+          fill: sourceColor,
         },
-        labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.95, color: edgeColor },
+        labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.95, color: sourceColor },
         labelBgPadding: [5, 3] as [number, number],
         labelBgBorderRadius: 4,
-        type: "smoothstep",
       };
     });
 
@@ -358,7 +399,9 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         const isActive = activeNodeId === e.id || activeNodeId === e.parentId;
         const isDimmed = hasActive && !isActive;
         const parentType = filteredEntities.find(p => p.id === e.parentId)?.type;
-        const edgeColor = parentType ? resolveGroup(parentType, groups).color : "#78716C";
+        const childType = e.type;
+        const sourceColor = parentType ? resolveGroup(parentType, groups).color : "#78716C";
+        const targetColor = childType ? resolveGroup(childType, groups).color : "#78716C";
         const srcPos = positions[e.parentId!];
         const tgtPos = positions[e.id];
         return {
@@ -368,18 +411,21 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
           sourceHandle: srcPos && tgtPos ? getHandle(srcPos, tgtPos, "") : undefined,
           targetHandle: srcPos && tgtPos ? getHandle(tgtPos, srcPos, "t-") : undefined,
           label: isActive ? "∈" : undefined,
+          type: "dualColor",
+          data: {
+            sourceColor: isActive ? sourceColor : "#A8A29E",
+            targetColor: isActive ? targetColor : "#A8A29E",
+          },
           style: {
-            stroke: isActive ? edgeColor : "#A8A29E",
             strokeWidth: isActive ? 2 : 1,
             strokeDasharray: "4 3",
             opacity: isDimmed ? 0.06 : isActive ? 0.8 : 0.25,
-            transition: "stroke 0.15s, stroke-width 0.15s, opacity 0.15s",
+            transition: "stroke-width 0.15s, opacity 0.15s",
           },
-          labelStyle: { fontSize: 10, fontWeight: 600, fill: edgeColor },
+          labelStyle: { fontSize: 10, fontWeight: 600, fill: sourceColor },
           labelBgStyle: { fill: "#FAF8F4", fillOpacity: 0.9 },
           labelBgPadding: [3, 2] as [number, number],
           labelBgBorderRadius: 3,
-          type: "smoothstep",
         };
       });
 
@@ -389,7 +435,31 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  useEffect(() => { setNodes(initialNodes); }, [initialNodes, setNodes]);
+  // Track user-dragged positions so they persist across re-renders
+  const handleNodesChange = useCallback((changes: NodeChange<Node<GraphNodeData>>[]) => {
+    onNodesChange(changes);
+    // Capture position changes from drag
+    for (const change of changes) {
+      if (change.type === 'position' && 'position' in change && change.position && change.id) {
+        setUserPositions(prev => ({
+          ...prev,
+          [change.id]: { x: change.position!.x, y: change.position!.y },
+        }));
+      }
+    }
+  }, [onNodesChange]);
+
+  // Only apply layout positions for NEW nodes (not yet in userPositions)
+  useEffect(() => {
+    setNodes(prev => prev.map(n => {
+      const up = userPositions[n.id];
+      if (up) return { ...n, position: up };
+      const lp = positions[n.id];
+      if (lp) return { ...n, position: lp };
+      return n;
+    }));
+  }, [positions, userPositions, setNodes]);
+
   useEffect(() => { setEdges(initialEdges); }, [initialEdges, setEdges]);
   useEffect(() => {
     requestAnimationFrame(() => fitView({ padding: 0.3, duration: 300 }));
@@ -506,12 +576,12 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
 
       <ReactFlow
         nodes={nodes} edges={edges}
-        onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
+        onNodesChange={handleNodesChange} onEdgesChange={onEdgesChange}
         onNodeMouseEnter={handleNodeMouseEnter}
         onNodeMouseLeave={handleNodeMouseLeave}
         onNodeClick={handleNodeClick}
         onPaneClick={handlePaneClick}
-        nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }}
+        nodeTypes={nodeTypes} edgeTypes={edgeTypes} fitView fitViewOptions={{ padding: 0.3 }}
         minZoom={0.1} maxZoom={4} proOptions={{ hideAttribution: true }}
         panOnDrag={true}
         zoomOnScroll={true}
