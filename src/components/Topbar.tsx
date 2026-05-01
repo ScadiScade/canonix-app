@@ -17,7 +17,7 @@ import { signOut } from "next-auth/react";
 
 export default function Topbar({ universeName, universeSlug }: { universeName?: string; universeSlug?: string }) {
   const { data: session } = useSession();
-  const { balance } = useCredits();
+  const { balance, walletBalance } = useCredits();
   const { locale, setLocale, t } = useLocale();
   const { theme, resolved, setTheme } = useThemeContext();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -136,17 +136,28 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
               )}
             </div>
 
-            {/* Credit badge — always reserve space on sm+ */}
-            <Link
-              href="/pricing"
-              className={`hidden sm:flex items-center gap-1.5 rounded-full px-3 py-1 no-underline transition-colors ${session && balance !== null ? "bg-accent/8 hover:bg-accent/15 border border-accent/15" : "pointer-events-none opacity-0"}`}
-              tabIndex={session && balance !== null ? 0 : -1}
-              aria-hidden={!session || balance === null}
-            >
-              <Coins size={12} className="text-accent" />
-              <span className="text-[17px] font-medium text-accent">{balance ?? 0}</span>
-              <span className="text-[15px] text-accent/60">{t("common.credits")}</span>
-            </Link>
+            {/* Wallet + Credit badges — always reserve space on sm+ */}
+            <div className={`hidden sm:flex items-center gap-2 ${session && balance !== null ? "" : "pointer-events-none opacity-0"}`}>
+              {session && walletBalance !== null && walletBalance > 0 && (
+                <Link
+                  href="/pricing"
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1 no-underline transition-colors bg-ink-3/5 hover:bg-ink-3/10 border border-ink-3/10"
+                >
+                  <span className="text-[17px] font-medium text-ink-2">{(walletBalance / 100).toLocaleString("ru-RU")}</span>
+                  <span className="text-[15px] text-ink-3">₽</span>
+                </Link>
+              )}
+              <Link
+                href="/pricing"
+                className="flex items-center gap-1.5 rounded-full px-3 py-1 no-underline transition-colors bg-accent/8 hover:bg-accent/15 border border-accent/15"
+                tabIndex={session && balance !== null ? 0 : -1}
+                aria-hidden={!session || balance === null}
+              >
+                <Coins size={12} className="text-accent" />
+                <span className="text-[17px] font-medium text-accent">{balance ?? 0}</span>
+                <span className="text-[15px] text-accent/60">{t("common.credits")}</span>
+              </Link>
+            </div>
 
             {/* User area — always reserve avatar-sized space to prevent shift */}
             <div className="flex items-center gap-2 shrink-0">
@@ -259,6 +270,15 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
                 >
                   <Coins size={16} />
                   {balance} {t("common.credits")}
+                </Link>
+              )}
+              {session && walletBalance !== null && walletBalance > 0 && (
+                <Link
+                  href="/pricing"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[19px] text-ink-2 hover:bg-ink-3/5 transition-all no-underline"
+                >
+                  <span className="font-medium">{(walletBalance / 100).toLocaleString("ru-RU")} ₽</span>
                 </Link>
               )}
 
