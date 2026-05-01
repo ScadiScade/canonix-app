@@ -19,6 +19,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { EntityGroupData, resolveGroup } from "@/lib/types";
+import { X } from "lucide-react";
 
 interface GraphNodeData {
   label: string;
@@ -444,14 +445,14 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
 
   return (
     <div className="w-full h-full bg-surface rounded-lg border border-ink-3/15 overflow-hidden relative">
-      {/* Type filter */}
-      <div className="absolute top-3 left-3 z-20" onClick={e => e.stopPropagation()}>
-        <div className="flex gap-1 bg-background/90 backdrop-blur-sm border border-ink-3/15 rounded-lg p-0.5">
+      {/* Type filter — scrollable on mobile */}
+      <div className="absolute top-2 left-2 right-2 sm:top-3 sm:left-3 sm:right-auto z-20" onClick={e => e.stopPropagation()}>
+        <div className="flex gap-1 bg-background/90 backdrop-blur-sm border border-ink-3/15 rounded-lg p-0.5 overflow-x-auto no-scrollbar">
           {typeFilters.map(f => (
             <button
               key={f.key}
               onClick={() => { setTypeFilter(f.key); setSelectedNodeId(null); setHoveredNodeId(null); }}
-              className={`px-2.5 py-1.5 rounded-md text-[15px] tracking-[0.12em] uppercase transition-colors flex items-center gap-1.5 ${
+              className={`px-2 py-1.5 sm:px-2.5 rounded-md text-[13px] sm:text-[15px] tracking-[0.12em] uppercase transition-colors flex items-center gap-1 whitespace-nowrap ${
                 typeFilter === f.key ? "bg-accent text-white" : "text-ink-2 hover:text-ink"
               }`}
             >
@@ -462,12 +463,17 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         </div>
       </div>
 
-      {/* Selected entity info card (Obsidian-style side panel) */}
+      {/* Selected entity info card — bottom sheet on mobile, side panel on desktop */}
       {selEntity && (
-        <div className="absolute top-3 right-3 z-20 bg-surface/95 backdrop-blur-md border border-ink-3/15 rounded-lg px-4 py-3 max-w-[240px] shadow-lg" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: resolveGroup(selEntity.type, groups).color }} />
-            <span className="text-[15px] tracking-[0.2em] uppercase text-ink-3">{resolveGroup(selEntity.type, groups).name}</span>
+        <div className="absolute bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:top-3 sm:right-3 sm:max-w-[240px] z-20 bg-surface/95 backdrop-blur-md border border-ink-3/15 sm:rounded-lg rounded-t-xl px-4 py-3 shadow-lg max-h-[45vh] sm:max-h-none overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: resolveGroup(selEntity.type, groups).color }} />
+              <span className="text-[15px] tracking-[0.2em] uppercase text-ink-3">{resolveGroup(selEntity.type, groups).name}</span>
+            </div>
+            <button onClick={() => setSelectedNodeId(null)} className="p-1 rounded hover:bg-ink-3/10 text-ink-3 sm:hidden">
+              <X size={16} />
+            </button>
           </div>
           <div className="font-serif text-[22px] font-light text-ink leading-tight mb-1.5">{selEntity.name}</div>
           {selEntity.description && (
@@ -491,9 +497,9 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         </div>
       )}
 
-      {/* Hint */}
-      {!activeNodeId && (
-        <div className="absolute bottom-3 left-3 z-20 bg-surface/90 backdrop-blur-sm border border-ink-3/15 rounded-lg px-3 py-1.5 text-[15px] tracking-[0.12em] uppercase text-ink-3">
+      {/* Hint — hidden on mobile to save space */}
+      {!activeNodeId && !selectedNodeId && (
+        <div className="hidden sm:block absolute bottom-3 left-3 z-20 bg-surface/90 backdrop-blur-sm border border-ink-3/15 rounded-lg px-3 py-1.5 text-[15px] tracking-[0.12em] uppercase text-ink-3">
           {t("graphView.hint")}
         </div>
       )}
@@ -506,10 +512,29 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         onNodeClick={handleNodeClick}
         onPaneClick={handlePaneClick}
         nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.15} maxZoom={3} proOptions={{ hideAttribution: true }}
+        minZoom={0.1} maxZoom={4} proOptions={{ hideAttribution: true }}
+        panOnDrag={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        zoomOnDoubleClick={true}
+        selectionOnDrag={false}
+        panOnScroll={false}
+        preventScrolling={true}
       >
         <Background color="#A8A29E30" gap={20} size={1} />
-        <Controls showInteractive={false} className="!bg-surface !border-ink-3/20 !rounded-lg" />
+        <Controls
+          showInteractive={false}
+          className="!bg-surface !border-ink-3/20 !rounded-lg hidden sm:flex"
+        />
+        {/* Mobile zoom buttons */}
+        <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1.5 sm:hidden">
+          <button
+            onClick={() => fitView({ padding: 0.3, duration: 300 })}
+            className="w-10 h-10 bg-surface/90 backdrop-blur-sm border border-ink-3/15 rounded-lg flex items-center justify-center text-ink-2 active:bg-ink-3/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="6" y1="8" x2="10" y2="8"/><line x1="8" y1="6" x2="8" y2="10"/></svg>
+          </button>
+        </div>
         <MiniMap
           nodeColor={(node) => {
             const d = node.data as GraphNodeData | undefined;
@@ -518,7 +543,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
             return resolveGroup(t, groups).color || "#A8A29E";
           }}
           maskColor="rgba(242, 238, 232, 0.8)"
-          className="!bg-surface !border-ink-3/20 !rounded-lg"
+          className="!bg-surface !border-ink-3/20 !rounded-lg hidden sm:block"
         />
       </ReactFlow>
     </div>

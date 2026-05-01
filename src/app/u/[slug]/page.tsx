@@ -445,7 +445,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
             )}
 
             {view === "graph" && (
-              <div className="h-[calc(100vh-220px)] sm:h-[calc(100vh-200px)]">
+              <div className="h-[calc(100vh-160px)] sm:h-[calc(100vh-200px)]">
                 <GraphView
                   entities={filtered}
                   relations={universe.relations.filter(r =>
