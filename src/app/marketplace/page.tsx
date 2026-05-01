@@ -112,23 +112,25 @@ export default function MarketplacePage() {
 
         {/* Filters bar — below topbar, below mobile menu overlay */}
         <section className="sticky top-topbar bg-surface/90 backdrop-blur-md border-b border-ink-3/10 z-30">
-          <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-7 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-3">
-            <SlidersHorizontal size={12} className="text-ink-3 flex-shrink-0 hidden sm:block" />
-            <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5 overflow-x-auto no-scrollbar">
-              {(["all", "open", "paid"] as const).map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  aria-label={f === "all" ? t("universe.all") : f === "open" ? t("marketplace.open") : t("marketplace.paid")}
-                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-md text-[13px] sm:text-[15px] tracking-[0.15em] uppercase transition-all whitespace-nowrap ${
-                    filter === f ? "bg-accent text-white shadow-sm" : "text-ink-3 hover:text-ink"
-                  }`}
-                >
-                  {f === "all" ? `${t("universe.all")} (${totalCount})` : f === "open" ? `${t("marketplace.open")} (${openCount})` : `${t("marketplace.paid")} (${paidCount})`}
-                </button>
-              ))}
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-7 py-2 sm:py-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal size={12} className="text-ink-3 flex-shrink-0 hidden sm:block" />
+              <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5">
+                {(["all", "open", "paid"] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    aria-label={f === "all" ? t("universe.all") : f === "open" ? t("marketplace.open") : t("marketplace.paid")}
+                    className={`px-2.5 sm:px-3.5 py-1.5 rounded-md text-[13px] sm:text-[15px] tracking-[0.15em] uppercase transition-all whitespace-nowrap ${
+                      filter === f ? "bg-accent text-white shadow-sm" : "text-ink-3 hover:text-ink"
+                    }`}
+                  >
+                    {f === "all" ? `${t("universe.all")} (${totalCount})` : f === "open" ? `${t("marketplace.open")} (${openCount})` : `${t("marketplace.paid")} (${paidCount})`}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-sm">
+            <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
               <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
               <input
                 value={search}
