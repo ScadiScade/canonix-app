@@ -596,7 +596,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
             </button>
             {imageResult && (
               <div className="space-y-2">
-                <Image src={imageResult} alt="AI-generated illustration" width={512} height={512} className="w-full rounded-md border border-ink-3/10" />
+                <Image src={imageResult} alt="AI-generated illustration" width={512} height={512} className="w-full rounded-md border border-ink-3/10" unoptimized />
                 <button
                   onClick={handleSaveImage}
                   disabled={savingNote}

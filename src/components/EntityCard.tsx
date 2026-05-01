@@ -53,7 +53,7 @@ export function EntityCard({ entity, groups = [], onClick, onAddRelation, onDele
       >
         {entity.imageUrl ? (
           <div className="h-20 sm:h-24 overflow-hidden relative">
-            <Image src={entity.imageUrl} alt={entity.name} fill className="object-cover" />
+            <Image src={entity.imageUrl} alt={entity.name} fill className="object-cover" unoptimized={entity.imageUrl?.startsWith("data:")} />
             <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-[10px_14px]">
               <div className="flex items-center gap-1.5">

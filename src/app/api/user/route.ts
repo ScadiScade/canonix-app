@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
+  const body = JSON.parse(await req.text());
   const parsed = validateBody(updateUserSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { name, bio, image } = parsed.data;

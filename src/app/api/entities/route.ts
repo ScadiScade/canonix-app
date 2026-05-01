@@ -44,7 +44,7 @@ export async function PUT(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
+  const body = JSON.parse(await req.text());
   const parsed = validateBody(updateEntitySchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { id, name, type, description, date, customFields, notes, imageUrl, parentId } = parsed.data;

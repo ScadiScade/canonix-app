@@ -123,7 +123,7 @@ export function EntityDetail({ entity, groups = [], onAddRelation, onEdit, onDel
       <div className="relative">
         {entity.imageUrl ? (
           <div className="h-32 overflow-hidden cursor-pointer relative group" onClick={() => setShowFullImage(true)}>
-            <Image src={entity.imageUrl} alt={entity.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+            <Image src={entity.imageUrl} alt={entity.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" unoptimized={entity.imageUrl?.startsWith("data:")} />
             <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
             <div className="absolute bottom-2 right-2 bg-ink/50 text-white text-[15px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
               {t("common.open")}

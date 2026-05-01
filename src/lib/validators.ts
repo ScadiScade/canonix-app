@@ -15,7 +15,7 @@ export const resendVerifySchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   bio: z.string().max(1000).optional(),
-  image: z.string().url().max(2048).optional(),
+  image: z.union([z.string().max(14000000), z.null()]).optional(),
 });
 
 // ── Universes ──
@@ -49,7 +49,7 @@ export const createEntitySchema = z.object({
   customFields: z.record(z.string(), z.any()).optional(),
   notes: z.array(z.union([z.string(), z.object({ title: z.string(), content: z.string() })])).optional(),
   date: z.string().max(100).optional(),
-  imageUrl: z.string().url().max(2048).optional(),
+  imageUrl: z.string().max(14000000).optional(),
   position: z.number().optional(),
   parentId: z.string().cuid().nullable().optional(),
 });

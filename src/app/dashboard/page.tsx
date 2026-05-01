@@ -90,7 +90,7 @@ function DashboardInner() {
           <div className="flex flex-col sm:flex-row items-start gap-5">
             <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 overflow-hidden">
               {profile?.image ? (
-                <Image src={profile.image} alt={profile.name || "Avatar"} width={80} height={80} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" />
+                <Image src={profile.image} alt={profile.name || "Avatar"} width={80} height={80} className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover" unoptimized={profile.image?.startsWith("data:")} />
               ) : (
                 <User size={32} className="text-accent" />
               )}

@@ -134,7 +134,7 @@ function SettingsInner() {
             <div className="relative group">
               <div className="w-14 h-14 rounded-full bg-accent-light flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {profile?.image ? (
-                  <Image src={profile.image} alt={profile.name || "Avatar"} width={56} height={56} className="w-14 h-14 rounded-full object-cover" />
+                  <Image src={profile.image} alt={profile.name || "Avatar"} width={56} height={56} className="w-14 h-14 rounded-full object-cover" unoptimized={profile.image?.startsWith("data:")} />
                 ) : (
                   <User size={24} className="text-accent" />
                 )}
