@@ -636,6 +636,27 @@ function LoginPageInner() {
                 >
                   🧪 Tester (Free)
                 </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    const devRes = await fetch("/api/auth/dev-login", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "buyer@canonix.local" }),
+                    });
+                    if (devRes.ok) {
+                      const devData = await devRes.json();
+                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/pricing" });
+                      if (result?.ok) window.location.href = "/pricing";
+                    }
+                    setLoading(false);
+                  }}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2 text-[14px] text-green-600 hover:bg-green-500/20 transition-colors disabled:opacity-50"
+                >
+                  💰 Buyer (100k₽)
+                </button>
               </div>
             </>
           )}

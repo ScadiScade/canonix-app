@@ -125,10 +125,10 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // Dev access: special dev user can login with DEV_ACCESS_CODE (dev only)
+        // Dev access: any @canonix.local user can login with DEV_ACCESS_CODE (dev only)
         const devCode = process.env.DEV_ACCESS_CODE;
-        if (process.env.NODE_ENV !== "production" && devCode && credentials.email === "dev@canonix.local" && credentials.password === devCode) {
-          const devUser = await prisma.user.findUnique({ where: { email: "dev@canonix.local" } });
+        if (process.env.NODE_ENV !== "production" && devCode && credentials.email.endsWith("@canonix.local") && credentials.password === devCode) {
+          const devUser = await prisma.user.findUnique({ where: { email: credentials.email } });
           if (devUser) return { id: devUser.id, email: devUser.email, name: devUser.name };
         }
 
