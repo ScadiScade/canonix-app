@@ -26,52 +26,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
   }
 
-  const stripeKey = process.env.STRIPE_SECRET_KEY;
-
-  if (!stripeKey) {
-    // Dev mode: pay from wallet
-    let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
-    if (!wallet) {
-      wallet = await prisma.wallet.create({ data: { userId: session.user.id } });
-    }
-
-    const available = wallet.balance - wallet.frozen;
-    if (available < pack.price) {
-      return NextResponse.json({
-        error: "Insufficient wallet balance",
-        required: pack.price,
-        available,
-        deficit: pack.price - available,
-      }, { status: 402 });
-    }
-
-    // Deduct from wallet
-    const newBalance = wallet.balance - pack.price;
-    await prisma.wallet.update({
-      where: { id: wallet.id },
-      data: { balance: newBalance },
-    });
-    await prisma.walletTransaction.create({
-      data: {
-        walletId: wallet.id,
-        type: "credits",
-        amount: -pack.price,
-        balanceAfter: newBalance,
-        description: `${pack.credits} AI кредитов`,
-        refId: packId,
-      },
-    });
-
-    // Add credits
-    const credit = await prisma.aiCredit.upsert({
-      where: { userId: session.user.id },
-      create: { userId: session.user.id, balance: pack.credits, totalBought: pack.credits },
-      update: { balance: { increment: pack.credits }, totalBought: { increment: pack.credits } },
-    });
-
-    return NextResponse.json({ balance: credit.balance, creditsAdded: pack.credits, walletBalance: newBalance });
+  // Always try wallet payment first
+  let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
+  if (!wallet) {
+    wallet = await prisma.wallet.create({ data: { userId: session.user.id } });
   }
 
-  // TODO: Integrate Stripe checkout for credit packs
-  return NextResponse.json({ error: "Stripe integration pending" }, { status: 501 });
+  const available = wallet.balance - wallet.frozen;
+  if (available < pack.price) {
+    return NextResponse.json({
+      error: "Insufficient wallet balance",
+      required: pack.price,
+      available,
+      deficit: pack.price - available,
+    }, { status: 402 });
+  }
+
+  // Deduct from wallet
+  const newBalance = wallet.balance - pack.price;
+  await prisma.wallet.update({
+    where: { id: wallet.id },
+    data: { balance: newBalance },
+  });
+  await prisma.walletTransaction.create({
+    data: {
+      walletId: wallet.id,
+      type: "credits",
+      amount: -pack.price,
+      balanceAfter: newBalance,
+      description: `${pack.credits} AI кредитов`,
+      refId: packId,
+    },
+  });
+
+  // Add credits
+  const credit = await prisma.aiCredit.upsert({
+    where: { userId: session.user.id },
+    create: { userId: session.user.id, balance: pack.credits, totalBought: pack.credits },
+    update: { balance: { increment: pack.credits }, totalBought: { increment: pack.credits } },
+  });
+
+  return NextResponse.json({ balance: credit.balance, creditsAdded: pack.credits, walletBalance: newBalance });
 }
