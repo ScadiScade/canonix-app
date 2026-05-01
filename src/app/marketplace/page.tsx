@@ -43,6 +43,20 @@ export default function MarketplacePage() {
     return () => clearTimeout(timer);
   }, [search]);
 
+  // Fetch all listings for counts (unfiltered)
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+
+  useEffect(() => {
+    fetch("/api/marketplace")
+      .then(r => r.ok ? r.json() : [])
+      .then(setAllListings)
+      .catch(() => {});
+  }, []);
+
+  const totalCount = allListings.length;
+  const openCount = allListings.filter(l => l.license === "open").length;
+  const paidCount = allListings.filter(l => l.license === "paid").length;
+
   const fetchListings = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
@@ -56,10 +70,6 @@ export default function MarketplacePage() {
   }, [filter, debouncedSearch]);
 
   useEffect(() => { fetchListings(); }, [fetchListings]);
-
-  const totalCount = listings.length;
-  const openCount = listings.filter(l => l.license === "open").length;
-  const paidCount = listings.filter(l => l.license === "paid").length;
   const totalEntities = listings.reduce((s, l) => s + l._count.entities, 0);
 
   return (
@@ -100,17 +110,17 @@ export default function MarketplacePage() {
           </div>
         </section>
 
-        {/* Filters bar */}
-        <section className="sticky top-topbar bg-surface/90 backdrop-blur-md border-b border-ink-3/10 z-40">
-          <div className="max-w-5xl mx-auto px-4 md:px-7 py-3 flex items-center gap-3 flex-wrap">
-            <SlidersHorizontal size={12} className="text-ink-3 flex-shrink-0" />
-            <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5">
+        {/* Filters bar — below topbar, below mobile menu overlay */}
+        <section className="sticky top-topbar bg-surface/90 backdrop-blur-md border-b border-ink-3/10 z-30">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-7 py-2.5 sm:py-3 flex items-center gap-2 sm:gap-3">
+            <SlidersHorizontal size={12} className="text-ink-3 flex-shrink-0 hidden sm:block" />
+            <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5 overflow-x-auto no-scrollbar">
               {(["all", "open", "paid"] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
                   aria-label={f === "all" ? t("universe.all") : f === "open" ? t("marketplace.open") : t("marketplace.paid")}
-                  className={`px-3.5 py-1.5 rounded-md text-[15px] tracking-[0.15em] uppercase transition-all ${
+                  className={`px-2.5 sm:px-3.5 py-1.5 rounded-md text-[13px] sm:text-[15px] tracking-[0.15em] uppercase transition-all whitespace-nowrap ${
                     filter === f ? "bg-accent text-white shadow-sm" : "text-ink-3 hover:text-ink"
                   }`}
                 >
@@ -125,7 +135,7 @@ export default function MarketplacePage() {
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t("marketplace.searchPlaceholder")}
                 aria-label={t("marketplace.searchPlaceholder")}
-                className="bg-background border border-ink-3/12 rounded-lg pl-8 pr-3 py-2 text-[17px] text-ink focus:outline-none focus:border-accent w-full transition-colors"
+                className="bg-background border border-ink-3/12 rounded-lg pl-8 pr-3 py-1.5 sm:py-2 text-[14px] sm:text-[17px] text-ink focus:outline-none focus:border-accent w-full transition-colors"
               />
             </div>
           </div>
