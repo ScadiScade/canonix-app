@@ -35,17 +35,31 @@ export async function PUT(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { plan } = parsed.data;
 
-  const creditBonuses: Record<string, number> = { free: 0, pro: 200, corporate: 1000 };
+  const creditBonuses: Record<string, number> = { free: 0, pro: 200, corporate: 800 };
 
   let sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
   if (!sub) {
     sub = await prisma.subscription.create({
-      data: { userId: session.user.id, plan, status: "active" },
+      data: { userId: session.user.id, plan, status: "active", currentPeriodEnd: plan !== "free" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null },
     });
   } else {
+    const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
+    const currentTier = tierOrder[sub.plan] ?? 0;
+    const newTier = tierOrder[plan] ?? 0;
+
+    if (newTier < currentTier) {
+      // Downgrade: schedule for end of period, don't change immediately
+      sub = await prisma.subscription.update({
+        where: { id: sub.id },
+        data: { pendingPlan: plan },
+      });
+      return NextResponse.json({ plan: sub.plan, pendingPlan: sub.pendingPlan, status: sub.status, message: "Downgrade scheduled" });
+    }
+
+    // Upgrade or same tier: apply immediately
     sub = await prisma.subscription.update({
       where: { id: sub.id },
-      data: { plan, status: "active" },
+      data: { plan, status: "active", currentPeriodEnd: plan !== "free" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null, pendingPlan: null },
     });
   }
 

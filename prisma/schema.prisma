@@ -166,7 +166,7 @@ model AiCredit {
   id          String   @id @default(cuid())
   userId      String   @unique
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  balance     Int      @default(50)   // Free credits on signup
+  balance     Int      @default(0)   // No free credits on signup (anti-abuse)
   totalUsed   Int      @default(0)
   totalBought Int      @default(0)
   createdAt   DateTime @default(now())
@@ -178,6 +178,7 @@ model Subscription {
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   plan            String   @default("free") // free, pro, corporate
+  pendingPlan     String?  // Plan to switch to at end of current period
   stripeCustomerId String?
   stripePriceId    String?
   stripeSubId      String?

@@ -81,7 +81,7 @@ const PRO_PRICE = 299;
 export default function PricingPage() {
   const { t } = useLocale();
   const { data: session } = useSession();
-  const { balance, setBalance, plan, refreshBalance } = useCredits();
+  const { balance, setBalance, plan, currentPeriodEnd, pendingPlan, refreshBalance } = useCredits();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -100,7 +100,7 @@ export default function PricingPage() {
       return;
     }
     if (planId === "free") {
-      // Downgrade
+      // Downgrade — scheduled for next period
       setLoadingPlan(planId);
       try {
         const res = await fetch("/api/subscription", {
@@ -109,8 +109,13 @@ export default function PricingPage() {
           body: JSON.stringify({ plan: "free" }),
         });
         if (res.ok) {
+          const data = await res.json();
           refreshBalance();
-          setSuccessMsg(t("pricing.planChangedFree"));
+          if (data.pendingPlan) {
+            setSuccessMsg(t("pricing.scheduledChange") + t("pricing.free") + " " + t("pricing.nextPeriod"));
+          } else {
+            setSuccessMsg(t("pricing.planChangedFree"));
+          }
         }
       } finally {
         setLoadingPlan(null);
@@ -191,10 +196,20 @@ export default function PricingPage() {
             {t("pricing.desc")}
           </p>
           {session && balance !== null && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-accent-light/30 border border-accent/20 rounded-full px-4 py-1.5">
-              <Coins size={14} className="text-accent" />
-              <span className="text-[18px] text-accent font-medium">{t("pricing.yourBalance")}: {balance} {t("pricing.creditsShort")}</span>
-              <span className="text-[16px] text-ink-3">({plan === "free" ? t("pricing.free") : plan === "pro" ? "Pro" : t("pricing.corporate")})</span>
+            <div className="mt-4 flex flex-col items-center gap-2">
+              <div className="inline-flex items-center gap-2 bg-accent-light/30 border border-accent/20 rounded-full px-4 py-1.5">
+                <Coins size={14} className="text-accent" />
+                <span className="text-[18px] text-accent font-medium">{t("pricing.yourBalance")}: {balance} {t("pricing.creditsShort")}</span>
+                <span className="text-[16px] text-ink-3">({plan === "free" ? t("pricing.free") : plan === "pro" ? "Pro" : t("pricing.corporate")})</span>
+              </div>
+              {currentPeriodEnd && plan !== "free" && (
+                <div className="text-[14px] text-ink-3">
+                  {t("pricing.renewsOn")} {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
+                  {pendingPlan && (
+                    <span className="ml-2 text-amber-600">→ {pendingPlan === "free" ? t("pricing.free") : pendingPlan === "pro" ? "Pro" : t("pricing.corporate")} {t("pricing.nextPeriod")}</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

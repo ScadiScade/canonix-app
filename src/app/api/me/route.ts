@@ -25,6 +25,6 @@ export async function GET() {
   return NextResponse.json({
     profile: user,
     credits: credit ? { balance: credit.balance, totalUsed: credit.totalUsed, totalBought: credit.totalBought } : null,
-    subscription: subscription ? { plan: subscription.plan, status: subscription.status } : null,
+    subscription: subscription ? { plan: subscription.plan, status: subscription.status, currentPeriodEnd: subscription.currentPeriodEnd, pendingPlan: subscription.pendingPlan } : null,
   });
 }
