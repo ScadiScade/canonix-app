@@ -601,7 +601,7 @@ function LoginPageInner() {
                     const devRes = await fetch("/api/auth/dev-login", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", role: "dev" }),
+                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "dev@canonix.local" }),
                     });
                     if (devRes.ok) {
                       const devData = await devRes.json();
@@ -622,7 +622,7 @@ function LoginPageInner() {
                     const devRes = await fetch("/api/auth/dev-login", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", role: "tester" }),
+                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "tester@canonix.local" }),
                     });
                     if (devRes.ok) {
                       const devData = await devRes.json();
