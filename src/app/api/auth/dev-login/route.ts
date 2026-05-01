@@ -2,13 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // POST /api/auth/dev-login — dev access code login (bypasses email verification)
-// DISABLED in production for security
+// Protected by DEV_ACCESS_CODE env variable
 // Body: { code: string, email: string }
 export async function POST(req: NextRequest) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Dev login is disabled in production" }, { status: 403 });
-  }
-
   const { code, email } = await req.json();
   const devCode = process.env.DEV_ACCESS_CODE;
 
