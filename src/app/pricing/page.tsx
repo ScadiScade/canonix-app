@@ -8,7 +8,7 @@ import { useCredits } from "@/components/CreditProvider";
 import { Check, X, Coins, Sparkles, Crown, Building2, Zap, Loader2, ArrowRight } from "lucide-react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 
-const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: number; periodKey: TranslationKey; color: string; popular?: boolean; features: { textKey: TranslationKey; included: boolean }[] }[] = [
+const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: number; periodKey: TranslationKey; color: string; popular?: boolean; seatPrice?: number; seatKey?: TranslationKey; features: { textKey: TranslationKey; included: boolean }[] }[] = [
   {
     id: "free",
     nameKey: "pricing.planFree",
@@ -53,6 +53,8 @@ const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: nu
     price: 999,
     periodKey: "pricing.periodMonth",
     color: "#9333EA",
+    seatPrice: 499,
+    seatKey: "pricing.perSeat",
     features: [
       { textKey: "pricing.f14", included: true },
       { textKey: "pricing.f15", included: true },
@@ -71,6 +73,10 @@ const CREDIT_PACKS = [
   { id: "pack-200", credits: 200, price: 499, labelKey: "pricing.pack200", popular: true },
   { id: "pack-500", credits: 500, price: 999, labelKey: "pricing.pack500" },
 ];
+
+// Upgrade pricing constants
+const UPGRADE_MARKUP = 49; // markup on top of price difference
+const PRO_PRICE = 299;
 
 export default function PricingPage() {
   const { t } = useLocale();
@@ -203,10 +209,9 @@ export default function PricingPage() {
             const isBelow = planTier < currentTier;
             const isCurrent = plan === p.id;
 
-            // Upgrade pricing: if user has pro, corporate shows (corporate - pro + 1₽)
-            const proPrice = PLANS.find(x => x.id === "pro")?.price ?? 0;
+            // Upgrade pricing: if user has pro, corporate shows (corporate - pro + markup₽)
             const displayPrice = (plan === "pro" && p.id === "corporate")
-              ? p.price - proPrice + 1
+              ? p.price - PRO_PRICE + UPGRADE_MARKUP
               : p.price;
             const isUpgrade = plan === "pro" && p.id === "corporate";
 
@@ -242,13 +247,16 @@ export default function PricingPage() {
                     <>
                       <span className="text-[32px] font-light text-ink">{displayPrice} ₽</span>
                       <span className="text-[18px] text-ink-3 ml-1">{t(p.periodKey)}</span>
-                      <div className="text-[13px] text-ink-3 mt-0.5 line-through">{p.price} ₽</div>
+                      <div className="text-[13px] text-ink-3 mt-0.5 line-through">{p.price} ₽ {t(p.periodKey)}</div>
                     </>
                   ) : (
                     <>
                       <span className="text-[32px] font-light text-ink">{displayPrice === 0 ? "0 ₽" : `${displayPrice} ₽`}</span>
                       <span className="text-[18px] text-ink-3 ml-1">{t(p.periodKey)}</span>
                     </>
+                  )}
+                  {p.seatPrice && !isBelow && (
+                    <div className="text-[13px] text-ink-3 mt-1">{t(p.seatKey!)} {p.seatPrice} ₽{t(p.periodKey)}</div>
                   )}
                 </div>
 
