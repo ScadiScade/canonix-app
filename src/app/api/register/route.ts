@@ -37,6 +37,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Этот email уже зарегистрирован" }, { status: 409 });
   }
 
+  if (name) {
+    const nameTaken = await prisma.user.findUnique({ where: { name } });
+    if (nameTaken) {
+      return NextResponse.json({ error: "Это имя уже занято" }, { status: 409 });
+    }
+  }
+
   // Check if email actually exists (MX + SMTP verification)
   const existsCheck = await checkEmailExists(email);
   if (!existsCheck.valid) {

@@ -40,6 +40,13 @@ export async function PUT(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { name, bio, image } = parsed.data;
 
+  if (name) {
+    const nameTaken = await prisma.user.findUnique({ where: { name } });
+    if (nameTaken && nameTaken.id !== session.user.id) {
+      return NextResponse.json({ error: "Это имя уже занято" }, { status: 409 });
+    }
+  }
+
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: {
