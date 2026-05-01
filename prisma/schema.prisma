@@ -20,10 +20,12 @@ model User {
   universes     Universe[]
   aiCredits     AiCredit[]
   subscription  Subscription?
+  wallet        Wallet?
   memberships      TeamMember[]
   sentInvites      TeamInvitation[] @relation("Inviter")
   receivedInvites  TeamInvitation[] @relation("Invitee")
   ownedTeams       Team[]           @relation("TeamOwner")
+  purchases        UniversePurchase[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -71,6 +73,7 @@ model Universe {
   license       String          @default("none")    // none, open, paid
   price         Int             @default(0)         // Price in rubles (0 = free for open license)
   listedAt      DateTime?                            // When listed on marketplace (null = not listed)
+  purchases     UniversePurchase[]
   userId        String
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   teamId        String?                              // If owned by a team
@@ -233,4 +236,46 @@ model TeamInvitation {
 
   @@index([inviteeId])
   @@index([teamId])
+}
+
+model Wallet {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance     Int      @default(0)   // Balance in kopecks (1₽ = 100) to avoid floating point
+  frozen      Int      @default(0)   // Frozen amount (pending payouts, holds)
+  transactions WalletTransaction[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  walletId    String
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  type        String   // topup, subscription, credits, purchase, refund, payout, commission
+  amount      Int                // In kopecks, negative for debits
+  balanceAfter Int               // Balance after transaction
+  description String?            // Human-readable description
+  refId       String?            // Reference ID (subscription id, pack id, universe id, etc.)
+  createdAt   DateTime @default(now())
+
+  @@index([walletId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model UniversePurchase {
+  id          String   @id @default(cuid())
+  universeId  String
+  universe    Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  buyerId     String
+  buyer       User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  price       Int                // Price paid in kopecks
+  commission  Int                // Platform commission in kopecks (20%)
+  createdAt   DateTime @default(now())
+
+  @@unique([universeId, buyerId]) // One purchase per user per universe
+  @@index([buyerId])
+  @@index([universeId])
 }

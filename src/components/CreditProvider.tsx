@@ -8,6 +8,7 @@ interface CreditContextType {
   plan: string;
   currentPeriodEnd: string | null;
   pendingPlan: string | null;
+  walletBalance: number | null; // in kopecks
   refreshBalance: () => Promise<void>;
   setBalance: (b: number) => void;
 }
@@ -17,6 +18,7 @@ const CreditContext = createContext<CreditContextType>({
   plan: "free",
   currentPeriodEnd: null,
   pendingPlan: null,
+  walletBalance: null,
   refreshBalance: async () => {},
   setBalance: () => {},
 });
@@ -27,18 +29,26 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   const [plan, setPlan] = useState<string>("free");
   const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const refreshBalance = useCallback(async () => {
     try {
-      const res = await fetch("/api/me");
-      if (res.ok) {
-        const data = await res.json();
+      const [meRes, walletRes] = await Promise.all([
+        fetch("/api/me"),
+        fetch("/api/wallet"),
+      ]);
+      if (meRes.ok) {
+        const data = await meRes.json();
         if (data.credits?.balance !== undefined) setBalanceState(data.credits.balance);
         if (data.subscription?.plan) setPlan(data.subscription.plan);
         if (data.subscription?.currentPeriodEnd) setCurrentPeriodEnd(data.subscription.currentPeriodEnd);
         else setCurrentPeriodEnd(null);
         if (data.subscription?.pendingPlan) setPendingPlan(data.subscription.pendingPlan);
         else setPendingPlan(null);
+      }
+      if (walletRes.ok) {
+        const wData = await walletRes.json();
+        if (wData.balance !== undefined) setWalletBalance(wData.balance);
       }
     } catch (e) { console.error("refreshBalance:", e); }
   }, []);
@@ -51,6 +61,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
       setPlan("free");
       setCurrentPeriodEnd(null);
       setPendingPlan(null);
+      setWalletBalance(null);
     }
   }, [session, refreshBalance]);
 
@@ -59,7 +70,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <CreditContext.Provider value={{ balance, plan, currentPeriodEnd, pendingPlan, refreshBalance, setBalance }}>
+    <CreditContext.Provider value={{ balance, plan, currentPeriodEnd, pendingPlan, walletBalance, refreshBalance, setBalance }}>
       {children}
     </CreditContext.Provider>
   );

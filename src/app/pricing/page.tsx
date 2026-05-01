@@ -81,9 +81,11 @@ const PRO_PRICE = 299;
 export default function PricingPage() {
   const { t } = useLocale();
   const { data: session } = useSession();
-  const { balance, setBalance, plan, currentPeriodEnd, pendingPlan, refreshBalance } = useCredits();
+  const { balance, setBalance, plan, currentPeriodEnd, pendingPlan, walletBalance, refreshBalance } = useCredits();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
+  const [topupAmount, setTopupAmount] = useState<number>(500);
+  const [loadingTopup, setLoadingTopup] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Auto-dismiss success
@@ -131,8 +133,13 @@ export default function PricingPage() {
         body: JSON.stringify({ planId }),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        console.error("Checkout failed:", res.status, text);
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "Insufficient wallet balance") {
+          const deficit = Math.ceil((data.deficit || 0) / 100);
+          setSuccessMsg(t("pricing.insufficientBalance") + ` (−${deficit} ₽)`);
+        } else {
+          console.error("Checkout failed:", res.status, data);
+        }
         return;
       }
       const data = await res.json();
@@ -161,6 +168,11 @@ export default function PricingPage() {
         body: JSON.stringify({ packId }),
       });
       const data = await res.json();
+      if (res.status === 402 && data.error === "Insufficient wallet balance") {
+        const deficit = Math.ceil((data.deficit || 0) / 100);
+        setSuccessMsg(t("pricing.insufficientBalance") + ` (−${deficit} ₽)`);
+        return;
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -174,6 +186,29 @@ export default function PricingPage() {
       setLoadingPack(null);
     }
   };
+
+  const handleTopup = async () => {
+    if (!session) { window.location.href = "/login"; return; }
+    setLoadingTopup(true);
+    try {
+      const res = await fetch("/api/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: topupAmount }),
+      });
+      if (res.ok) {
+        refreshBalance();
+        setSuccessMsg(t("pricing.topupSuccess", { amount: topupAmount }));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        console.error("Topup failed:", data.error);
+      }
+    } finally {
+      setLoadingTopup(false);
+    }
+  };
+
+  const walletRub = walletBalance !== null ? walletBalance / 100 : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -210,6 +245,35 @@ export default function PricingPage() {
                   )}
                 </div>
               )}
+            </div>
+          )}
+          {/* Wallet */}
+          {session && walletBalance !== null && (
+            <div className="mt-6 max-w-md mx-auto bg-surface border border-ink-3/10 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[16px] text-ink-2">{t("pricing.walletBalance")}</span>
+                <span className="text-[22px] font-light text-ink">{walletRub} ₽</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {[300, 500, 1000, 3000].map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setTopupAmount(v)}
+                    className={`px-3 py-1.5 rounded-lg text-[14px] transition-colors ${
+                      topupAmount === v ? "bg-accent text-white" : "bg-ink-3/5 text-ink hover:bg-ink-3/10"
+                    }`}
+                  >
+                    {v} ₽
+                  </button>
+                ))}
+                <button
+                  onClick={handleTopup}
+                  disabled={loadingTopup}
+                  className="ml-auto px-4 py-1.5 bg-accent text-white rounded-lg text-[14px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {loadingTopup ? <Loader2 size={12} className="animate-spin" /> : t("pricing.topup")}
+                </button>
+              </div>
             </div>
           )}
         </div>

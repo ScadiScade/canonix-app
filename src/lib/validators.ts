@@ -117,6 +117,10 @@ export const buyCreditsSchema = z.object({
   packId: z.enum(["small", "medium", "large"]),
 });
 
+export const walletTopupSchema = z.object({
+  amount: z.number().int().min(100).max(50000),
+});
+
 // ── AI ──
 export const generateTextSchema = z.object({
   type: z.enum(["scenario", "suggestion", "edit", "expand"]),
