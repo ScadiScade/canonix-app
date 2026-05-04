@@ -53,6 +53,8 @@ export default function PricingPage() {
   const [topupPrompt, setTopupPrompt] = useState<{ deficitRub: number; label: string; retryAction?: () => void } | null>(null);
   const [creditPacks, setCreditPacks] = useState(DEFAULT_PACKS);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; label: string; onConfirm: () => void; danger?: boolean } | null>(null);
+  const [creditQty, setCreditQty] = useState<Record<string, number>>({});
 
   useEffect(() => {
     (async () => {
@@ -78,7 +80,7 @@ export default function PricingPage() {
     if (successMsg) { const timer = setTimeout(() => setSuccessMsg(null), 4000); return () => clearTimeout(timer); }
   }, [successMsg]);
 
-  const handleSubscribe = async (planId: string) => {
+  const doSubscribe = async (planId: string) => {
     if (!session) { window.location.href = "/login"; return; }
 
     // Reactivate: clicking current plan with pendingPlan undoes the pending change
@@ -124,22 +126,66 @@ export default function PricingPage() {
     } finally { setLoadingPlan(null); }
   };
 
-  const handleBuyCredits = async (packId: string) => {
+  const handleSubscribe = (planId: string) => {
+    if (!session) { window.location.href = "/login"; return; }
+    if (planId === plan && pendingPlan) { doSubscribe(planId); return; }
+
+    const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
+    const currentTier = tierOrder[plan] ?? 0;
+    const targetTier = tierOrder[planId] ?? 0;
+
+    if (targetTier > currentTier) {
+      const planName = planId === "pro" ? "Pro" : t("pricing.corporate");
+      const planPrice = planId === "pro" ? 299 : 999;
+      setConfirmAction({
+        title: t("pricing.confirmUpgrade", { plan: planName }),
+        description: t("pricing.confirmUpgradeDesc", { plan: planName, price: planPrice }),
+        label: t("pricing.confirm"),
+        onConfirm: () => doSubscribe(planId),
+      });
+    } else if (targetTier < currentTier) {
+      const planName = planId === "free" ? t("pricing.free") : planId === "pro" ? "Pro" : t("pricing.corporate");
+      setConfirmAction({
+        title: planId === "free" ? t("pricing.confirmCancel") : t("pricing.confirmDowngrade", { plan: planName }),
+        description: planId === "free" ? t("pricing.confirmCancelDesc") : t("pricing.confirmDowngradeDesc", { plan: planName }),
+        label: planId === "free" ? t("pricing.cancelSub") : t("pricing.downgrade"),
+        danger: true,
+        onConfirm: () => doSubscribe(planId),
+      });
+    }
+  };
+
+  const doBuyCredits = async (packId: string, qty: number) => {
     if (!session) { window.location.href = "/login"; return; }
     setLoadingPack(packId);
     try {
-      const res = await fetch("/api/subscription/buy-credits", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ packId }) });
+      const res = await fetch("/api/subscription/buy-credits", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ packId, qty }) });
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 402 && data.error === "Insufficient wallet balance") {
           const deficit = Math.ceil((data.deficit || 0) / 100); const pack = creditPacks.find(p => p.id === packId);
-          setTopupPrompt({ deficitRub: deficit, label: `${pack?.credits || ""} ${t("common.credits")}`, retryAction: () => handleBuyCredits(packId) }); setTopupAmount(deficit);
+          setTopupPrompt({ deficitRub: deficit, label: `${(pack?.credits || 0) * qty} ${t("common.credits")}`, retryAction: () => doBuyCredits(packId, qty) }); setTopupAmount(deficit);
         } else { console.error("Buy credits failed:", res.status, data); setSuccessMsg(data.error || t("common.error")); }
         return;
       }
       await refreshBalance(); const pack = creditPacks.find(p => p.id === packId);
-      setSuccessMsg(t("pricing.creditsAdded", { count: pack?.credits || "" }));
+      setSuccessMsg(t("pricing.creditsAdded", { count: (pack?.credits || 0) * qty }));
     } finally { setLoadingPack(null); }
+  };
+
+  const handleBuyCredits = (packId: string) => {
+    if (!session) { window.location.href = "/login"; return; }
+    const qty = creditQty[packId] || 1;
+    const pack = creditPacks.find(p => p.id === packId);
+    if (!pack) return;
+    const totalCredits = pack.credits * qty;
+    const totalPrice = pack.price * qty;
+    setConfirmAction({
+      title: t("pricing.confirmBuyCredits"),
+      description: t("pricing.confirmBuyCreditsDesc", { count: totalCredits, price: totalPrice }),
+      label: t("pricing.confirm"),
+      onConfirm: () => doBuyCredits(packId, qty),
+    });
   };
 
   const handleTopup = async (andRetry?: () => void) => {
@@ -289,15 +335,21 @@ export default function PricingPage() {
             {creditPacks.map(pack => {
               const basePerCredit = creditPacks[0].price / creditPacks[0].credits;
               const savings = Math.round((1 - pack.price / pack.credits / basePerCredit) * 100);
+              const qty = creditQty[pack.id] || 1;
               return (
                 <div key={pack.id} className={`bg-surface rounded-2xl border p-6 flex flex-col items-center text-center transition-all hover:shadow-lg ${pack.popular ? "border-accent/30 shadow-md shadow-accent/5" : "border-ink-3/10"}`}>
                   {savings > 0 && <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 font-medium mb-2">−{savings}%</span>}
                   {pack.popular && <span className="text-[14px] tracking-[0.2em] uppercase text-accent font-medium mb-2">{t("pricing.bestValue")}</span>}
                   <div className="flex items-center gap-1.5 mb-2"><Zap size={18} className="text-accent" /><span className="text-[26px] font-light text-ink">{pack.credits}</span><span className="text-[18px] text-ink-3">{t("pricing.creditsShort")}</span></div>
                   <span className="text-[24px] font-light text-ink mb-1">{pack.price} ₽</span>
-                  <span className="text-[14px] text-ink-3 mb-5">{(pack.price / pack.credits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
+                  <span className="text-[14px] text-ink-3 mb-4">{(pack.price / pack.credits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
+                  <div className="flex items-center gap-2 mb-4 w-full">
+                    <button onClick={() => setCreditQty(q => ({ ...q, [pack.id]: Math.max(1, (q[pack.id] || 1) - 1) }))} className="w-8 h-8 rounded-lg bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 flex items-center justify-center text-[18px] leading-none transition-colors">−</button>
+                    <span className="flex-1 text-[17px] text-ink font-medium">{qty}×{qty > 1 ? <span className="text-ink-3 ml-1">{pack.credits * qty} {t("pricing.creditsShort")} · {pack.price * qty} ₽</span> : null}</span>
+                    <button onClick={() => setCreditQty(q => ({ ...q, [pack.id]: Math.min(10, (q[pack.id] || 1) + 1) }))} className="w-8 h-8 rounded-lg bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 flex items-center justify-center text-[18px] leading-none transition-colors">+</button>
+                  </div>
                   <button onClick={() => handleBuyCredits(pack.id)} disabled={loadingPack === pack.id}
-                    className="w-full py-2.5 bg-accent/8 text-accent rounded-xl text-[17px] tracking-[0.08em] uppercase hover:bg-accent/15 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 font-medium">
+                    className="w-full py-2.5 bg-accent/8 text-accent rounded-xl text-[15px] tracking-[0.08em] uppercase hover:bg-accent/15 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 font-medium">
                     {loadingPack === pack.id ? <Loader2 size={13} className="animate-spin" /> : <><Coins size={13} />{t("pricing.buy")}</>}
                   </button>
                 </div>
@@ -402,6 +454,24 @@ export default function PricingPage() {
             </div>
           </div>
         </section>
+      )}
+
+      {/* CONFIRMATION MODAL */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setConfirmAction(null)}>
+          <div className="bg-surface rounded-2xl border border-ink-3/10 shadow-2xl max-w-sm w-full mx-4 p-6" onClick={e => e.stopPropagation()} style={{ animation: "fadeIn 0.15s ease-out" }}>
+            <h3 className="text-[20px] font-medium text-ink mb-2">{confirmAction.title}</h3>
+            <p className="text-[16px] text-ink-2 leading-relaxed mb-6">{confirmAction.description}</p>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setConfirmAction(null)} className="flex-1 py-2.5 rounded-xl text-[15px] tracking-[0.06em] uppercase bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 transition-colors">
+                {t("common.cancel")}
+              </button>
+              <button onClick={() => { const fn = confirmAction.onConfirm; setConfirmAction(null); fn(); }} className={`flex-1 py-2.5 rounded-xl text-[15px] tracking-[0.06em] uppercase transition-colors ${confirmAction.danger ? "bg-red-600 text-white hover:bg-red-700" : "bg-accent text-white hover:bg-accent/90"}`}>
+                {confirmAction.label}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -444,6 +444,15 @@ const en: Translations = {
   "pricing.reactivated": "Subscription reactivated",
   "pricing.cancelScheduled": "Cancellation scheduled for end of period",
   "pricing.downgradeScheduled": "Downgrade to {plan} scheduled for end of period",
+  "pricing.confirm": "Confirm",
+  "pricing.confirmUpgrade": "Upgrade to {plan}?",
+  "pricing.confirmUpgradeDesc": "{price} ₽ will be deducted from your balance. Subscription activates immediately.",
+  "pricing.confirmCancel": "Cancel subscription?",
+  "pricing.confirmCancelDesc": "Your subscription will be cancelled at the end of the current period. Access is retained until then.",
+  "pricing.confirmDowngrade": "Downgrade to {plan}?",
+  "pricing.confirmDowngradeDesc": "The change takes effect at the end of the current period. Your current plan remains active until then.",
+  "pricing.confirmBuyCredits": "Buy credits?",
+  "pricing.confirmBuyCreditsDesc": "{price} ₽ will be deducted from your balance for {count} AI credits.",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

@@ -442,6 +442,15 @@ const ru = {
   "pricing.reactivated": "Подписка возобновлена",
   "pricing.cancelScheduled": "Отмена подписки запланирована на конец периода",
   "pricing.downgradeScheduled": "Понижение до {plan} запланировано на конец периода",
+  "pricing.confirm": "Подтвердить",
+  "pricing.confirmUpgrade": "Перейти на {plan}?",
+  "pricing.confirmUpgradeDesc": "С баланса будет списано {price} ₽. Подписка активируется сразу.",
+  "pricing.confirmCancel": "Отменить подписку?",
+  "pricing.confirmCancelDesc": "Подписка будет отменена в конце текущего периода. До этого момента доступ сохраняется.",
+  "pricing.confirmDowngrade": "Понизить до {plan}?",
+  "pricing.confirmDowngradeDesc": "Переход произойдёт в конце текущего периода. До этого момента текущий план остаётся активным.",
+  "pricing.confirmBuyCredits": "Купить кредиты?",
+  "pricing.confirmBuyCreditsDesc": "С баланса будет списано {price} ₽ за {count} AI кредитов.",
 
   // Marketplace
   "marketplace.title": "Магазин вселенных",

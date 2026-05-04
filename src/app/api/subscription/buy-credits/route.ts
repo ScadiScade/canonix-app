@@ -31,12 +31,16 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const parsed = validateBody(buyCreditsSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { packId } = parsed.data;
+  const { packId, qty } = parsed.data;
+  const quantity = Math.max(1, Math.min(10, qty || 1));
   const packs = await getCreditPacks();
   const pack = packs[packId];
   if (!pack) {
     return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
   }
+
+  const totalCredits = pack.credits * quantity;
+  const totalPrice = pack.price * quantity;
 
   // Always try wallet payment first
   let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
@@ -45,12 +49,12 @@ export async function POST(req: NextRequest) {
   }
 
   const available = wallet.balance - wallet.frozen;
-  if (available < pack.price) {
+  if (available < totalPrice) {
     return NextResponse.json({
       error: "Insufficient wallet balance",
-      required: pack.price,
+      required: totalPrice,
       available,
-      deficit: pack.price - available,
+      deficit: totalPrice - available,
     }, { status: 402 });
   }
 
@@ -58,22 +62,22 @@ export async function POST(req: NextRequest) {
   const result = await prisma.$transaction(async (tx) => {
     const w = await tx.wallet.findUnique({ where: { id: wallet.id } });
     if (!w) throw new Error("Wallet not found");
-    const newBal = w.balance - pack.price;
+    const newBal = w.balance - totalPrice;
     if (newBal < 0) throw new Error("Balance would go negative");
 
     await tx.wallet.update({ where: { id: wallet.id }, data: { balance: newBal } });
     await tx.walletTransaction.create({
-      data: { walletId: wallet.id, type: "credits", amount: -pack.price, balanceAfter: newBal, description: `${pack.credits} AI кредитов`, refId: packId },
+      data: { walletId: wallet.id, type: "credits", amount: -totalPrice, balanceAfter: newBal, description: `${totalCredits} AI кредитов`, refId: packId },
     });
 
     const credit = await tx.aiCredit.upsert({
       where: { userId: session.user.id },
-      create: { userId: session.user.id, balance: pack.credits, totalBought: pack.credits },
-      update: { balance: { increment: pack.credits }, totalBought: { increment: pack.credits } },
+      create: { userId: session.user.id, balance: totalCredits, totalBought: totalCredits },
+      update: { balance: { increment: totalCredits }, totalBought: { increment: totalCredits } },
     });
 
     return { creditBalance: credit.balance, walletBalance: newBal };
   });
 
-  return NextResponse.json({ balance: result.creditBalance, creditsAdded: pack.credits, walletBalance: result.walletBalance });
+  return NextResponse.json({ balance: result.creditBalance, creditsAdded: totalCredits, walletBalance: result.walletBalance });
 }

@@ -115,6 +115,7 @@ export const checkoutSchema = z.object({
 
 export const buyCreditsSchema = z.object({
   packId: z.enum(["small", "medium", "large"]),
+  qty: z.number().int().min(1).max(10).optional(),
 });
 
 export const walletTopupSchema = z.object({
