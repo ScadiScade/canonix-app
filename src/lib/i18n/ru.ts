@@ -429,6 +429,9 @@ const ru = {
   "pricing.trust2d": "Кредиты и подписка активируются сразу после оплаты.",
   "pricing.trust3t": "Оплата с кошелька",
   "pricing.trust3d": "Пополняйте баланс и оплачивайте подписки и кредиты в один клик.",
+  "pricing.cancelling": "Отменяется",
+  "pricing.cancelSub": "Отменить подписку",
+  "pricing.downgrade": "Понизить",
 
   // Marketplace
   "marketplace.title": "Магазин вселенных",

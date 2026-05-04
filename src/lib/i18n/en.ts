@@ -431,6 +431,9 @@ const en: Translations = {
   "pricing.trust2d": "Credits and subscriptions activate immediately after payment.",
   "pricing.trust3t": "Wallet payments",
   "pricing.trust3d": "Top up your balance and pay for subscriptions and credits in one click.",
+  "pricing.cancelling": "Cancelling",
+  "pricing.cancelSub": "Cancel subscription",
+  "pricing.downgrade": "Downgrade",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

@@ -67,72 +67,60 @@ export async function POST(req: NextRequest) {
     }, { status: 402 });
   }
 
-  // Deduct from wallet
-  const newBalance = wallet.balance - finalPrice;
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: newBalance },
-  });
-  await prisma.walletTransaction.create({
-    data: {
-      walletId: wallet.id,
-      type: "subscription",
-      amount: -finalPrice,
-      balanceAfter: newBalance,
-      description: `Подписка ${planId === "pro" ? "Pro" : "Корпоративная"}`,
-      refId: planId,
-    },
-  });
+  // Atomic deduction with balance guard
+  const result = await prisma.$transaction(async (tx) => {
+    const w = await tx.wallet.findUnique({ where: { id: wallet.id } });
+    if (!w) throw new Error("Wallet not found");
+    const newBal = w.balance - finalPrice;
+    if (newBal < 0) throw new Error("Balance would go negative");
 
-  // Update subscription
-  let sub = existingSub;
-  if (!sub) {
-    sub = await prisma.subscription.create({
+    await tx.wallet.update({ where: { id: wallet.id }, data: { balance: newBal } });
+    await tx.walletTransaction.create({
       data: {
-        userId: session.user.id,
-        plan: planId,
-        status: "active",
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        walletId: wallet.id, type: "subscription", amount: -finalPrice, balanceAfter: newBal,
+        description: `Подписка ${planId === "pro" ? "Pro" : "Корпоративная"}`, refId: planId,
       },
     });
-  } else {
-    sub = await prisma.subscription.update({
-      where: { id: sub.id },
-      data: {
-        plan: planId,
-        status: "active",
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        pendingPlan: null,
-      },
-    });
-  }
 
-  // Add monthly credits
-  if (CREDIT_BONUSES[planId] > 0) {
-    await prisma.aiCredit.upsert({
-      where: { userId: session.user.id },
-      create: { userId: session.user.id, balance: CREDIT_BONUSES[planId] },
-      update: { balance: { increment: CREDIT_BONUSES[planId] }, totalBought: { increment: CREDIT_BONUSES[planId] } },
-    });
-  }
-
-  // Auto-create team for corporate plan
-  if (planId === "corporate") {
-    const existingTeam = await prisma.team.findUnique({ where: { subscriptionId: sub.id } });
-    if (!existingTeam) {
-      const userName = session.user.name || session.user.email?.split("@")[0] || "Team";
-      const teamSlug = `${userName.toLowerCase().replace(/[^a-zа-яё0-9]/gi, "-").slice(0, 20)}-team`;
-      await prisma.team.create({
+    let sub = existingSub;
+    if (!sub) {
+      sub = await tx.subscription.create({
         data: {
-          name: `Команда ${userName}`,
-          slug: teamSlug,
-          ownerId: session.user.id,
-          subscriptionId: sub.id,
-          members: { create: { userId: session.user.id, role: "admin" } },
+          userId: session.user.id, plan: planId, status: "active",
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
       });
+    } else {
+      sub = await tx.subscription.update({
+        where: { id: sub.id },
+        data: { plan: planId, status: "active", currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), pendingPlan: null },
+      });
     }
-  }
 
-  return NextResponse.json({ plan: sub.plan, status: sub.status, walletBalance: newBalance });
+    if (CREDIT_BONUSES[planId] > 0) {
+      await tx.aiCredit.upsert({
+        where: { userId: session.user.id },
+        create: { userId: session.user.id, balance: CREDIT_BONUSES[planId] },
+        update: { balance: { increment: CREDIT_BONUSES[planId] }, totalBought: { increment: CREDIT_BONUSES[planId] } },
+      });
+    }
+
+    if (planId === "corporate") {
+      const existingTeam = await tx.team.findUnique({ where: { subscriptionId: sub.id } });
+      if (!existingTeam) {
+        const userName = session.user.name || session.user.email?.split("@")[0] || "Team";
+        const teamSlug = `${userName.toLowerCase().replace(/[^a-zа-яё0-9]/gi, "-").slice(0, 20)}-team`;
+        await tx.team.create({
+          data: {
+            name: `Команда ${userName}`, slug: teamSlug, ownerId: session.user.id, subscriptionId: sub.id,
+            members: { create: { userId: session.user.id, role: "admin" } },
+          },
+        });
+      }
+    }
+
+    return { plan: sub.plan, status: sub.status, walletBalance: newBal };
+  });
+
+  return NextResponse.json(result);
 }

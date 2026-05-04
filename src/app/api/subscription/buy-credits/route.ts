@@ -54,29 +54,26 @@ export async function POST(req: NextRequest) {
     }, { status: 402 });
   }
 
-  // Deduct from wallet
-  const newBalance = wallet.balance - pack.price;
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: newBalance },
-  });
-  await prisma.walletTransaction.create({
-    data: {
-      walletId: wallet.id,
-      type: "credits",
-      amount: -pack.price,
-      balanceAfter: newBalance,
-      description: `${pack.credits} AI кредитов`,
-      refId: packId,
-    },
+  // Atomic deduction with balance guard
+  const result = await prisma.$transaction(async (tx) => {
+    const w = await tx.wallet.findUnique({ where: { id: wallet.id } });
+    if (!w) throw new Error("Wallet not found");
+    const newBal = w.balance - pack.price;
+    if (newBal < 0) throw new Error("Balance would go negative");
+
+    await tx.wallet.update({ where: { id: wallet.id }, data: { balance: newBal } });
+    await tx.walletTransaction.create({
+      data: { walletId: wallet.id, type: "credits", amount: -pack.price, balanceAfter: newBal, description: `${pack.credits} AI кредитов`, refId: packId },
+    });
+
+    const credit = await tx.aiCredit.upsert({
+      where: { userId: session.user.id },
+      create: { userId: session.user.id, balance: pack.credits, totalBought: pack.credits },
+      update: { balance: { increment: pack.credits }, totalBought: { increment: pack.credits } },
+    });
+
+    return { creditBalance: credit.balance, walletBalance: newBal };
   });
 
-  // Add credits
-  const credit = await prisma.aiCredit.upsert({
-    where: { userId: session.user.id },
-    create: { userId: session.user.id, balance: pack.credits, totalBought: pack.credits },
-    update: { balance: { increment: pack.credits }, totalBought: { increment: pack.credits } },
-  });
-
-  return NextResponse.json({ balance: credit.balance, creditsAdded: pack.credits, walletBalance: newBalance });
+  return NextResponse.json({ balance: result.creditBalance, creditsAdded: pack.credits, walletBalance: result.walletBalance });
 }

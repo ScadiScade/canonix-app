@@ -20,10 +20,11 @@ export async function GET() {
     plan: sub.plan,
     status: sub.status,
     currentPeriodEnd: sub.currentPeriodEnd,
+    pendingPlan: sub.pendingPlan,
   });
 }
 
-// PUT /api/subscription — update plan (for dev without Stripe)
+// PUT /api/subscription — update plan (downgrade/cancel)
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -35,42 +36,39 @@ export async function PUT(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { plan } = parsed.data;
 
-  const creditBonuses: Record<string, number> = { free: 0, pro: 200, corporate: 800 };
-
   let sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
   if (!sub) {
     sub = await prisma.subscription.create({
-      data: { userId: session.user.id, plan, status: "active", currentPeriodEnd: plan !== "free" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null },
+      data: { userId: session.user.id, plan: "free", status: "active" },
     });
-  } else {
-    const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
-    const currentTier = tierOrder[sub.plan] ?? 0;
-    const newTier = tierOrder[plan] ?? 0;
+  }
 
-    if (newTier < currentTier) {
-      // Downgrade: schedule for end of period, don't change immediately
-      sub = await prisma.subscription.update({
-        where: { id: sub.id },
-        data: { pendingPlan: plan },
-      });
-      return NextResponse.json({ plan: sub.plan, pendingPlan: sub.pendingPlan, status: sub.status, message: "Downgrade scheduled" });
+  const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
+  const currentTier = tierOrder[sub.plan] ?? 0;
+  const newTier = tierOrder[plan] ?? 0;
+
+  // Downgrade or cancel: schedule for end of period
+  if (newTier < currentTier || plan === "free") {
+    if (sub.plan === "free") {
+      return NextResponse.json({ plan: sub.plan, status: sub.status, message: "Already on free plan" });
     }
-
-    // Upgrade or same tier: apply immediately
     sub = await prisma.subscription.update({
       where: { id: sub.id },
-      data: { plan, status: "active", currentPeriodEnd: plan !== "free" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null, pendingPlan: null },
+      data: { pendingPlan: plan, status: "cancelling" },
+    });
+    return NextResponse.json({
+      plan: sub.plan,
+      pendingPlan: sub.pendingPlan,
+      status: sub.status,
+      message: plan === "free" ? "Subscription will be cancelled at end of period" : `Downgrade to ${plan} scheduled`,
     });
   }
 
-  // Add monthly credits for paid plans
-  if (creditBonuses[plan] > 0) {
-    await prisma.aiCredit.upsert({
-      where: { userId: session.user.id },
-      create: { userId: session.user.id, balance: creditBonuses[plan] },
-      update: { balance: { increment: creditBonuses[plan] }, totalBought: { increment: creditBonuses[plan] } },
-    });
+  // Same tier — no change
+  if (newTier === currentTier) {
+    return NextResponse.json({ plan: sub.plan, status: sub.status, message: "No change" });
   }
 
-  return NextResponse.json({ plan: sub.plan, status: sub.status });
+  // Upgrade should go through checkout, not here
+  return NextResponse.json({ error: "Use /api/subscription/checkout for upgrades" }, { status: 400 });
 }
