@@ -229,7 +229,7 @@ export default function PricingPage() {
       </section>
 
       {/* CREDITS + WALLET */}
-      <section className="pb-20">
+      <section id="credits" className="pb-20 scroll-mt-20">
         <div className="max-w-5xl mx-auto px-4 md:px-7">
           <div className="text-center mb-10">
             <h2 className="font-serif text-[30px] md:text-[36px] font-light text-ink mb-3">{t("pricing.buyCredits")}</h2>
@@ -255,7 +255,7 @@ export default function PricingPage() {
             })}
           </div>
           {showWallet && (
-            <div className="max-w-md mx-auto">
+            <div id="wallet" className="max-w-md mx-auto scroll-mt-20">
               <div className="bg-gradient-to-br from-accent/6 via-surface to-accent/3 border border-accent/12 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center"><Wallet size={17} className="text-accent" /></div><span className="text-[16px] text-ink-2">{t("pricing.walletBalance")}</span></div>

@@ -140,7 +140,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
             <div className={`hidden sm:flex items-center gap-2 ${session && balance !== null ? "" : "pointer-events-none opacity-0"}`}>
               {session && walletBalance !== null && walletBalance > 0 && (
                 <Link
-                  href="/pricing"
+                  href="/pricing#wallet"
                   className="flex items-center gap-1.5 rounded-full px-3 py-1 no-underline transition-colors bg-ink-3/5 hover:bg-ink-3/10 border border-ink-3/10"
                 >
                   <span className="text-[17px] font-medium text-ink-2">{(walletBalance / 100).toLocaleString("ru-RU")}</span>
@@ -148,7 +148,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
                 </Link>
               )}
               <Link
-                href="/pricing"
+                href="/pricing#credits"
                 className="flex items-center gap-1.5 rounded-full px-3 py-1 no-underline transition-colors bg-accent/8 hover:bg-accent/15 border border-accent/15"
                 tabIndex={session && balance !== null ? 0 : -1}
                 aria-hidden={!session || balance === null}
@@ -264,7 +264,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
 
               {session && balance !== null && (
                 <Link
-                  href="/pricing"
+                  href="/pricing#credits"
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[19px] text-accent hover:bg-accent/5 transition-all no-underline"
                 >
@@ -274,7 +274,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
               )}
               {session && walletBalance !== null && walletBalance > 0 && (
                 <Link
-                  href="/pricing"
+                  href="/pricing#wallet"
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[19px] text-ink-2 hover:bg-ink-3/5 transition-all no-underline"
                 >
