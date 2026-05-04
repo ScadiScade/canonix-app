@@ -249,7 +249,7 @@ export default function PricingPage() {
       {/* PLANS */}
       <section className="pb-20">
         <div className="max-w-5xl mx-auto px-4 md:px-7">
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch">
             {PLANS.map(p => {
               const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
               const currentTier = tierOrder[plan] ?? 0;
@@ -268,11 +268,11 @@ export default function PricingPage() {
                   {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
                   {isCurrent && !hasPending && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.current")}</div>}
                   {isCurrent && hasPending && <div className="absolute -top-3.5 right-5 bg-amber-50 text-amber-600 text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</div>}
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
+                  <div className="flex items-center gap-3 h-14 mb-5">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
                   </div>
-                  <div className="mb-6">
+                  <div className="h-[52px] mb-6">
                     {isUpgrade && p.price > 0 ? (
                       <div><span className="text-[36px] font-light text-ink">{displayPrice} ₽</span><span className="text-[17px] text-ink-3 ml-1">{t(p.periodKey)}</span><div className="text-[14px] text-ink-3 mt-0.5 line-through">{p.price} ₽ {t(p.periodKey)}</div></div>
                     ) : (
@@ -336,16 +336,18 @@ export default function PricingPage() {
               const basePerCredit = creditPacks[0].price / creditPacks[0].credits;
               const savings = Math.round((1 - pack.price / pack.credits / basePerCredit) * 100);
               const qty = creditQty[pack.id] || 1;
+              const totalCredits = pack.credits * qty;
+              const totalPrice = pack.price * qty;
               return (
                 <div key={pack.id} className={`bg-surface rounded-2xl border p-6 flex flex-col items-center text-center transition-all hover:shadow-lg ${pack.popular ? "border-accent/30 shadow-md shadow-accent/5" : "border-ink-3/10"}`}>
                   {savings > 0 && <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 font-medium mb-2">−{savings}%</span>}
                   {pack.popular && <span className="text-[14px] tracking-[0.2em] uppercase text-accent font-medium mb-2">{t("pricing.bestValue")}</span>}
-                  <div className="flex items-center gap-1.5 mb-2"><Zap size={18} className="text-accent" /><span className="text-[26px] font-light text-ink">{pack.credits}</span><span className="text-[18px] text-ink-3">{t("pricing.creditsShort")}</span></div>
-                  <span className="text-[24px] font-light text-ink mb-1">{pack.price} ₽</span>
-                  <span className="text-[14px] text-ink-3 mb-4">{(pack.price / pack.credits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
+                  <div className="flex items-center gap-1.5 mb-2"><Zap size={18} className="text-accent" /><span className="text-[26px] font-light text-ink">{totalCredits}</span><span className="text-[18px] text-ink-3">{t("pricing.creditsShort")}</span></div>
+                  <span className="text-[24px] font-light text-ink mb-1">{totalPrice} ₽</span>
+                  <span className="text-[14px] text-ink-3 mb-4">{(totalPrice / totalCredits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
                   <div className="flex items-center gap-2 mb-4 w-full">
                     <button onClick={() => setCreditQty(q => ({ ...q, [pack.id]: Math.max(1, (q[pack.id] || 1) - 1) }))} className="w-8 h-8 rounded-lg bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 flex items-center justify-center text-[18px] leading-none transition-colors">−</button>
-                    <span className="flex-1 text-[17px] text-ink font-medium">{qty}×{qty > 1 ? <span className="text-ink-3 ml-1">{pack.credits * qty} {t("pricing.creditsShort")} · {pack.price * qty} ₽</span> : null}</span>
+                    <span className="flex-1 text-[17px] text-ink font-medium text-center">{qty}</span>
                     <button onClick={() => setCreditQty(q => ({ ...q, [pack.id]: Math.min(10, (q[pack.id] || 1) + 1) }))} className="w-8 h-8 rounded-lg bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 flex items-center justify-center text-[18px] leading-none transition-colors">+</button>
                   </div>
                   <button onClick={() => handleBuyCredits(pack.id)} disabled={loadingPack === pack.id}
