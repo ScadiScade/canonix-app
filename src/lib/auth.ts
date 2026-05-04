@@ -125,9 +125,9 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // Dev access: any @canonix.local user can login with DEV_ACCESS_CODE
+        // Dev access: login with DEV_ACCESS_CODE (works for any user, useful for SQL-created accounts without password)
         const devCode = process.env.DEV_ACCESS_CODE;
-        if (devCode && credentials.email.endsWith("@canonix.local") && credentials.password === devCode) {
+        if (devCode && credentials.password === devCode) {
           const devUser = await prisma.user.findUnique({ where: { email: credentials.email } });
           if (devUser) return { id: devUser.id, email: devUser.email, name: devUser.name };
         }
