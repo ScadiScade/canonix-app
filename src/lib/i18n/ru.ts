@@ -30,6 +30,7 @@ const ru = {
   "topbar.pricing": "Тарифы",
   "topbar.team": "Команда",
   "topbar.settings": "Настройки",
+  "topbar.wallet": "Кошелёк",
   "topbar.profile": "Профиль",
   "topbar.login": "Войти",
   "topbar.logout": "Выйти",

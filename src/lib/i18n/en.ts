@@ -32,6 +32,7 @@ const en: Translations = {
   "topbar.pricing": "Pricing",
   "topbar.team": "Team",
   "topbar.settings": "Settings",
+  "topbar.wallet": "Wallet",
   "topbar.profile": "Profile",
   "topbar.login": "Log in",
   "topbar.logout": "Log out",
