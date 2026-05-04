@@ -433,7 +433,7 @@ const en: Translations = {
   "pricing.trust3d": "Top up your balance and pay for subscriptions and credits in one click.",
   "pricing.cancelling": "Cancelling",
   "pricing.cancelSub": "Cancel subscription",
-  "pricing.downgrade": "Downgrade",
+  "pricing.notAvailable": "Not available",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

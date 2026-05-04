@@ -47,21 +47,28 @@ export async function PUT(req: NextRequest) {
   const currentTier = tierOrder[sub.plan] ?? 0;
   const newTier = tierOrder[plan] ?? 0;
 
-  // Downgrade or cancel: schedule for end of period
-  if (newTier < currentTier || plan === "free") {
-    if (sub.plan === "free") {
-      return NextResponse.json({ plan: sub.plan, status: sub.status, message: "Already on free plan" });
-    }
+  // Only cancel (to free) is allowed for lower tiers, not downgrade to another paid plan
+  if (newTier < currentTier && plan !== "free") {
+    return NextResponse.json({ error: "Downgrade to a lower paid plan is not available. Cancel your subscription instead." }, { status: 400 });
+  }
+
+  // Cancel: schedule for end of period
+  if (plan === "free" && sub.plan !== "free") {
     sub = await prisma.subscription.update({
       where: { id: sub.id },
-      data: { pendingPlan: plan, status: "cancelling" },
+      data: { pendingPlan: "free", status: "cancelling" },
     });
     return NextResponse.json({
       plan: sub.plan,
       pendingPlan: sub.pendingPlan,
       status: sub.status,
-      message: plan === "free" ? "Subscription will be cancelled at end of period" : `Downgrade to ${plan} scheduled`,
+      message: "Subscription will be cancelled at end of period",
     });
+  }
+
+  // Already on free
+  if (sub.plan === "free" && plan === "free") {
+    return NextResponse.json({ plan: sub.plan, status: sub.status, message: "Already on free plan" });
   }
 
   // Same tier — no change
