@@ -437,6 +437,13 @@ const en: Translations = {
   "pricing.changesAtEnd": "Changes at period end",
   "pricing.reactivate": "Reactivate",
   "pricing.downgrade": "Downgrade",
+  "pricing.atPeriodEnd": "at period end",
+  "pricing.cancelEndPeriod": "Subscription cancelling",
+  "pricing.changeEndPeriod": "Switching to {plan}",
+  "pricing.accessUntil": "Access until",
+  "pricing.reactivated": "Subscription reactivated",
+  "pricing.cancelScheduled": "Cancellation scheduled for end of period",
+  "pricing.downgradeScheduled": "Downgrade to {plan} scheduled for end of period",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

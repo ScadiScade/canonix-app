@@ -435,6 +435,13 @@ const ru = {
   "pricing.changesAtEnd": "Изменение в конце периода",
   "pricing.reactivate": "Возобновить",
   "pricing.downgrade": "Понизить",
+  "pricing.atPeriodEnd": "в конце периода",
+  "pricing.cancelEndPeriod": "Подписка отменяется",
+  "pricing.changeEndPeriod": "Переход на {plan}",
+  "pricing.accessUntil": "Доступ до",
+  "pricing.reactivated": "Подписка возобновлена",
+  "pricing.cancelScheduled": "Отмена подписки запланирована на конец периода",
+  "pricing.downgradeScheduled": "Понижение до {plan} запланировано на конец периода",
 
   // Marketplace
   "marketplace.title": "Магазин вселенных",

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Topbar from "@/components/Topbar";
 import { useCredits } from "@/components/CreditProvider";
-import { Check, X, Coins, Sparkles, Crown, Building2, Zap, Loader2, ArrowRight, ChevronDown, Wallet, Shield, Clock, Star } from "lucide-react";
+import { Check, X, Coins, Sparkles, Crown, Building2, Zap, Loader2, ArrowRight, ChevronDown, Wallet, Shield, Clock, Star, RotateCcw, AlertTriangle } from "lucide-react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 
 const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: number; periodKey: TranslationKey; color: string; popular?: boolean; seatPrice?: number; seatKey?: TranslationKey; features: { textKey: TranslationKey; included: boolean }[] }[] = [
@@ -80,14 +80,34 @@ export default function PricingPage() {
 
   const handleSubscribe = async (planId: string) => {
     if (!session) { window.location.href = "/login"; return; }
-    if (planId === "free") {
+
+    // Reactivate: clicking current plan with pendingPlan undoes the pending change
+    if (planId === plan && pendingPlan) {
       setLoadingPlan(planId);
       try {
-        const res = await fetch("/api/subscription", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: "free" }) });
-        if (res.ok) { const data = await res.json(); refreshBalance(); setSuccessMsg(data.pendingPlan ? t("pricing.scheduledChange") + t("pricing.free") + " " + t("pricing.nextPeriod") : t("pricing.planChangedFree")); }
+        const res = await fetch("/api/subscription", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: planId }) });
+        if (res.ok) { await refreshBalance(); setSuccessMsg(t("pricing.reactivated")); }
       } finally { setLoadingPlan(null); }
       return;
     }
+
+    // Cancel or downgrade: schedule via PUT /api/subscription
+    const tierOrder: Record<string, number> = { free: 0, pro: 1, corporate: 2 };
+    const currentTier = tierOrder[plan] ?? 0;
+    const targetTier = tierOrder[planId] ?? 0;
+    if (targetTier < currentTier) {
+      setLoadingPlan(planId);
+      try {
+        const res = await fetch("/api/subscription", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: planId }) });
+        if (res.ok) {
+          await refreshBalance();
+          setSuccessMsg(planId === "free" ? t("pricing.cancelScheduled") : t("pricing.downgradeScheduled", { plan: planId === "pro" ? "Pro" : t("pricing.corporate") }));
+        }
+      } finally { setLoadingPlan(null); }
+      return;
+    }
+
+    // Upgrade: pay via checkout
     setLoadingPlan(planId);
     try {
       const res = await fetch("/api/subscription/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ planId }) });
@@ -155,17 +175,24 @@ export default function PricingPage() {
           <h1 className="font-serif text-[36px] md:text-[48px] font-light text-ink leading-tight mb-4">{t("pricing.title")}</h1>
           <p className="text-ink-2 text-[20px] md:text-[22px] max-w-xl mx-auto leading-relaxed mb-8">{t("pricing.desc")}</p>
           {session && balance !== null && (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-3">
               <div className="inline-flex items-center gap-3 bg-surface border border-ink-3/10 rounded-full px-5 py-2">
                 <Coins size={14} className="text-accent" />
                 <span className="text-[17px] text-ink">{balance} {t("pricing.creditsShort")}</span>
                 <span className="text-[15px] text-ink-3">·</span>
                 <span className="text-[15px] text-ink-2">{plan === "free" ? t("pricing.free") : plan === "pro" ? "Pro" : t("pricing.corporate")}</span>
               </div>
-              {currentPeriodEnd && plan !== "free" && (
+              {currentPeriodEnd && plan !== "free" && !pendingPlan && (
                 <div className="text-[14px] text-ink-3">
                   {t("pricing.renewsOn")} {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
-                  {pendingPlan && <span className="ml-2 text-amber-600">→ {pendingPlan === "free" ? t("pricing.free") : pendingPlan === "pro" ? "Pro" : t("pricing.corporate")} {t("pricing.nextPeriod")}</span>}
+                </div>
+              )}
+              {pendingPlan && currentPeriodEnd && (
+                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200/60 rounded-full px-4 py-1.5">
+                  <AlertTriangle size={14} className="text-amber-500" />
+                  <span className="text-[14px] text-amber-700">
+                    {pendingPlan === "free" ? t("pricing.cancelEndPeriod") : t("pricing.changeEndPeriod", { plan: pendingPlan === "pro" ? "Pro" : t("pricing.corporate") })} — {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
+                  </span>
                 </div>
               )}
             </div>
@@ -184,16 +211,17 @@ export default function PricingPage() {
               const isBelow = planTier < currentTier;
               const isCurrent = plan === p.id;
               const isCancel = p.id === "free" && plan !== "free";
-              const isDowngrade = isBelow && !isCurrent && !isCancel; // lower paid plan — scheduled at period end
+              const isDowngrade = isBelow && !isCurrent && !isCancel;
               const hasPending = isCurrent && !!pendingPlan;
               const displayPrice = (plan === "pro" && p.id === "corporate") ? p.price - PRO_PRICE + UPGRADE_MARKUP : p.price;
               const isUpgrade = plan === "pro" && p.id === "corporate";
               return (
                 <div key={p.id} className={`relative bg-surface rounded-2xl border p-6 md:p-7 flex flex-col transition-all ${
-                  isDowngrade ? "opacity-70 border-ink-3/10" : p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
+                  p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
                 } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}>
                   {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
-                  {isCurrent && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{hasPending ? t("pricing.changesAtEnd") : t("pricing.current")}</div>}
+                  {isCurrent && !hasPending && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.current")}</div>}
+                  {isCurrent && hasPending && <div className="absolute -top-3.5 right-5 bg-amber-50 text-amber-600 text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</div>}
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
@@ -215,25 +243,38 @@ export default function PricingPage() {
                     ))}
                   </ul>
                   <button onClick={() => handleSubscribe(p.id)} disabled={loadingPlan === p.id}
-                    className={`w-full py-3 rounded-xl text-[17px] tracking-[0.08em] uppercase flex items-center justify-center gap-2 transition-all ${
+                    className={`w-full py-3 rounded-xl text-[15px] tracking-[0.06em] uppercase flex items-center justify-center gap-2 transition-all ${
                       hasPending ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
                       : isCurrent ? "bg-accent/8 text-accent cursor-default"
                       : isCancel ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                      : isDowngrade ? "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10"
+                      : isDowngrade ? "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 border border-ink-3/10"
                       : p.popular ? "bg-accent text-white hover:bg-accent/90 shadow-md shadow-accent/20"
                       : "bg-surface border border-ink-3/15 text-ink hover:border-accent/40 hover:text-accent"
                     } disabled:opacity-50`}>
                     {loadingPlan === p.id ? <Loader2 size={15} className="animate-spin" />
-                    : hasPending ? t("pricing.reactivate")
+                    : hasPending ? <><RotateCcw size={14} />{t("pricing.reactivate")}</>
                     : isCurrent ? t("pricing.currentPlan")
                     : isCancel ? t("pricing.cancelSub")
-                    : isDowngrade ? t("pricing.downgrade")
+                    : isDowngrade ? <>{t("pricing.downgrade")}<span className="text-[12px] normal-case tracking-normal opacity-60 ml-1">{t("pricing.atPeriodEnd")}</span></>
                     : <>{isUpgrade ? t("pricing.upgrade") : p.price === 0 ? t("pricing.startFree") : t("pricing.subscribe")}<ArrowRight size={13} /></>}
                   </button>
                 </div>
               );
             })}
           </div>
+          {pendingPlan && currentPeriodEnd && (
+            <div className="mt-6 bg-amber-50/80 border border-amber-200/50 rounded-xl px-5 py-4 flex items-start gap-3">
+              <AlertTriangle size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[15px] text-amber-800 font-medium mb-0.5">
+                  {pendingPlan === "free" ? t("pricing.cancelEndPeriod") : t("pricing.changeEndPeriod", { plan: pendingPlan === "pro" ? "Pro" : t("pricing.corporate") })}
+                </p>
+                <p className="text-[14px] text-amber-600">
+                  {t("pricing.accessUntil")} {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
