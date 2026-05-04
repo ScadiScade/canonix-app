@@ -453,6 +453,15 @@ const en: Translations = {
   "pricing.confirmDowngradeDesc": "The change takes effect at the end of the current period. Your current plan remains active until then.",
   "pricing.confirmBuyCredits": "Buy credits?",
   "pricing.confirmBuyCreditsDesc": "{price} ₽ will be deducted from your balance for {count} AI credits.",
+  "pricing.needTopup": "Insufficient funds. Top up your wallet by {deficit} ₽",
+  "wallet.title": "Wallet",
+  "wallet.desc": "Top up your balance to buy subscriptions and AI credits",
+  "wallet.customAmount": "Custom amount",
+  "wallet.history": "Transaction history",
+  "wallet.trust1t": "Secure",
+  "wallet.trust1d": "All transactions are protected",
+  "wallet.trust2t": "Instant",
+  "wallet.trust2d": "Balance updates immediately",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

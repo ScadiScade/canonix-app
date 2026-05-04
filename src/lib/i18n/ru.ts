@@ -451,6 +451,15 @@ const ru = {
   "pricing.confirmDowngradeDesc": "Переход произойдёт в конце текущего периода. До этого момента текущий план остаётся активным.",
   "pricing.confirmBuyCredits": "Купить кредиты?",
   "pricing.confirmBuyCreditsDesc": "С баланса будет списано {price} ₽ за {count} AI кредитов.",
+  "pricing.needTopup": "Недостаточно средств. Пополните кошелёк на {deficit} ₽",
+  "wallet.title": "Кошелёк",
+  "wallet.desc": "Пополните баланс для покупки подписок и AI кредитов",
+  "wallet.customAmount": "Другая сумма",
+  "wallet.history": "История операций",
+  "wallet.trust1t": "Безопасность",
+  "wallet.trust1d": "Все операции защищены",
+  "wallet.trust2t": "Мгновенно",
+  "wallet.trust2d": "Баланс обновляется сразу",
 
   // Marketplace
   "marketplace.title": "Магазин вселенных",

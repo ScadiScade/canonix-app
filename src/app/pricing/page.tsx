@@ -47,10 +47,7 @@ export default function PricingPage() {
   const { balance, plan, currentPeriodEnd, pendingPlan, walletBalance, refreshBalance } = useCredits();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
-  const [topupAmount, setTopupAmount] = useState<number>(500);
-  const [loadingTopup, setLoadingTopup] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [topupPrompt, setTopupPrompt] = useState<{ deficitRub: number; label: string; retryAction?: () => void } | null>(null);
   const [creditPacks, setCreditPacks] = useState(DEFAULT_PACKS);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; label: string; onConfirm: () => void; danger?: boolean } | null>(null);
@@ -117,7 +114,7 @@ export default function PricingPage() {
         const data = await res.json().catch(() => ({}));
         if (data.error === "Insufficient wallet balance") {
           const deficit = Math.ceil((data.deficit || 0) / 100);
-          setTopupPrompt({ deficitRub: deficit, label: planId === "pro" ? "Pro" : t("pricing.corporate"), retryAction: () => handleSubscribe(planId) }); setTopupAmount(deficit);
+          setSuccessMsg(t("pricing.needTopup", { deficit }));
         } else { console.error("Checkout failed:", res.status, data); }
         return;
       }
@@ -163,8 +160,8 @@ export default function PricingPage() {
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 402 && data.error === "Insufficient wallet balance") {
-          const deficit = Math.ceil((data.deficit || 0) / 100); const pack = creditPacks.find(p => p.id === packId);
-          setTopupPrompt({ deficitRub: deficit, label: `${(pack?.credits || 0) * qty} ${t("common.credits")}`, retryAction: () => doBuyCredits(packId, qty) }); setTopupAmount(deficit);
+          const deficit = Math.ceil((data.deficit || 0) / 100);
+          setSuccessMsg(t("pricing.needTopup", { deficit }));
         } else { console.error("Buy credits failed:", res.status, data); setSuccessMsg(data.error || t("common.error")); }
         return;
       }
@@ -188,25 +185,17 @@ export default function PricingPage() {
     });
   };
 
-  const handleTopup = async (andRetry?: () => void) => {
-    if (!session) { window.location.href = "/login"; return; }
-    setLoadingTopup(true);
-    try {
-      const res = await fetch("/api/wallet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: topupAmount }) });
-      if (res.ok) { await refreshBalance(); setTopupPrompt(null); setSuccessMsg(t("pricing.topupSuccess", { amount: topupAmount })); if (andRetry) setTimeout(andRetry, 300); }
-      else { const data = await res.json().catch(() => ({})); console.error("Topup failed:", data.error); }
-    } finally { setLoadingTopup(false); }
-  };
-
   const walletRub = walletBalance !== null ? walletBalance / 100 : 0;
-  const showWallet = session && walletBalance !== null;
 
   return (
     <div className="min-h-screen bg-background">
       <Topbar />
       {successMsg && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white rounded-xl px-5 py-3 shadow-lg flex items-center gap-3" style={{ animation: "fadeIn 0.2s ease-out" }}>
-          <Check size={16} /><span className="text-[17px]">{successMsg}</span>
+        <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 rounded-xl px-5 py-3 shadow-lg flex items-center gap-3 ${successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? "bg-amber-500 text-white" : "bg-green-600 text-white"}`} style={{ animation: "fadeIn 0.2s ease-out" }}>
+          <span className="text-[17px]">{successMsg}</span>
+          {successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? (
+            <Link href="/wallet" className="bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1 text-[14px] tracking-[0.08em] uppercase no-underline">{t("pricing.topup")}</Link>
+          ) : <Check size={16} />}
           <button onClick={() => setSuccessMsg(null)} className="text-white/60 hover:text-white"><X size={14} /></button>
         </div>
       )}
@@ -358,45 +347,11 @@ export default function PricingPage() {
               );
             })}
           </div>
-          {showWallet && (
-            <div id="wallet" className="max-w-md mx-auto scroll-mt-20">
-              <div className="bg-gradient-to-br from-accent/6 via-surface to-accent/3 border border-accent/12 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2.5"><div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center"><Wallet size={17} className="text-accent" /></div><span className="text-[16px] text-ink-2">{t("pricing.walletBalance")}</span></div>
-                  <span className="text-[30px] font-light text-ink tracking-tight">{walletRub.toLocaleString("ru-RU")} ₽</span>
-                </div>
-                {topupPrompt && (
-                  <div className="mb-4 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-                    <p className="text-[15px] text-amber-500 mb-3">{t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}</p>
-                    <button onClick={() => handleTopup(topupPrompt.retryAction)} disabled={loadingTopup}
-                      className="w-full bg-accent text-white rounded-lg px-4 py-2.5 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                      {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : t("pricing.topupAndBuy")}<span>{topupPrompt.deficitRub} ₽</span>
-                    </button>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 mb-3">
-                  {[300, 500, 1000, 3000, 5000].map(v => (
-                    <button key={v} onClick={() => { setTopupAmount(v); setTopupPrompt(null); }}
-                      className={`flex-1 py-2 rounded-lg text-[14px] font-medium transition-all ${topupAmount === v && !topupPrompt ? "bg-accent text-white shadow-sm" : "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 hover:text-ink"}`}>
-                      {v >= 1000 ? `${v / 1000}k` : v} ₽
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <input type="number" min={100} max={50000} step={100} value={topupAmount > 5000 ? topupAmount : ""}
-                      onChange={e => { const v = parseInt(e.target.value); if (v >= 100 && v <= 50000) setTopupAmount(v); }}
-                      onFocus={() => { if (topupAmount <= 5000) setTopupAmount(0); setTopupPrompt(null); }}
-                      placeholder="Другая сумма"
-                      className="w-full px-3 py-2 rounded-lg text-[14px] bg-ink-3/5 border border-ink-3/10 text-ink placeholder:text-ink-3/50 focus:outline-none focus:border-accent/40 transition-colors" />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-ink-3/50">₽</span>
-                  </div>
-                  <button onClick={() => handleTopup(topupPrompt?.retryAction)} disabled={loadingTopup || topupAmount < 100}
-                    className="px-5 py-2 bg-accent text-white rounded-lg text-[14px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm font-medium">
-                    {loadingTopup ? <Loader2 size={12} className="animate-spin" /> : t("pricing.topup")}
-                  </button>
-                </div>
-              </div>
+          {session && (
+            <div className="text-center mt-6">
+              <Link href="/wallet" className="inline-flex items-center gap-2 bg-accent/8 text-accent rounded-xl px-5 py-2.5 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/15 transition-colors no-underline font-medium">
+                <Wallet size={14} />{t("pricing.walletBalance")} — {walletRub.toLocaleString("ru-RU")} ₽
+              </Link>
             </div>
           )}
         </div>
