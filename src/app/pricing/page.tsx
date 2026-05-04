@@ -68,26 +68,53 @@ const PLANS: { id: string; nameKey: TranslationKey; icon: JSX.Element; price: nu
   },
 ];
 
-const CREDIT_PACKS = [
-  { id: "pack-50", credits: 50, price: 149, labelKey: "pricing.pack50" },
-  { id: "pack-200", credits: 200, price: 490, labelKey: "pricing.pack200", popular: true },
-  { id: "pack-500", credits: 500, price: 990, labelKey: "pricing.pack500" },
+// Default packs (overridden by DB via /api/pricing if available)
+const DEFAULT_PACKS = [
+  { id: "small", credits: 50, price: 149, labelKey: "pricing.pack50" },
+  { id: "medium", credits: 200, price: 490, labelKey: "pricing.pack200", popular: true },
+  { id: "large", credits: 500, price: 990, labelKey: "pricing.pack500" },
 ];
 
 // Upgrade pricing constants
-const UPGRADE_MARKUP = 49; // markup on top of price difference
+const UPGRADE_MARKUP = 49;
 const PRO_PRICE = 299;
 
 export default function PricingPage() {
   const { t } = useLocale();
   const { data: session } = useSession();
-  const { balance, setBalance, plan, currentPeriodEnd, pendingPlan, walletBalance, refreshBalance } = useCredits();
+  const { balance, plan, currentPeriodEnd, pendingPlan, walletBalance, refreshBalance } = useCredits();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [loadingPack, setLoadingPack] = useState<string | null>(null);
   const [topupAmount, setTopupAmount] = useState<number>(500);
   const [loadingTopup, setLoadingTopup] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [topupPrompt, setTopupPrompt] = useState<{ deficitRub: number; label: string; retryAction?: () => void } | null>(null);
+  const [creditPacks, setCreditPacks] = useState(DEFAULT_PACKS);
+
+  // Load pricing from DB
+  useEffect(() => {
+    (async () => {
+      try {
+        // Seed defaults if empty
+        await fetch("/api/pricing", { method: "POST" });
+        const res = await fetch("/api/pricing");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.creditPacks?.length > 0) {
+            const labelMap: Record<string, string> = { small: "pricing.pack50", medium: "pricing.pack200", large: "pricing.pack500" };
+            const popularMap: Record<string, boolean> = { medium: true };
+            setCreditPacks(data.creditPacks.map((p: { key: string; credits: number; price: number }) => ({
+              id: p.key,
+              credits: p.credits,
+              price: Math.round(p.price / 100),
+              labelKey: labelMap[p.key] || `pricing.pack${p.credits}`,
+              popular: popularMap[p.key] || false,
+            })));
+          }
+        }
+      } catch { /* use defaults */ }
+    })();
+  }, []);
 
   // Auto-dismiss success
   useEffect(() => {
@@ -148,8 +175,7 @@ export default function PricingPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        // Dev mode: checkout already updated the plan directly
-        refreshBalance();
+        await refreshBalance();
         setSuccessMsg(t("pricing.planChanged", { plan: planId === "pro" ? "Pro" : t("pricing.corporate") }));
       }
     } finally {
@@ -173,7 +199,7 @@ export default function PricingPage() {
       if (!res.ok) {
         if (res.status === 402 && data.error === "Insufficient wallet balance") {
           const deficit = Math.ceil((data.deficit || 0) / 100);
-          const pack = CREDIT_PACKS.find(p => p.id === packId);
+          const pack = creditPacks.find(p => p.id === packId);
           setTopupPrompt({ deficitRub: deficit, label: `${pack?.credits || ""} ${t("common.credits")}`, retryAction: () => handleBuyCredits(packId) });
           setTopupAmount(deficit);
         } else {
@@ -182,9 +208,8 @@ export default function PricingPage() {
         }
         return;
       }
-      if (data.balance !== undefined) setBalance(data.balance);
-      else refreshBalance();
-      const pack = CREDIT_PACKS.find(p => p.id === packId);
+      await refreshBalance();
+      const pack = creditPacks.find(p => p.id === packId);
       setSuccessMsg(t("pricing.creditsAdded", { count: pack?.credits || "" }));
     } finally {
       setLoadingPack(null);
@@ -432,8 +457,8 @@ export default function PricingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {CREDIT_PACKS.map(pack => {
-              const basePerCredit = CREDIT_PACKS[0].price / CREDIT_PACKS[0].credits;
+            {creditPacks.map(pack => {
+              const basePerCredit = creditPacks[0].price / creditPacks[0].credits;
               const thisPerCredit = pack.price / pack.credits;
               const savings = Math.round((1 - thisPerCredit / basePerCredit) * 100);
               return (

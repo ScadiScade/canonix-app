@@ -4,11 +4,22 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateBody, buyCreditsSchema } from "@/lib/validators";
 
-const CREDIT_PACKS: Record<string, { credits: number; price: number }> = {
-  small: { credits: 50, price: 14900 },   // 149₽ in kopecks
-  medium: { credits: 200, price: 49000 },  // 490₽ in kopecks
-  large: { credits: 500, price: 99000 },   // 990₽ in kopecks
+// Fallback if DB has no pricing config yet
+const FALLBACK_PACKS: Record<string, { credits: number; price: number }> = {
+  small: { credits: 50, price: 14900 },
+  medium: { credits: 200, price: 49000 },
+  large: { credits: 500, price: 99000 },
 };
+
+async function getCreditPacks(): Promise<Record<string, { credits: number; price: number }>> {
+  const configs = await prisma.pricingConfig.findMany({ where: { type: "creditPack", active: true } });
+  if (configs.length === 0) return FALLBACK_PACKS;
+  const map: Record<string, { credits: number; price: number }> = {};
+  for (const c of configs) {
+    map[c.key] = { credits: c.credits, price: c.price };
+  }
+  return map;
+}
 
 // POST /api/subscription/buy-credits — purchase credit pack via wallet
 export async function POST(req: NextRequest) {
@@ -21,7 +32,8 @@ export async function POST(req: NextRequest) {
   const parsed = validateBody(buyCreditsSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { packId } = parsed.data;
-  const pack = CREDIT_PACKS[packId];
+  const packs = await getCreditPacks();
+  const pack = packs[packId];
   if (!pack) {
     return NextResponse.json({ error: "Invalid pack" }, { status: 400 });
   }

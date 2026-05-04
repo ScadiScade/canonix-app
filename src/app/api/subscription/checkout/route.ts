@@ -4,8 +4,25 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateBody, checkoutSchema } from "@/lib/validators";
 
-const PLAN_PRICES: Record<string, number> = { pro: 29900, corporate: 99900 }; // kopecks
-const CREDIT_BONUSES: Record<string, number> = { pro: 200, corporate: 800 };
+// Fallback if DB has no pricing config yet
+const FALLBACK_PLAN_PRICES: Record<string, number> = { pro: 29900, corporate: 99900 };
+const FALLBACK_CREDIT_BONUSES: Record<string, number> = { pro: 200, corporate: 800 };
+
+async function getPlanPrices(): Promise<Record<string, number>> {
+  const configs = await prisma.pricingConfig.findMany({ where: { type: "plan", active: true } });
+  if (configs.length === 0) return FALLBACK_PLAN_PRICES;
+  const map: Record<string, number> = {};
+  for (const c of configs) map[c.key] = c.price;
+  return map;
+}
+
+async function getPlanCredits(): Promise<Record<string, number>> {
+  const configs = await prisma.pricingConfig.findMany({ where: { type: "plan", active: true } });
+  if (configs.length === 0) return FALLBACK_CREDIT_BONUSES;
+  const map: Record<string, number> = {};
+  for (const c of configs) map[c.key] = c.credits;
+  return map;
+}
 
 // POST /api/subscription/checkout — subscribe via wallet or Stripe
 export async function POST(req: NextRequest) {
@@ -18,6 +35,9 @@ export async function POST(req: NextRequest) {
   const parsed = validateBody(checkoutSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { planId } = parsed.data;
+
+  const PLAN_PRICES = await getPlanPrices();
+  const CREDIT_BONUSES = await getPlanCredits();
 
   const priceKopecks = PLAN_PRICES[planId] ?? 0;
   if (priceKopecks === 0) {

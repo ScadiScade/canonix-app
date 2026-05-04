@@ -279,3 +279,18 @@ model UniversePurchase {
   @@index([buyerId])
   @@index([universeId])
 }
+
+model PricingConfig {
+  id          String   @id @default(cuid())
+  type        String   // "plan" or "creditPack"
+  key         String   // "pro", "corporate", "small", "medium", "large"
+  label       String?  // Display name
+  credits     Int      @default(0)  // Credits included (0 for plans that use CREDIT_BONUSES)
+  price       Int      // Price in kopecks
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([type, key])
+}
