@@ -234,9 +234,9 @@ export default function PricingPage() {
                 </div>
               )}
               {pendingPlan && currentPeriodEnd && (
-                <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200/60 rounded-full px-4 py-1.5">
+                <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5">
                   <AlertTriangle size={14} className="text-amber-500" />
-                  <span className="text-[14px] text-amber-700">
+                  <span className="text-[14px] text-amber-500">
                     {pendingPlan === "free" ? t("pricing.cancelEndPeriod") : t("pricing.changeEndPeriod", { plan: pendingPlan === "pro" ? "Pro" : t("pricing.corporate") })} — {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}
                   </span>
                 </div>
@@ -267,7 +267,7 @@ export default function PricingPage() {
                 } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}>
                   {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
                   {isCurrent && !hasPending && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.current")}</div>}
-                  {isCurrent && hasPending && <div className="absolute -top-3.5 right-5 bg-amber-50 text-amber-600 text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</div>}
+                  {isCurrent && hasPending && <div className="absolute -top-3.5 right-5 bg-amber-500/10 text-amber-500 text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</div>}
                   <div className="flex items-center gap-3 h-14 mb-5">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
@@ -290,9 +290,9 @@ export default function PricingPage() {
                   </ul>
                   <button onClick={() => handleSubscribe(p.id)} disabled={loadingPlan === p.id}
                     className={`w-full py-3 rounded-xl text-[15px] tracking-[0.06em] uppercase flex items-center justify-center gap-2 transition-all ${
-                      hasPending ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
+                      hasPending ? "bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/15"
                       : isCurrent ? "bg-accent/8 text-accent cursor-default"
-                      : isCancel ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                      : isCancel ? "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/15"
                       : isDowngrade ? "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 border border-ink-3/10"
                       : p.popular ? "bg-accent text-white hover:bg-accent/90 shadow-md shadow-accent/20"
                       : "bg-surface border border-ink-3/15 text-ink hover:border-accent/40 hover:text-accent"
@@ -309,13 +309,13 @@ export default function PricingPage() {
             })}
           </div>
           {pendingPlan && currentPeriodEnd && (
-            <div className="mt-6 bg-amber-50/80 border border-amber-200/50 rounded-xl px-5 py-4 flex items-start gap-3">
+            <div className="mt-6 bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 flex items-start gap-3">
               <AlertTriangle size={18} className="text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-[15px] text-amber-800 font-medium mb-0.5">
+                <p className="text-[15px] text-amber-500 font-medium mb-0.5">
                   {pendingPlan === "free" ? t("pricing.cancelEndPeriod") : t("pricing.changeEndPeriod", { plan: pendingPlan === "pro" ? "Pro" : t("pricing.corporate") })}
                 </p>
-                <p className="text-[14px] text-amber-600">
+                <p className="text-[14px] text-amber-400">
                   {t("pricing.accessUntil")} {new Date(currentPeriodEnd).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
@@ -366,8 +366,8 @@ export default function PricingPage() {
                   <span className="text-[30px] font-light text-ink tracking-tight">{walletRub.toLocaleString("ru-RU")} ₽</span>
                 </div>
                 {topupPrompt && (
-                  <div className="mb-4 bg-amber-50/80 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/30 rounded-xl px-4 py-3">
-                    <p className="text-[15px] text-amber-700 dark:text-amber-300 mb-3">{t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}</p>
+                  <div className="mb-4 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+                    <p className="text-[15px] text-amber-500 mb-3">{t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}</p>
                     <button onClick={() => handleTopup(topupPrompt.retryAction)} disabled={loadingTopup}
                       className="w-full bg-accent text-white rounded-lg px-4 py-2.5 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                       {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : t("pricing.topupAndBuy")}<span>{topupPrompt.deficitRub} ₽</span>

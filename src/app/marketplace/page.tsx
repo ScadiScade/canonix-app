@@ -24,8 +24,8 @@ interface Listing {
 }
 
 const LICENSE_LABELS: Record<string, { labelKey: TranslationKey; icon: typeof Unlock; color: string; bg: string }> = {
-  open: { labelKey: "marketplace.open", icon: Unlock, color: "#16A34A", bg: "bg-green-50 border-green-200" },
-  paid: { labelKey: "marketplace.paid", icon: Lock, color: "#D97706", bg: "bg-amber-50 border-amber-200" },
+  open: { labelKey: "marketplace.open", icon: Unlock, color: "#16A34A", bg: "bg-green-500/10 border-green-500/20" },
+  paid: { labelKey: "marketplace.paid", icon: Lock, color: "#D97706", bg: "bg-amber-500/10 border-amber-500/20" },
 };
 
 export default function MarketplacePage() {
@@ -103,7 +103,7 @@ export default function MarketplacePage() {
               <span className="text-[15px] tracking-[0.15em] uppercase text-ink-3">{t("ai.entities")}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[26px] font-light text-green-600">{openCount}</span>
+              <span className="text-[26px] font-light text-green-500">{openCount}</span>
               <span className="text-[15px] tracking-[0.15em] uppercase text-ink-3">{t("marketplace.free")}</span>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function MarketplacePage() {
                       {u.license === "paid" ? (
                         <span className="text-[20px] font-light text-ink">{u.price} ₽</span>
                       ) : (
-                        <span className="text-[16px] text-green-600 font-medium">{t("marketplace.free")}</span>
+                        <span className="text-[16px] text-green-500 font-medium">{t("marketplace.free")}</span>
                       )}
                     </div>
 
