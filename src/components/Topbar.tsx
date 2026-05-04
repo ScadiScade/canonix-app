@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import {
-  Map, ShoppingBag, CreditCard, Users, Coins, Settings,
+  Map, ShoppingBag, Users, Coins, Settings,
   Menu, X, LogIn, LogOut, Languages, Sun, Moon, Monitor,
 } from "lucide-react";
 import { useCredits } from "@/components/CreditProvider";
@@ -47,8 +47,8 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
   const switchLocale = (l: Locale) => { setLocale(l); setLangMenu(false); };
 
   const navLinks = [
+    { href: "/dashboard", label: t("topbar.universes"), icon: Map, requireAuth: true },
     { href: "/marketplace", label: t("topbar.marketplace"), icon: ShoppingBag },
-    { href: "/pricing", label: t("topbar.pricing"), icon: CreditCard },
     { href: "/team", label: t("topbar.team"), icon: Users, requireAuth: true },
   ];
 

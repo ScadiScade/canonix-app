@@ -27,6 +27,7 @@ const en: Translations = {
   "common.error": "Error",
 
   // Topbar
+  "topbar.universes": "Universes",
   "topbar.marketplace": "Marketplace",
   "topbar.pricing": "Pricing",
   "topbar.team": "Team",
@@ -421,6 +422,15 @@ const en: Translations = {
   "pricing.faq3a": "Purchased credits do not expire. Subscription credits reset at the end of the billing period.",
   "pricing.faq4q": "How does team access work?",
   "pricing.faq4a": "On the Corporate plan, you can invite up to 10 members. Everyone shares a common credit pool and access to the same universes.",
+  "pricing.badge": "Flexible plans",
+  "pricing.ctaTitle": "Start creating universes",
+  "pricing.ctaDesc": "The free plan includes everything you need to get started. Scale up when you're ready.",
+  "pricing.trust1t": "Secure payments",
+  "pricing.trust1d": "All transactions are encrypted. Your data stays safe.",
+  "pricing.trust2t": "Instant activation",
+  "pricing.trust2d": "Credits and subscriptions activate immediately after payment.",
+  "pricing.trust3t": "Wallet payments",
+  "pricing.trust3d": "Top up your balance and pay for subscriptions and credits in one click.",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",
