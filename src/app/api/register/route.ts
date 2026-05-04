@@ -44,10 +44,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Check if email actually exists (MX + SMTP verification)
-  const existsCheck = await checkEmailExists(email);
-  if (!existsCheck.valid) {
-    return NextResponse.json({ error: existsCheck.reason || "Почтовый ящик не существует" }, { status: 400 });
+  // Check if email domain has valid MX records
+  // Allow registration if check fails (DNS issues), only block if domain explicitly invalid
+  try {
+    const existsCheck = await checkEmailExists(email);
+    if (!existsCheck.valid) {
+      return NextResponse.json({ error: existsCheck.reason || "Почтовый ящик не существует" }, { status: 400 });
+    }
+  } catch {
+    // DNS check failed — allow registration to proceed
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);

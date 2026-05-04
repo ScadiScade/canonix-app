@@ -197,27 +197,9 @@ function LoginPageInner() {
       return;
     }
 
-    // Check if user entered dev access code in the email field
-    const devRes = await fetch("/api/auth/dev-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: email.trim() }),
-    });
-    if (devRes.ok) {
-      const devData = await devRes.json();
-      // Sign in as dev user
-      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/dashboard" });
-      if (result?.ok) {
-        window.location.href = "/dashboard";
-        return;
-      }
-    }
-
     const result = await signIn("credentials", { email: email.trim(), password, redirect: false, callbackUrl: "/dashboard" });
-    if (result?.error === "EMAIL_NOT_VERIFIED") {
-      setNeedVerify(true);
-      setError(t("login.emailNotVerified"));
-      setLoading(false);
+    if (result?.ok) {
+      window.location.href = "/dashboard";
     } else if (result?.error) {
       setError(t("login.invalidCredentials"));
       setLoading(false);
