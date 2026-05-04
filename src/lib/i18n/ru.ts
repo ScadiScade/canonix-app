@@ -432,6 +432,9 @@ const ru = {
   "pricing.cancelling": "Отменяется",
   "pricing.cancelSub": "Отменить подписку",
   "pricing.notAvailable": "Недоступно",
+  "pricing.changesAtEnd": "Изменение в конце периода",
+  "pricing.reactivate": "Возобновить",
+  "pricing.downgrade": "Понизить",
 
   // Marketplace
   "marketplace.title": "Магазин вселенных",

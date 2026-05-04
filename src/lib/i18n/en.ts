@@ -434,6 +434,9 @@ const en: Translations = {
   "pricing.cancelling": "Cancelling",
   "pricing.cancelSub": "Cancel subscription",
   "pricing.notAvailable": "Not available",
+  "pricing.changesAtEnd": "Changes at period end",
+  "pricing.reactivate": "Reactivate",
+  "pricing.downgrade": "Downgrade",
 
   // Marketplace
   "marketplace.title": "Universe marketplace",

@@ -24,7 +24,7 @@ export async function GET() {
   });
 }
 
-// PUT /api/subscription — update plan (downgrade/cancel)
+// PUT /api/subscription — downgrade, cancel, or reactivate
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -47,35 +47,46 @@ export async function PUT(req: NextRequest) {
   const currentTier = tierOrder[sub.plan] ?? 0;
   const newTier = tierOrder[plan] ?? 0;
 
-  // Only cancel (to free) is allowed for lower tiers, not downgrade to another paid plan
-  if (newTier < currentTier && plan !== "free") {
-    return NextResponse.json({ error: "Downgrade to a lower paid plan is not available. Cancel your subscription instead." }, { status: 400 });
-  }
-
-  // Cancel: schedule for end of period
-  if (plan === "free" && sub.plan !== "free") {
+  // Reactivate: undo pending cancellation/downgrade
+  if (plan === sub.plan && sub.pendingPlan) {
     sub = await prisma.subscription.update({
       where: { id: sub.id },
-      data: { pendingPlan: "free", status: "cancelling" },
+      data: { pendingPlan: null, status: "active" },
     });
     return NextResponse.json({
       plan: sub.plan,
       pendingPlan: sub.pendingPlan,
       status: sub.status,
-      message: "Subscription will be cancelled at end of period",
+      message: "Subscription reactivated",
     });
   }
 
-  // Already on free
-  if (sub.plan === "free" && plan === "free") {
-    return NextResponse.json({ plan: sub.plan, status: sub.status, message: "Already on free plan" });
-  }
-
-  // Same tier — no change
-  if (newTier === currentTier) {
+  // Same tier, no pending — nothing to do
+  if (newTier === currentTier && !sub.pendingPlan) {
     return NextResponse.json({ plan: sub.plan, status: sub.status, message: "No change" });
   }
 
-  // Upgrade should go through checkout, not here
-  return NextResponse.json({ error: "Use /api/subscription/checkout for upgrades" }, { status: 400 });
+  // Upgrade — must go through checkout for payment
+  if (newTier > currentTier) {
+    return NextResponse.json({ error: "Use /api/subscription/checkout for upgrades" }, { status: 400 });
+  }
+
+  // Downgrade or cancel: schedule for end of current period
+  // (newTier < currentTier): downgrade to lower paid plan or cancel to free
+  sub = await prisma.subscription.update({
+    where: { id: sub.id },
+    data: {
+      pendingPlan: plan,
+      status: plan === "free" ? "cancelling" : "downgrading",
+    },
+  });
+  return NextResponse.json({
+    plan: sub.plan,
+    pendingPlan: sub.pendingPlan,
+    status: sub.status,
+    currentPeriodEnd: sub.currentPeriodEnd,
+    message: plan === "free"
+      ? "Subscription will be cancelled at end of period"
+      : `Plan will change to ${plan} at end of period`,
+  });
 }

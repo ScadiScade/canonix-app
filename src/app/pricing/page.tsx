@@ -184,15 +184,16 @@ export default function PricingPage() {
               const isBelow = planTier < currentTier;
               const isCurrent = plan === p.id;
               const isCancel = p.id === "free" && plan !== "free";
-              const isDowngrade = isBelow && !isCurrent && !isCancel; // lower paid plan — blocked
+              const isDowngrade = isBelow && !isCurrent && !isCancel; // lower paid plan — scheduled at period end
+              const hasPending = isCurrent && !!pendingPlan;
               const displayPrice = (plan === "pro" && p.id === "corporate") ? p.price - PRO_PRICE + UPGRADE_MARKUP : p.price;
               const isUpgrade = plan === "pro" && p.id === "corporate";
               return (
                 <div key={p.id} className={`relative bg-surface rounded-2xl border p-6 md:p-7 flex flex-col transition-all ${
-                  isDowngrade ? "opacity-40 border-ink-3/5" : p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
+                  isDowngrade ? "opacity-70 border-ink-3/10" : p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
                 } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}>
                   {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
-                  {isCurrent && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{pendingPlan ? t("pricing.cancelling") : t("pricing.current")}</div>}
+                  {isCurrent && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{hasPending ? t("pricing.changesAtEnd") : t("pricing.current")}</div>}
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
@@ -213,18 +214,20 @@ export default function PricingPage() {
                       </li>
                     ))}
                   </ul>
-                  <button onClick={() => handleSubscribe(p.id)} disabled={loadingPlan === p.id || isCurrent || isDowngrade}
+                  <button onClick={() => handleSubscribe(p.id)} disabled={loadingPlan === p.id}
                     className={`w-full py-3 rounded-xl text-[17px] tracking-[0.08em] uppercase flex items-center justify-center gap-2 transition-all ${
-                      isCurrent ? "bg-accent/8 text-accent cursor-default"
-                      : isDowngrade ? "bg-ink-3/5 text-ink-3/40 cursor-not-allowed"
+                      hasPending ? "bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
+                      : isCurrent ? "bg-accent/8 text-accent cursor-default"
                       : isCancel ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
+                      : isDowngrade ? "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10"
                       : p.popular ? "bg-accent text-white hover:bg-accent/90 shadow-md shadow-accent/20"
                       : "bg-surface border border-ink-3/15 text-ink hover:border-accent/40 hover:text-accent"
                     } disabled:opacity-50`}>
                     {loadingPlan === p.id ? <Loader2 size={15} className="animate-spin" />
-                    : isCurrent ? (pendingPlan ? t("pricing.cancelling") : t("pricing.currentPlan"))
-                    : isDowngrade ? t("pricing.notAvailable")
+                    : hasPending ? t("pricing.reactivate")
+                    : isCurrent ? t("pricing.currentPlan")
                     : isCancel ? t("pricing.cancelSub")
+                    : isDowngrade ? t("pricing.downgrade")
                     : <>{isUpgrade ? t("pricing.upgrade") : p.price === 0 ? t("pricing.startFree") : t("pricing.subscribe")}<ArrowRight size={13} /></>}
                   </button>
                 </div>
