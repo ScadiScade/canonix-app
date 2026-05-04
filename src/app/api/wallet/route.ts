@@ -62,40 +62,28 @@ export async function POST(req: NextRequest) {
 
   const amountKopecks = amount * 100;
 
-  // In production: create payment via YooKassa/Tinkoff, return payment URL
-  // For now (dev mode): directly add to wallet
-  const paymentGateway = process.env.PAYMENT_GATEWAY;
-
-  if (!paymentGateway) {
-    // Dev mode: direct top-up
-    let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
-    if (!wallet) {
-      wallet = await prisma.wallet.create({ data: { userId: session.user.id } });
-    }
-
-    const newBalance = wallet.balance + amountKopecks;
-
-    await prisma.walletTransaction.create({
-      data: {
-        walletId: wallet.id,
-        type: "topup",
-        amount: amountKopecks,
-        balanceAfter: newBalance,
-        description: `Пополнение ${amount} ₽`,
-      },
-    });
-
-    await prisma.wallet.update({
-      where: { id: wallet.id },
-      data: { balance: newBalance },
-    });
-
-    return NextResponse.json({ balance: newBalance, available: newBalance - wallet.frozen });
+  // Direct top-up to wallet
+  let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
+  if (!wallet) {
+    wallet = await prisma.wallet.create({ data: { userId: session.user.id } });
   }
 
-  // TODO: Production payment gateway integration
-  // const payment = await createPayment(amount, session.user.id);
-  // return NextResponse.json({ url: payment.confirmationUrl });
+  const newBalance = wallet.balance + amountKopecks;
 
-  return NextResponse.json({ error: "Payment gateway not configured" }, { status: 501 });
+  await prisma.walletTransaction.create({
+    data: {
+      walletId: wallet.id,
+      type: "topup",
+      amount: amountKopecks,
+      balanceAfter: newBalance,
+      description: `Пополнение ${amount} ₽`,
+    },
+  });
+
+  await prisma.wallet.update({
+    where: { id: wallet.id },
+    data: { balance: newBalance },
+  });
+
+  return NextResponse.json({ balance: newBalance, available: newBalance - wallet.frozen });
 }

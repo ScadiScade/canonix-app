@@ -170,22 +170,22 @@ export default function PricingPage() {
         body: JSON.stringify({ packId }),
       });
       const data = await res.json();
-      if (res.status === 402 && data.error === "Insufficient wallet balance") {
-        const deficit = Math.ceil((data.deficit || 0) / 100);
-        const pack = CREDIT_PACKS.find(p => p.id === packId);
-        setTopupPrompt({ deficitRub: deficit, label: `${pack?.credits || ""} ${t("common.credits")}`, retryAction: () => handleBuyCredits(packId) });
-        setTopupAmount(deficit);
+      if (!res.ok) {
+        if (res.status === 402 && data.error === "Insufficient wallet balance") {
+          const deficit = Math.ceil((data.deficit || 0) / 100);
+          const pack = CREDIT_PACKS.find(p => p.id === packId);
+          setTopupPrompt({ deficitRub: deficit, label: `${pack?.credits || ""} ${t("common.credits")}`, retryAction: () => handleBuyCredits(packId) });
+          setTopupAmount(deficit);
+        } else {
+          console.error("Buy credits failed:", res.status, data);
+          setSuccessMsg(data.error || t("common.error"));
+        }
         return;
       }
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        // Fallback: direct credit add (for dev without Stripe)
-        if (data.balance !== undefined) setBalance(data.balance);
-        else refreshBalance();
-        const pack = CREDIT_PACKS.find(p => p.id === packId);
-        setSuccessMsg(t("pricing.creditsAdded", { count: pack?.credits || "" }));
-      }
+      if (data.balance !== undefined) setBalance(data.balance);
+      else refreshBalance();
+      const pack = CREDIT_PACKS.find(p => p.id === packId);
+      setSuccessMsg(t("pricing.creditsAdded", { count: pack?.credits || "" }));
     } finally {
       setLoadingPack(null);
     }
