@@ -283,62 +283,80 @@ export default function PricingPage() {
           )}
           {/* Wallet */}
           {session && walletBalance !== null && (
-            <div className="mt-6 max-w-md mx-auto bg-surface border border-ink-3/10 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[16px] text-ink-2">{t("pricing.walletBalance")}</span>
-                <span className="text-[22px] font-light text-ink">{walletRub} ₽</span>
-              </div>
-
-              {/* Top-up prompt */}
-              {topupPrompt && (
-                <div className="mb-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-lg px-3 py-2.5">
-                  <p className="text-[15px] text-amber-700 dark:text-amber-300 mb-2">
-                    {t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}
-                  </p>
-                  <button
-                    onClick={() => handleTopup(topupPrompt.retryAction)}
-                    disabled={loadingTopup}
-                    className="w-full bg-accent text-white rounded-lg px-4 py-2 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : t("pricing.topupAndBuy")}
-                    <span>{topupPrompt.deficitRub} ₽</span>
-                  </button>
+            <div className="mt-6 max-w-md mx-auto">
+              <div className="bg-gradient-to-br from-accent/8 via-surface to-accent/4 border border-accent/15 rounded-2xl p-5 shadow-sm">
+                {/* Balance display */}
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-accent/12 flex items-center justify-center">
+                      <Coins size={16} className="text-accent" />
+                    </div>
+                    <span className="text-[15px] text-ink-2">{t("pricing.walletBalance")}</span>
+                  </div>
+                  <span className="text-[28px] font-light text-ink tracking-tight">{walletRub.toLocaleString("ru-RU")} ₽</span>
                 </div>
-              )}
 
-              <div className="flex items-center gap-2 flex-wrap">
-                {[300, 500, 1000, 3000].map(v => (
-                  <button
-                    key={v}
-                    onClick={() => { setTopupAmount(v); setTopupPrompt(null); }}
-                    className={`px-3 py-1.5 rounded-lg text-[14px] transition-colors ${
-                      topupAmount === v && !topupPrompt ? "bg-accent text-white" : "bg-ink-3/5 text-ink hover:bg-ink-3/10"
-                    }`}
-                  >
-                    {v} ₽
-                  </button>
-                ))}
-                <input
-                  type="number"
-                  min={100}
-                  max={50000}
-                  step={100}
-                  value={topupAmount > 3000 ? topupAmount : ""}
-                  onChange={e => {
-                    const v = parseInt(e.target.value);
-                    if (v >= 100 && v <= 50000) setTopupAmount(v);
-                  }}
-                  onFocus={() => { if (topupAmount <= 3000) setTopupAmount(0); setTopupPrompt(null); }}
-                  placeholder="₽"
-                  className="w-20 px-2 py-1.5 rounded-lg text-[14px] bg-ink-3/5 border border-ink-3/10 text-ink focus:outline-none focus:border-accent transition-colors"
-                />
-                <button
-                  onClick={() => handleTopup(topupPrompt?.retryAction)}
-                  disabled={loadingTopup || topupAmount < 100}
-                  className="ml-auto px-4 py-1.5 bg-accent text-white rounded-lg text-[14px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {loadingTopup ? <Loader2 size={12} className="animate-spin" /> : t("pricing.topup")}
-                </button>
+                {/* Top-up prompt (insufficient balance) */}
+                {topupPrompt && (
+                  <div className="mt-4 bg-amber-50/80 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/30 rounded-xl px-4 py-3">
+                    <p className="text-[15px] text-amber-700 dark:text-amber-300 mb-3">
+                      {t("pricing.topupPrompt", { deficit: topupPrompt.deficitRub, label: topupPrompt.label })}
+                    </p>
+                    <button
+                      onClick={() => handleTopup(topupPrompt.retryAction)}
+                      disabled={loadingTopup}
+                      className="w-full bg-accent text-white rounded-lg px-4 py-2.5 text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : t("pricing.topupAndBuy")}
+                      <span>{topupPrompt.deficitRub} ₽</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Top-up controls */}
+                <div className="mt-4">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    {[300, 500, 1000, 3000, 5000].map(v => (
+                      <button
+                        key={v}
+                        onClick={() => { setTopupAmount(v); setTopupPrompt(null); }}
+                        className={`flex-1 py-2 rounded-lg text-[14px] font-medium transition-all ${
+                          topupAmount === v && !topupPrompt
+                            ? "bg-accent text-white shadow-sm"
+                            : "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 hover:text-ink"
+                        }`}
+                      >
+                        {v >= 1000 ? `${v / 1000}k` : v} ₽
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="number"
+                        min={100}
+                        max={50000}
+                        step={100}
+                        value={topupAmount > 5000 ? topupAmount : ""}
+                        onChange={e => {
+                          const v = parseInt(e.target.value);
+                          if (v >= 100 && v <= 50000) setTopupAmount(v);
+                        }}
+                        onFocus={() => { if (topupAmount <= 5000) setTopupAmount(0); setTopupPrompt(null); }}
+                        placeholder="Другая сумма"
+                        className="w-full px-3 py-2 rounded-lg text-[14px] bg-ink-3/5 border border-ink-3/10 text-ink placeholder:text-ink-3/50 focus:outline-none focus:border-accent/40 focus:bg-ink-3/8 transition-colors"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[14px] text-ink-3/50">₽</span>
+                    </div>
+                    <button
+                      onClick={() => handleTopup(topupPrompt?.retryAction)}
+                      disabled={loadingTopup || topupAmount < 100}
+                      className="px-5 py-2 bg-accent text-white rounded-lg text-[14px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 disabled:hover:bg-accent flex items-center gap-1.5 shadow-sm"
+                    >
+                      {loadingTopup ? <Loader2 size={12} className="animate-spin" /> : t("pricing.topup")}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
