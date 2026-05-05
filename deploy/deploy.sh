@@ -100,15 +100,6 @@ if [ "$SKIP_BUILD" -eq 0 ]; then
     fail "Build упал — проверьте ошибки выше"
   fi
 
-  # Copy files needed by standalone output
-  step "Подготовка standalone"
-  STANDALONE=".next/standalone"
-  if [ -d "$STANDALONE" ]; then
-    cp -r .next/static "$STANDALONE/.next/static"
-    cp -r public "$STANDALONE/public" 2>/dev/null || true
-    cp .env "$STANDALONE/.env" 2>/dev/null || warn "Нет .env — убедитесь что переменные заданы в окружении"
-    ok "static + public + .env скопированы в standalone"
-  fi
 else
   step "Build — ПРОПУСК"
 fi
@@ -120,11 +111,7 @@ if pm2 describe "$PM2_NAME" > /dev/null 2>&1; then
   ok "PM2 процесс перезапущен"
 else
   pm2 delete "$PM2_NAME" 2>/dev/null || true
-  if [ -f ".next/standalone/server.js" ]; then
-    pm2 start .next/standalone/server.js --name "$PM2_NAME" -- -p "$PORT"
-  else
-    pm2 start npx --name "$PM2_NAME" -- next start -p "$PORT"
-  fi
+  pm2 start npx --name "$PM2_NAME" -- next start -p "$PORT"
   pm2 save
   ok "PM2 процесс создан"
 fi
