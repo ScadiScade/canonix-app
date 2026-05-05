@@ -1,16 +1,8 @@
-﻿import { Map } from "lucide-react";
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="fixed top-0 left-0 right-0 h-topbar bg-surface/80 backdrop-blur-sm border-b border-ink-3/20 px-4 md:px-7 flex items-center z-50">
-        <Link href="/" className="flex items-center gap-2 no-underline">
-          <Map size={18} className="text-accent" />
-          <span className="font-serif text-[20px] font-light text-ink tracking-tight">Canonix</span>
-        </Link>
-      </header>
-
       <main className="max-w-3xl mx-auto px-4 md:px-7 py-10 md:py-16">
         <h1 className="font-serif text-[34px] md:text-[42px] font-light text-ink mb-2">
           Политика конфиденциальности

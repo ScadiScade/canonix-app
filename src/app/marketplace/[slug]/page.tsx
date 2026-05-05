@@ -99,20 +99,6 @@ function MarketplaceDetailInner() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with breadcrumbs */}
-      <header className="fixed top-0 left-0 right-0 h-topbar bg-surface/80 backdrop-blur-md border-b border-ink-3/15 px-4 md:px-7 flex items-center z-50">
-        <Link href="/" className="flex items-center gap-2 no-underline" aria-label="Canonix home">
-          <Map size={18} className="text-accent" />
-          <span className="font-serif text-[20px] font-light text-ink tracking-tight">Canonix</span>
-        </Link>
-        <nav className="mx-3 flex items-center gap-1.5 text-[11px] tracking-[0.15em] uppercase text-ink-3" aria-label="Breadcrumb">
-          <ChevronRight size={10} />
-          <Link href="/marketplace" className="hover:text-accent transition-colors no-underline">{t("marketplace.badge")}</Link>
-          <ChevronRight size={10} />
-          <span className="text-ink-2 truncate max-w-[150px]">{data.name}</span>
-        </nav>
-      </header>
-
       <main id="main-content" className="max-w-5xl mx-auto px-4 md:px-7 py-8 md:py-14">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left: Content */}

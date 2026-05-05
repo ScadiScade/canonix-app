@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Topbar from "@/components/Topbar";
 import { useCredits } from "@/components/CreditProvider";
 import { Check, X, Coins, Sparkles, Crown, Building2, Zap, Loader2, ArrowRight, ChevronDown, Wallet, Shield, Clock, Star, RotateCcw, AlertTriangle } from "lucide-react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
@@ -188,7 +187,6 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
       {successMsg && (
         <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 rounded-xl px-5 py-3 shadow-lg flex items-center gap-3 ${successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? "bg-amber-500 text-white" : "bg-green-600 text-white"}`} style={{ animation: "fadeIn 0.2s ease-out" }}>
           <span className="text-[17px]">{successMsg}</span>

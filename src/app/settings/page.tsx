@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
-import Topbar from "@/components/Topbar";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { useLocale } from "@/lib/i18n";
 import {
@@ -118,7 +117,6 @@ function SettingsInner() {
   if (sessionStatus === "loading" || loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Topbar />
         <div className="flex items-center justify-center h-[calc(100vh-52px)]">
           <div className="w-7 h-7 rounded-full border-2 border-accent border-t-transparent animate-spin" />
         </div>
@@ -134,8 +132,6 @@ function SettingsInner() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
-
       <main id="main-content" className="max-w-2xl mx-auto px-4 md:px-7 py-8 md:py-12">
         {/* Page header */}
         <div className="flex items-center gap-3 mb-8">

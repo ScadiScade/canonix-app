@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Topbar from "@/components/Topbar";
 import { useCredits } from "@/components/CreditProvider";
 import {
   Wallet, Loader2, Check, X, ArrowLeft, CreditCard, Clock, Shield,
@@ -105,7 +104,6 @@ export default function WalletPage() {
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
-        <Topbar />
         <div className="flex items-center justify-center py-40">
           <Link href="/login" className="bg-accent text-white rounded-xl px-6 py-3 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline">
             {t("pricing.startFree")}
@@ -117,7 +115,6 @@ export default function WalletPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
       {successMsg && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white rounded-xl px-5 py-3 shadow-lg flex items-center gap-3" style={{ animation: "fadeIn 0.2s ease-out" }}>
           <Check size={16} /><span className="text-[17px]">{successMsg}</span>

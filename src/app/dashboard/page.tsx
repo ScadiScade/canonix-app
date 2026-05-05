@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { signOut } from "next-auth/react";
-import Topbar from "@/components/Topbar";
 import { UniverseCreateForm } from "@/components/UniverseCreateForm";
 import { OnboardingGuide } from "@/components/OnboardingGuide";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -48,7 +47,6 @@ function DashboardInner() {
   if (sessionStatus === "loading" || loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Topbar />
         <div className="max-w-4xl mx-auto px-4 md:px-7 py-8 md:py-12">
           {/* Profile skeleton */}
           <div className="bg-surface rounded-xl border border-ink-3/10 p-6 md:p-8 mb-8">
@@ -82,8 +80,6 @@ function DashboardInner() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
-
       <main id="main-content" className="max-w-4xl mx-auto px-4 md:px-7 py-8 md:py-12">
         {/* Profile header */}
         <div className="bg-surface rounded-xl border border-ink-3/10 p-6 md:p-8 mb-8">

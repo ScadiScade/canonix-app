@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Topbar from "@/components/Topbar";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useCredits } from "@/components/CreditProvider";
 import {
@@ -175,7 +174,6 @@ export default function TeamPage() {
   if (!session) {
     return (
       <div className="min-h-screen bg-background">
-        <Topbar />
         <div className="flex items-center justify-center h-screen">
           <div className="text-center">
             <p className="text-ink-2 mb-4">{t("team.loginToManage")}</p>
@@ -189,7 +187,6 @@ export default function TeamPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Topbar />
         <div className="flex items-center justify-center h-screen">
           <Loader2 size={24} className="animate-spin text-accent" />
         </div>
@@ -199,8 +196,6 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
-
       <main id="main-content" className="max-w-3xl mx-auto px-4 md:px-7 py-10">
         {/* Messages */}
         {error && (

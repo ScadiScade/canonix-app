@@ -65,32 +65,7 @@ export default function PublicUniverseClient({ universe }: PublicUniverseClientP
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 h-topbar bg-surface/80 backdrop-blur-sm border-b border-ink-3/20 px-7 flex items-center z-50">
-        <a href="/" className="flex items-center gap-2 no-underline">
-          <Map size={18} className="text-accent" />
-          <span className="font-serif text-[20px] font-light text-ink tracking-tight">Canonix</span>
-        </a>
-        <span className="mx-3 text-ink-3">/</span>
-        <span className="font-serif text-[18px] font-light text-ink-2">{universe.name}</span>
-        <div className="ml-auto flex items-center gap-3">
-          <button
-            onClick={copyLink}
-            className="flex items-center gap-1.5 text-[12px] tracking-[0.1em] uppercase text-ink-2 hover:text-accent transition-colors"
-          >
-            <Share2 size={12} />
-            {t("public.share")}
-          </button>
-          <a
-            href="/login"
-            className="bg-accent text-white rounded-xl px-4 py-1.5 text-[12px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline"
-          >
-            {t("public.login")}
-          </a>
-        </div>
-      </header>
-
-      <div id="main-content" className="flex h-screen">
+      <div id="main-content" className="flex h-screen pt-topbar">
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="px-7 pt-6 pb-4">

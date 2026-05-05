@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import Topbar from "@/components/Topbar";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 import {
   Map, Users, Globe, Zap, Building2, LayoutGrid, GitBranch,
@@ -52,8 +51,6 @@ export default function Home() {
   const { t } = useLocale();
   return (
     <div className="min-h-screen bg-background">
-      <Topbar />
-
       <main id="main-content">
         {/* ── Hero ── */}
         <section className="relative overflow-hidden">

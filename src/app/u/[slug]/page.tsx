@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { EntityType, EntityGroupData, TimelineScaleData } from "@/lib/types";
-import Topbar from "@/components/Topbar";
 import { EntityCard } from "@/components/EntityCard";
 import { EntityDetail } from "@/components/EntityDetail";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -290,8 +289,6 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <Topbar universeName={universe.name} universeSlug={universe.slug} />
-
       <main id="main-content" className="flex flex-col md:flex-row h-screen pt-topbar">
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
