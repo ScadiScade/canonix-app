@@ -17,5 +17,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ ok: true, email: user.email, password: devCode });
+  return NextResponse.json({ ok: true, email: user.email });
 }

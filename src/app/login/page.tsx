@@ -580,16 +580,8 @@ function LoginPageInner() {
                   type="button"
                   onClick={async () => {
                     setLoading(true);
-                    const devRes = await fetch("/api/auth/dev-login", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "dev@canonix.local" }),
-                    });
-                    if (devRes.ok) {
-                      const devData = await devRes.json();
-                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/dashboard" });
-                      if (result?.ok) window.location.href = "/dashboard";
-                    }
+                    const result = await signIn("credentials", { email: "dev@canonix.local", password: process.env.NEXT_PUBLIC_DEV_CODE || "dev", redirect: false, callbackUrl: "/dashboard" });
+                    if (result?.ok) window.location.href = "/dashboard";
                     setLoading(false);
                   }}
                   disabled={loading}
@@ -601,16 +593,8 @@ function LoginPageInner() {
                   type="button"
                   onClick={async () => {
                     setLoading(true);
-                    const devRes = await fetch("/api/auth/dev-login", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "tester@canonix.local" }),
-                    });
-                    if (devRes.ok) {
-                      const devData = await devRes.json();
-                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/pricing" });
-                      if (result?.ok) window.location.href = "/pricing";
-                    }
+                    const result = await signIn("credentials", { email: "tester@canonix.local", password: process.env.NEXT_PUBLIC_DEV_CODE || "dev", redirect: false, callbackUrl: "/pricing" });
+                    if (result?.ok) window.location.href = "/pricing";
                     setLoading(false);
                   }}
                   disabled={loading}
@@ -622,16 +606,8 @@ function LoginPageInner() {
                   type="button"
                   onClick={async () => {
                     setLoading(true);
-                    const devRes = await fetch("/api/auth/dev-login", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ code: process.env.NEXT_PUBLIC_DEV_CODE || "dev", email: "buyer@canonix.local" }),
-                    });
-                    if (devRes.ok) {
-                      const devData = await devRes.json();
-                      const result = await signIn("credentials", { email: devData.email, password: devData.password, redirect: false, callbackUrl: "/pricing" });
-                      if (result?.ok) window.location.href = "/pricing";
-                    }
+                    const result = await signIn("credentials", { email: "buyer@canonix.local", password: process.env.NEXT_PUBLIC_DEV_CODE || "dev", redirect: false, callbackUrl: "/pricing" });
+                    if (result?.ok) window.location.href = "/pricing";
                     setLoading(false);
                   }}
                   disabled={loading}

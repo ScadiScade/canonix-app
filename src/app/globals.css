@@ -133,6 +133,15 @@ h1, h2, h3, h4, h5, h6 {
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Page content transition */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 0.2s ease-out;
+}
+
 /* Bottom sheet animation for mobile modals */
 @keyframes slideUpSheet {
   from { transform: translateY(100%); }

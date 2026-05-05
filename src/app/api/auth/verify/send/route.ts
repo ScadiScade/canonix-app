@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -17,6 +18,9 @@ export async function POST() {
   if (!session?.user?.id || !session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rl = checkRateLimit(session.user.id, "auth");
+  if (rl) return rl;
 
   const resend = getResend();
   if (!resend) {

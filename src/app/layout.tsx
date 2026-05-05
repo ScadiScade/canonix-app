@@ -50,7 +50,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistMono.variable} antialiased bg-background text-ink pt-topbar`}>
         <a href="#main-content" className="skip-to-content">Skip to content</a>
-        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider>{children}</CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
+        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider><div className="page-enter">{children}</div></CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
       </body>
     </html>
   );
