@@ -174,8 +174,8 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
                         onClick={() => { const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light"; setTheme(next); }}
                         className="w-full flex items-center gap-3 px-4 py-2 text-[14px] text-ink-2 hover:bg-ink-3/5 transition-colors"
                       >
-                        {theme === "system" ? <Monitor size={15} /> : resolved === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-                        {theme === "system" ? t("topbar.systemTheme") : resolved === "dark" ? t("topbar.lightTheme") : t("topbar.darkTheme")}
+                        {theme === "system" ? <Monitor size={15} /> : resolved === "dark" ? <Moon size={15} /> : <Sun size={15} />}
+                        {theme === "system" ? t("topbar.systemTheme") : resolved === "dark" ? t("topbar.darkTheme") : t("topbar.lightTheme")}
                       </button>
                       {/* Language */}
                       <div className="flex items-center gap-1 px-4 py-1.5">
@@ -289,8 +289,8 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
                 onClick={() => { const next = theme === "light" ? "dark" : theme === "dark" ? "system" : "light"; setTheme(next); setMobileOpen(false); }}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[16px] text-ink-2 hover:text-ink hover:bg-ink-3/5 transition-all w-full text-left"
               >
-                {theme === "system" ? <Monitor size={17} className="text-ink-3" /> : resolved === "dark" ? <Sun size={17} className="text-ink-3" /> : <Moon size={17} className="text-ink-3" />}
-                {theme === "system" ? t("topbar.systemTheme") : resolved === "dark" ? t("topbar.lightTheme") : t("topbar.darkTheme")}
+                {theme === "system" ? <Monitor size={17} className="text-ink-3" /> : resolved === "dark" ? <Moon size={17} className="text-ink-3" /> : <Sun size={17} className="text-ink-3" />}
+                {theme === "system" ? t("topbar.systemTheme") : resolved === "dark" ? t("topbar.darkTheme") : t("topbar.lightTheme")}
               </button>
 
               {/* Logout */}
