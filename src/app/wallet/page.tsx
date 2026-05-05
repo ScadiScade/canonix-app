@@ -211,7 +211,12 @@ export default function WalletPage() {
             >
               {t("wallet.allTypes")}
             </button>
-            {presentTypes.map(type => {
+            {presentTypes.filter(type => {
+              // Hide the opposite type button when subscription or credits is active
+              if (typeFilter === "subscription" && type === "credits") return false;
+              if (typeFilter === "credits" && type === "subscription") return false;
+              return true;
+            }).map(type => {
               const meta = TX_TYPE_META[type];
               if (!meta) return null;
               return (
