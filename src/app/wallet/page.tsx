@@ -133,8 +133,8 @@ export default function WalletPage() {
           <Link href="/pricing" className="inline-flex items-center gap-1.5 text-ink-3 hover:text-accent transition-colors text-[15px] mb-6 no-underline">
             <ArrowLeft size={14} />{t("pricing.title")}
           </Link>
-          <h1 className="font-serif text-[36px] md:text-[44px] font-light text-ink mb-2">{t("wallet.title")}</h1>
-          <p className="text-ink-2 text-[19px] mb-8">{t("wallet.desc")}</p>
+          <h1 className="font-serif text-[30px] sm:text-[36px] md:text-[44px] font-light text-ink mb-2">{t("wallet.title")}</h1>
+          <p className="text-ink-2 text-[17px] sm:text-[19px] mb-6 sm:mb-8">{t("wallet.desc")}</p>
         </div>
       </section>
 
@@ -143,21 +143,21 @@ export default function WalletPage() {
         <div className="max-w-lg mx-auto px-4 md:px-7">
           <div className="bg-gradient-to-br from-accent/8 via-surface to-accent/4 border border-accent/15 rounded-2xl p-6 md:p-8">
             {/* Balance display */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center"><Wallet size={20} className="text-accent" /></div>
-                <span className="text-[17px] text-ink-2">{t("wallet.balance")}</span>
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-accent/10 flex items-center justify-center"><Wallet size={18} className="text-accent sm:w-[20px] sm:h-[20px]" /></div>
+                <span className="text-[15px] sm:text-[17px] text-ink-2">{t("wallet.balance")}</span>
               </div>
-              <span className="text-[36px] font-light text-ink tracking-tight">{walletRub.toLocaleString("ru-RU")} ₽</span>
+              <span className="text-[28px] sm:text-[36px] font-light text-ink tracking-tight">{walletRub.toLocaleString("ru-RU")} ₽</span>
             </div>
 
             {/* Quick amount pills */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 mb-3">
               {QUICK_AMOUNTS.map(v => (
                 <button
                   key={v}
                   onClick={() => { setTopupAmount(v); setCustomInput(""); }}
-                  className={`flex-1 py-2 rounded-lg text-[14px] font-medium transition-all ${
+                  className={`py-2 sm:flex-1 rounded-lg text-[13px] sm:text-[14px] font-medium transition-all ${
                     !customInput && topupAmount === v
                       ? "bg-accent text-white shadow-sm"
                       : "bg-ink-3/5 text-ink-2 hover:bg-ink-3/10 hover:text-ink"
@@ -187,9 +187,9 @@ export default function WalletPage() {
               <button
                 onClick={handleTopup}
                 disabled={loadingTopup || !canTopup}
-                className="px-6 py-2.5 bg-accent text-white rounded-lg text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm font-medium"
+                className="px-4 sm:px-6 py-2.5 bg-accent text-white rounded-lg text-[14px] sm:text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm font-medium shrink-0"
               >
-                {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : <><Plus size={14} />{t("wallet.topup")}</>}
+                {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : <><Plus size={14} /><span className="hidden sm:inline">{t("wallet.topup")}</span><span className="sm:hidden">+</span></>}
               </button>
             </div>
           </div>
@@ -238,24 +238,24 @@ export default function WalletPage() {
                 const Icon = meta.icon;
                 const isPositive = tx.amount >= 0;
                 return (
-                  <div key={tx.id} className="bg-surface rounded-xl border border-ink-3/8 px-4 py-3 flex items-center gap-3">
+                  <div key={tx.id} className="bg-surface rounded-xl border border-ink-3/8 px-3 sm:px-4 py-2.5 sm:py-3 flex items-center gap-2.5 sm:gap-3">
                     {/* Type icon */}
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? "bg-green-500/8" : "bg-ink-3/5"}`}>
-                      <Icon size={16} className={isPositive ? "text-green-500" : meta.color} />
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ${isPositive ? "bg-green-500/8" : "bg-ink-3/5"}`}>
+                      <Icon size={14} className={`sm:w-[16px] sm:h-[16px] ${isPositive ? "text-green-500" : meta.color}`} />
                     </div>
                     {/* Description + date */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[15px] text-ink truncate">{tx.description || t(meta.labelKey as TranslationKey)}</p>
-                      <p className="text-[12px] text-ink-3">
+                      <p className="text-[14px] sm:text-[15px] text-ink truncate">{tx.description || t(meta.labelKey as TranslationKey)}</p>
+                      <p className="text-[11px] sm:text-[12px] text-ink-3">
                         {new Date(tx.createdAt).toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                     {/* Amount + balance after */}
                     <div className="text-right shrink-0">
-                      <span className={`text-[15px] font-medium ${isPositive ? "text-green-500" : "text-ink"}`}>
+                      <span className={`text-[14px] sm:text-[15px] font-medium ${isPositive ? "text-green-500" : "text-ink"}`}>
                         {isPositive ? "+" : ""}{(tx.amount / 100).toLocaleString("ru-RU")} ₽
                       </span>
-                      <p className="text-[12px] text-ink-3">{(tx.balanceAfter / 100).toLocaleString("ru-RU")} ₽ {t("wallet.balanceAfter")}</p>
+                      <p className="text-[11px] sm:text-[12px] text-ink-3">{(tx.balanceAfter / 100).toLocaleString("ru-RU")} ₽</p>
                     </div>
                   </div>
                 );

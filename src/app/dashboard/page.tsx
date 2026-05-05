@@ -176,14 +176,14 @@ function DashboardInner() {
         </div>
 
         {/* Universes section */}
-        <div className="flex items-end justify-between mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
           <div>
-            <h2 className="font-serif text-[26px] font-light text-ink leading-tight">{t("dashboard.myUniverses")}</h2>
-            <p className="text-ink-3 text-[16px] mt-0.5">{t("dashboard.myUniversesDesc")}</p>
+            <h2 className="font-serif text-[22px] sm:text-[26px] font-light text-ink leading-tight">{t("dashboard.myUniverses")}</h2>
+            <p className="text-ink-3 text-[15px] sm:text-[16px] mt-0.5">{t("dashboard.myUniversesDesc")}</p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors"
+            className="flex items-center justify-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0"
           >
             <Plus size={14} />
             {t("dashboard.new")}
@@ -234,7 +234,7 @@ function DashboardInner() {
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       {u.visibility !== "private" && (
                         <Link
                           href={`/s/${u.slug}`}

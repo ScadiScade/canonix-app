@@ -76,14 +76,14 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
           <div className="flex items-center gap-3 min-w-0">
             <Link href="/" className="flex items-center gap-2 no-underline shrink-0 group">
               <Map size={20} className="text-accent transition-transform group-hover:scale-110" />
-              <span className="font-serif text-[20px] font-light text-ink tracking-tight">Canonix</span>
+              <span className="font-serif text-[20px] sm:text-[20px] font-light text-ink tracking-tight">Canonix</span>
             </Link>
             {universeName && universeSlug && (
               <>
                 <span className="text-ink-3/30 text-[16px]">/</span>
                 <Link
                   href={`/u/${universeSlug}`}
-                  className="font-serif text-[19px] font-light text-ink-2 hover:text-accent transition-colors no-underline truncate max-w-[200px]"
+                  className="font-serif text-[15px] sm:text-[19px] font-light text-ink-2 hover:text-accent transition-colors no-underline truncate max-w-[120px] sm:max-w-[200px]"
                 >
                   {universeName}
                 </Link>
@@ -121,10 +121,10 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
             {session && balance !== null && (
               <Link
                 href="/wallet"
-                className="hidden sm:flex items-center gap-1 rounded-full pl-2.5 pr-3 py-1 no-underline transition-colors bg-accent/8 hover:bg-accent/15 border border-accent/12"
+                className="flex items-center gap-1 rounded-full pl-2 pr-2.5 sm:pl-2.5 sm:pr-3 py-1 no-underline transition-colors bg-accent/8 hover:bg-accent/15 border border-accent/12"
               >
                 <Coins size={12} className="text-accent" />
-                <span className="text-[14px] font-medium text-accent">{balance}</span>
+                <span className="text-[13px] sm:text-[14px] font-medium text-accent">{balance}</span>
               </Link>
             )}
 
@@ -229,7 +229,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden" style={{ animation: "fadeIn 0.15s ease-out" }}>
           <div className="absolute inset-0 bg-ink/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-topbar right-0 bottom-0 w-72 bg-surface border-l border-ink-3/10 shadow-lg overflow-y-auto" style={{ animation: "slideRight 0.2s ease-out" }}>
+          <div className="absolute top-topbar right-0 bottom-0 w-full sm:w-72 bg-surface sm:border-l border-t border-ink-3/10 shadow-lg overflow-y-auto" style={{ animation: "slideUp 0.2s ease-out" }}>
             <nav className="p-3 space-y-0.5" aria-label="Mobile navigation">
               {/* Core nav */}
               {coreNav.map(link => {

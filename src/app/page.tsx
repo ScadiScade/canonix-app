@@ -64,10 +64,10 @@ export default function Home() {
               <Sparkles size={10} />
               {t("landing.openBeta")}
             </div>
-            <h1 className="font-serif text-[46px] md:text-[70px] font-light text-ink leading-[1.05] mb-6">
+            <h1 className="font-serif text-[32px] sm:text-[46px] md:text-[70px] font-light text-ink leading-[1.05] mb-6">
               {t("landing.heroTitle1")}<br />{t("landing.heroTitle2")}
             </h1>
-            <p className="text-ink-2 text-[20px] md:text-[22px] max-w-xl mx-auto leading-relaxed mb-10">
+            <p className="text-ink-2 text-[17px] sm:text-[20px] md:text-[22px] max-w-xl mx-auto leading-relaxed mb-8 sm:mb-10">
               {t("landing.heroDesc")}
             </p>
             <div className="flex gap-3 justify-center flex-wrap mb-12">
@@ -107,13 +107,13 @@ export default function Home() {
                 <Map size={16} className="text-accent" />
                 <span className="font-serif text-[16px] font-light text-ink">Star Wars</span>
               </div>
-              <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5 ml-auto">
+              <div className="flex bg-background rounded-lg border border-ink-3/10 p-0.5 ml-auto overflow-x-auto no-scrollbar">
                 <span className="px-2.5 py-1 rounded-lg text-[14px] tracking-[0.15em] uppercase bg-accent text-white">Bento</span>
                 <span className="px-2.5 py-1 rounded-lg text-[14px] tracking-[0.15em] uppercase text-ink-3">{t("landing.previewGraph")}</span>
                 <span className="px-2.5 py-1 rounded-lg text-[14px] tracking-[0.15em] uppercase text-ink-3">{t("landing.previewTimeline")}</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2">
               {previewEntities.map(e => (
                 <div key={e.nameKey} className="bg-background rounded-lg p-3 border border-ink-3/8 hover:border-ink-3/20 transition-colors">
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -125,7 +125,7 @@ export default function Home() {
               ))}
             </div>
             {/* Fake connections hint */}
-            <div className="mt-4 pt-3 border-t border-ink-3/8 flex items-center gap-3 text-[15px] text-ink-3">
+            <div className="mt-4 pt-3 border-t border-ink-3/8 flex items-center gap-2 sm:gap-3 text-[13px] sm:text-[15px] text-ink-3 flex-wrap">
               <span className="flex items-center gap-1"><GitBranch size={10} /> {t("landing.previewRelations")}</span>
               <span>·</span>
               <span className="flex items-center gap-1"><Clock size={10} /> {t("landing.previewEvents")}</span>
@@ -139,17 +139,17 @@ export default function Home() {
         <section className="max-w-5xl mx-auto px-4 md:px-7 pb-20">
           <div className="text-center mb-10">
             <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.structureLabel")}</p>
-            <h2 className="font-serif text-[34px] md:text-[42px] font-light text-ink">{t("landing.entityTypesTitle")}</h2>
-            <p className="text-ink-2 text-[18px] mt-2 max-w-md mx-auto">{t("landing.entityTypesDesc")}</p>
+            <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.entityTypesTitle")}</h2>
+            <p className="text-ink-2 text-[16px] sm:text-[18px] mt-2 max-w-md mx-auto">{t("landing.entityTypesDesc")}</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {entityTypes.map(({ icon: Icon, typeKey, descKey, color }) => (
               <div key={typeKey} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover:border-ink-3/25 hover:shadow-sm transition-all group">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ backgroundColor: color + "12" }}>
                   <Icon size={18} style={{ color }} />
                 </div>
-                <h3 className="font-serif text-[23px] font-light text-ink mb-2">{t(typeKey)}</h3>
-                <p className="text-[17px] text-ink-2 leading-relaxed">{t(descKey)}</p>
+                <h3 className="font-serif text-[19px] sm:text-[23px] font-light text-ink mb-1.5 sm:mb-2">{t(typeKey)}</h3>
+                <p className="text-[15px] sm:text-[17px] text-ink-2 leading-relaxed">{t(descKey)}</p>
               </div>
             ))}
           </div>
@@ -160,8 +160,8 @@ export default function Home() {
           <div className="max-w-5xl mx-auto px-4 md:px-7 py-20">
             <div className="text-center mb-10">
               <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.featuresLabel")}</p>
-              <h2 className="font-serif text-[34px] md:text-[42px] font-light text-ink">{t("landing.featuresTitle")}</h2>
-              <p className="text-ink-2 text-[18px] mt-2 max-w-md mx-auto">{t("landing.featuresDesc")}</p>
+              <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.featuresTitle")}</h2>
+              <p className="text-ink-2 text-[16px] sm:text-[18px] mt-2 max-w-md mx-auto">{t("landing.featuresDesc")}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {features.map(({ icon: Icon, titleKey, descKey, color }) => (
@@ -171,8 +171,8 @@ export default function Home() {
                       <Icon size={18} style={{ color }} />
                     </div>
                     <div>
-                      <h3 className="font-serif text-[23px] font-light text-ink mb-1.5">{t(titleKey)}</h3>
-                      <p className="text-[17px] text-ink-2 leading-relaxed">{t(descKey)}</p>
+                      <h3 className="font-serif text-[19px] sm:text-[23px] font-light text-ink mb-1 sm:mb-1.5">{t(titleKey)}</h3>
+                      <p className="text-[15px] sm:text-[17px] text-ink-2 leading-relaxed">{t(descKey)}</p>
                     </div>
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function Home() {
         <section className="max-w-5xl mx-auto px-4 md:px-7 py-20">
           <div className="text-center mb-12">
             <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.howLabel")}</p>
-            <h2 className="font-serif text-[34px] md:text-[42px] font-light text-ink">{t("landing.howTitle")}</h2>
+            <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.howTitle")}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {steps.map(({ num, titleKey, descKey }) => (
