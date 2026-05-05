@@ -56,7 +56,6 @@ export default function PricingPage() {
   useEffect(() => {
     (async () => {
       try {
-        await fetch("/api/pricing", { method: "POST" });
         const res = await fetch("/api/pricing");
         if (res.ok) {
           const data = await res.json();
@@ -329,8 +328,10 @@ export default function PricingPage() {
               const totalPrice = pack.price * qty;
               return (
                 <div key={pack.id} className={`bg-surface rounded-2xl border p-6 flex flex-col items-center text-center transition-all hover:shadow-lg ${pack.popular ? "border-accent/30 shadow-md shadow-accent/5" : "border-ink-3/10"}`}>
-                  {savings > 0 && <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 font-medium mb-2">−{savings}%</span>}
-                  {pack.popular && <span className="text-[14px] tracking-[0.2em] uppercase text-accent font-medium mb-2">{t("pricing.bestValue")}</span>}
+                  <div className="h-[52px] flex flex-col items-center justify-center gap-1 mb-2">
+                    {savings > 0 && <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 font-medium">−{savings}%</span>}
+                    {pack.popular && <span className="text-[14px] tracking-[0.2em] uppercase text-accent font-medium">{t("pricing.bestValue")}</span>}
+                  </div>
                   <div className="flex items-center gap-1.5 mb-2"><Zap size={18} className="text-accent" /><span className="text-[26px] font-light text-ink">{totalCredits}</span><span className="text-[18px] text-ink-3">{t("pricing.creditsShort")}</span></div>
                   <span className="text-[24px] font-light text-ink mb-1">{totalPrice} ₽</span>
                   <span className="text-[14px] text-ink-3 mb-4">{(totalPrice / totalCredits).toFixed(1)} ₽/{t("pricing.creditsShort")}</span>
