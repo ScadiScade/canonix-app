@@ -254,11 +254,11 @@ export default function PricingPage() {
                   p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
                 } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}>
                   {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
-                  {isCurrent && !hasPending && <div className="absolute -top-3.5 right-5 bg-accent/10 text-accent text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.current")}</div>}
-                  {isCurrent && hasPending && <div className="absolute -top-3.5 right-5 bg-amber-500/10 text-amber-500 text-[13px] tracking-[0.15em] uppercase px-3 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</div>}
                   <div className="flex items-center gap-3 h-14 mb-5">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
+                    {isCurrent && !hasPending && <span className="ml-auto bg-accent/10 text-accent text-[12px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full font-medium">{t("pricing.current")}</span>}
+                    {isCurrent && hasPending && <span className="ml-auto bg-amber-500/10 text-amber-500 text-[12px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</span>}
                   </div>
                   <div className="h-[52px] mb-6">
                     {isUpgrade && p.price > 0 ? (
