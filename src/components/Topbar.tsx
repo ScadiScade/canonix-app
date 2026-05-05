@@ -13,7 +13,7 @@ import { useCredits } from "@/components/CreditProvider";
 import { useLocale } from "@/lib/i18n";
 import { useThemeContext } from "@/components/ThemeProvider";
 import Image from "next/image";
-import { LOCALE_NAMES, LOCALE_FLAGS } from "@/lib/i18n/types";
+import { LOCALE_FLAGS } from "@/lib/i18n/types";
 import type { Locale } from "@/lib/i18n/types";
 
 export default function Topbar({ universeName, universeSlug }: { universeName?: string; universeSlug?: string }) {
