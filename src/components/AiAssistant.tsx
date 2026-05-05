@@ -8,7 +8,7 @@ import {
 import { EntityGroupData, resolveGroup } from "@/lib/types";
 import { safeJsonParse } from "@/lib/safeJson";
 import { useCredits } from "@/components/CreditProvider";
-import { useLocale } from "@/lib/i18n";
+import { useLocale, TranslationKey } from "@/lib/i18n";
 
 type AiAction = "generate-entities" | "edit-entity" | "generate-groups" | "scenario" | "suggestion" | "expand" | "edit";
 
@@ -18,6 +18,7 @@ interface AiActionOption {
   icon: React.ReactNode;
   cost: number;
   description: string;
+  hintKey: string;
 }
 
 // AI_ACTIONS moved inside component for i18n access
@@ -58,13 +59,13 @@ interface AiAssistantProps {
 export function AiAssistant({ universeId, universeContext, groups = [], entities = [], onEntitiesCreated, onEntityEdited, onGroupsCreated }: AiAssistantProps) {
   const { t } = useLocale();
   const AI_ACTIONS: AiActionOption[] = [
-    { id: "generate-entities", label: t("ai.generateEntities"), icon: <Plus size={14} />, cost: 5, description: t("ai.generateEntitiesDesc") },
-    { id: "generate-groups", label: t("ai.generateGroups"), icon: <Layers size={14} />, cost: 5, description: t("ai.generateGroupsDesc") },
-    { id: "edit-entity", label: t("ai.editEntity"), icon: <Pencil size={14} />, cost: 3, description: t("ai.editEntityDesc") },
-    { id: "scenario", label: t("ai.scenario"), icon: <FileText size={14} />, cost: 3, description: t("ai.scenarioDesc") },
-    { id: "suggestion", label: t("ai.suggestion"), icon: <Sparkles size={14} />, cost: 1, description: t("ai.suggestionDesc") },
-    { id: "expand", label: t("ai.expand"), icon: <ChevronDown size={14} />, cost: 2, description: t("ai.expandDesc") },
-    { id: "edit", label: t("ai.rewrite"), icon: <Wand2 size={14} />, cost: 2, description: t("ai.rewriteDesc") },
+    { id: "generate-entities", label: t("ai.generateEntities"), icon: <Plus size={14} />, cost: 5, description: t("ai.generateEntitiesDesc"), hintKey: "ai.generateEntitiesHint" },
+    { id: "generate-groups", label: t("ai.generateGroups"), icon: <Layers size={14} />, cost: 5, description: t("ai.generateGroupsDesc"), hintKey: "ai.generateGroupsHint" },
+    { id: "edit-entity", label: t("ai.editEntity"), icon: <Pencil size={14} />, cost: 3, description: t("ai.editEntityDesc"), hintKey: "ai.editEntityHint" },
+    { id: "scenario", label: t("ai.scenario"), icon: <FileText size={14} />, cost: 3, description: t("ai.scenarioDesc"), hintKey: "ai.scenarioHint" },
+    { id: "suggestion", label: t("ai.suggestion"), icon: <Sparkles size={14} />, cost: 1, description: t("ai.suggestionDesc"), hintKey: "ai.suggestionHint" },
+    { id: "expand", label: t("ai.expand"), icon: <ChevronDown size={14} />, cost: 2, description: t("ai.expandDesc"), hintKey: "ai.expandHint" },
+    { id: "edit", label: t("ai.rewrite"), icon: <Wand2 size={14} />, cost: 2, description: t("ai.rewriteDesc"), hintKey: "ai.rewriteHint" },
   ];
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState<AiAction | null>(null);
@@ -520,7 +521,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
                   key={a.id}
                   onClick={() => setAction(a.id)}
                   disabled={(a.id === "generate-entities" && !universeId) || (a.id === "edit-entity" && entities.length === 0) || (a.id === "generate-groups" && !universeId) || ((a.id === "scenario" || a.id === "suggestion" || a.id === "expand" || a.id === "edit") && entities.length === 0)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ink-3/10 hover:border-accent/40 hover:bg-accent-light/30 transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ink-3/10 hover:border-accent/40 hover:bg-accent-light/30 transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed group"
                 >
                   <span className="text-accent">{a.icon}</span>
                   <div>
@@ -530,6 +531,8 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
                 </button>
               ))}
             </div>
+            {/* Action hint — shown when hovering action selector */}
+            <p className="text-[15px] text-ink-3/70 text-center leading-relaxed">{t("ai.selectActionHint")}</p>
             <button
               onClick={() => setShowImageGen(true)}
               className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-accent/30 bg-accent-light/20 hover:bg-accent-light/40 transition-colors"
@@ -627,7 +630,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
                 </button>
               </div>
             )}
-            <p className="text-[17px] text-ink-3">{t("ai.entityGenHint")}</p>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{t("ai.generateEntitiesHint")}</p>
             <div className="flex items-center gap-2">
               <span className="text-[16px] text-ink-3">{t("ai.count")}:</span>
               <div className="flex gap-0.5 flex-wrap">
@@ -695,7 +698,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               </button>
               <span className="text-[18px] text-ink">{t("ai.editEntity")} (3 {t("common.credits")})</span>
             </div>
-            <p className="text-[17px] text-ink-3">{t("ai.editEntitySelect")}</p>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{t("ai.editEntityHint")}</p>
             <div className="space-y-1 max-h-[250px] overflow-y-auto">
               {entities.map(e => (
                 <button
@@ -788,7 +791,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               </button>
               <span className="text-[18px] text-ink">{t("ai.groupGenTitle")} (5 {t("common.credits")})</span>
             </div>
-            <p className="text-[17px] text-ink-3">{t("ai.groupGenHint")}</p>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{t("ai.generateGroupsHint")}</p>
             <textarea
               value={prompt}
               onChange={e => setPrompt(e.target.value)}
@@ -963,7 +966,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
               </button>
               <span className="text-[18px] text-ink">{selectedAction?.label} ({selectedAction?.cost} {t("common.credits")})</span>
             </div>
-            <p className="text-[17px] text-ink-3">{selectedAction?.description}</p>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{selectedAction ? t(selectedAction.hintKey as TranslationKey) : ""}</p>
 
             {/* Select entity for note/text actions */}
             {(isNoteAction || isEntityTextAction) && !noteEntityId && (
