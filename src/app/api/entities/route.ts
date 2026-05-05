@@ -3,14 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateBody, createEntitySchema, updateEntitySchema } from "@/lib/validators";
-
-async function checkOwner(universeId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return null;
-  const universe = await prisma.universe.findUnique({ where: { id: universeId } });
-  if (!universe || universe.userId !== session.user.id) return null;
-  return session;
-}
+import { canModifyUniverse, canModifyEntity } from "@/lib/api-auth";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -21,7 +14,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { name, type, universeId, description, date, customFields, notes, parentId } = parsed.data;
 
-  const owner = await checkOwner(universeId);
+  const owner = await canModifyUniverse(universeId);
   if (!owner) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const entity = await prisma.entity.create({
@@ -49,9 +42,9 @@ export async function PUT(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { id, name, type, description, date, customFields, notes, imageUrl, parentId } = parsed.data;
 
-  // Verify ownership via entity's universe
-  const entity = await prisma.entity.findUnique({ where: { id }, include: { universe: true } });
-  if (!entity || entity.universe.userId !== session.user.id) {
+  // Verify access via entity's universe (owner or team member)
+  const access = await canModifyEntity(id);
+  if (!access) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -83,8 +76,8 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
-  const entity = await prisma.entity.findUnique({ where: { id }, include: { universe: true } });
-  if (!entity || entity.universe.userId !== session.user.id) {
+  const access = await canModifyEntity(id);
+  if (!access) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

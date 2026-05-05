@@ -71,7 +71,10 @@ export async function POST(req: NextRequest) {
     const newBalance = await deductCredits(session.user.id, creditId, COST);
 
     return NextResponse.json({ improved, cost: COST, balance: newBalance });
-  } catch (e) {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "Insufficient credits") {
+      return NextResponse.json({ error: "Недостаточно кредитов" }, { status: 402 });
+    }
     console.error("AI improve-prompt error:", e);
     return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
   }

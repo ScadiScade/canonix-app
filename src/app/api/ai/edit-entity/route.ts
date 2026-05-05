@@ -112,7 +112,10 @@ export async function POST(req: NextRequest) {
       cost: COST,
       balance: newBalance,
     });
-  } catch (e) {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "Insufficient credits") {
+      return NextResponse.json({ error: "Недостаточно кредитов" }, { status: 402 });
+    }
     console.error("AI edit-entity error:", e);
     return NextResponse.json({ error: "AI edit failed" }, { status: 500 });
   }

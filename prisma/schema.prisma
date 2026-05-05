@@ -87,6 +87,7 @@ model Universe {
 
   @@index([userId])
   @@index([teamId])
+  @@index([visibility, listedAt])
 }
 
 model EntityGroup {

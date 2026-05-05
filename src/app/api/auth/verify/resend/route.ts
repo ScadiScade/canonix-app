@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function getResend() {
   const key = process.env.RESEND_API_KEY;
@@ -11,6 +12,9 @@ function getResend() {
 
 // POST /api/auth/verify/resend — resend verification email by email address (no auth required)
 export async function POST(req: NextRequest) {
+  const rl = checkRateLimit(req.headers.get("x-forwarded-for") || "global", "auth");
+  if (rl) return rl;
+
   const { email } = await req.json();
   if (!email) {
     return NextResponse.json({ error: "Email required" }, { status: 400 });

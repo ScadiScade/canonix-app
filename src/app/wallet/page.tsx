@@ -115,9 +115,6 @@ export default function WalletPage() {
     );
   }
 
-  // Unique types present in transactions
-  const presentTypes = Array.from(new Set(transactions.map(tx => tx.type)));
-
   return (
     <div className="min-h-screen bg-background">
       <Topbar />
@@ -211,9 +208,8 @@ export default function WalletPage() {
             >
               {t("wallet.allTypes")}
             </button>
-            {presentTypes.map(type => {
+            {Object.keys(TX_TYPE_META).map(type => {
               const meta = TX_TYPE_META[type];
-              if (!meta) return null;
               return (
                 <button
                   key={type}

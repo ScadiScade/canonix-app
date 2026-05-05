@@ -62,28 +62,32 @@ export async function POST(req: NextRequest) {
 
   const amountKopecks = amount * 100;
 
-  // Direct top-up to wallet
-  let wallet = await prisma.wallet.findUnique({ where: { userId: session.user.id } });
-  if (!wallet) {
-    wallet = await prisma.wallet.create({ data: { userId: session.user.id } });
-  }
+  // Atomic top-up inside transaction to prevent race conditions
+  const result = await prisma.$transaction(async (tx) => {
+    let wallet = await tx.wallet.findUnique({ where: { userId: session.user.id } });
+    if (!wallet) {
+      wallet = await tx.wallet.create({ data: { userId: session.user.id } });
+    }
 
-  const newBalance = wallet.balance + amountKopecks;
+    const newBalance = wallet.balance + amountKopecks;
 
-  await prisma.walletTransaction.create({
-    data: {
-      walletId: wallet.id,
-      type: "topup",
-      amount: amountKopecks,
-      balanceAfter: newBalance,
-      description: `Пополнение ${amount} ₽`,
-    },
+    await tx.walletTransaction.create({
+      data: {
+        walletId: wallet.id,
+        type: "topup",
+        amount: amountKopecks,
+        balanceAfter: newBalance,
+        description: `Пополнение ${amount} ₽`,
+      },
+    });
+
+    await tx.wallet.update({
+      where: { id: wallet.id },
+      data: { balance: newBalance },
+    });
+
+    return { balance: newBalance, available: newBalance - wallet.frozen };
   });
 
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: newBalance },
-  });
-
-  return NextResponse.json({ balance: newBalance, available: newBalance - wallet.frozen });
+  return NextResponse.json(result);
 }

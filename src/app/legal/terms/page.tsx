@@ -122,8 +122,8 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-ink-3/15 flex flex-col sm:flex-row gap-4 text-[17px] text-ink-3">
-          <Link href="/privacy" className="hover:text-accent transition-colors no-underline">Политика конфиденциальности</Link>
-          <Link href="/consent" className="hover:text-accent transition-colors no-underline">Согласие на обработку персональных данных</Link>
+          <Link href="/legal/privacy" className="hover:text-accent transition-colors no-underline">Политика конфиденциальности</Link>
+          <Link href="/legal/consent" className="hover:text-accent transition-colors no-underline">Согласие на обработку персональных данных</Link>
         </div>
       </main>
     </div>

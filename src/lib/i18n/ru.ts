@@ -510,6 +510,8 @@ const ru = {
   "marketplace.buyFor": "Купить за {price} ₽",
   "marketplace.preview": "Предпросмотр",
   "marketplace.more": "ещё {count}",
+  "marketplace.purchased": "Куплено! Теперь у вас есть доступ к этой вселенной",
+  "marketplace.alreadyPurchased": "Вы уже купили эту вселенную",
 
   // RelationForm
   "relation.title": "Новая связь",

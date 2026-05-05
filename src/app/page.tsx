@@ -240,7 +240,7 @@ export default function Home() {
             </nav>
           </div>
           <div className="mt-8 pt-6 border-t border-ink-3/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="text-[15px] tracking-[0.2em] uppercase text-ink-3">canonix.app · 2026</span>
+            <span className="text-[15px] tracking-[0.2em] uppercase text-ink-3">canonix.app · {new Date().getFullYear()}</span>
             <span className="text-[15px] text-ink-3">{t("landing.madeWith")}</span>
           </div>
         </div>

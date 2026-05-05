@@ -512,6 +512,8 @@ const en: Translations = {
   "marketplace.buyFor": "Buy for {price} ₽",
   "marketplace.preview": "Preview",
   "marketplace.more": "more {count}",
+  "marketplace.purchased": "Purchased! You now have access to this universe",
+  "marketplace.alreadyPurchased": "You already own this universe",
 
   // RelationForm
   "relation.title": "Add relation",

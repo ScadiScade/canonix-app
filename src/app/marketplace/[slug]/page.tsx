@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Map, Unlock, Lock, ShoppingBag, ArrowRight, Copy, ChevronRight, Users, Globe, Zap, Building2, GitBranch } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { Map, Unlock, Lock, ShoppingBag, ArrowRight, Copy, ChevronRight, Users, Globe, Zap, Building2, GitBranch, Loader2 } from "lucide-react";
 import { resolveGroup } from "@/lib/types";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useLocale, TranslationKey } from "@/lib/i18n";
@@ -65,7 +65,9 @@ function MarketplaceDetailInner() {
   const { t } = useLocale();
   const [data, setData] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [buying, setBuying] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/universes/${slug}`)
@@ -212,9 +214,37 @@ function MarketplaceDetailInner() {
                 ) : (
                   <>
                     <button
-                      className="w-full flex items-center justify-center gap-2 bg-accent text-white rounded-xl px-4 py-3 text-[12px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors"
+                      onClick={async () => {
+                        setBuying(true);
+                        try {
+                          const res = await fetch("/api/marketplace/purchase", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ universeId: data.id }),
+                          });
+                          const result = await res.json();
+                          if (res.ok) {
+                            toast(t("marketplace.purchased"));
+                            router.push(`/s/${result.slug || data.slug}`);
+                          } else if (res.status === 402) {
+                            toast(t("pricing.insufficientBalance"));
+                          } else if (res.status === 409) {
+                            toast(t("marketplace.alreadyPurchased"));
+                            router.push(`/s/${data.slug}`);
+                          } else {
+                            toast(result.error || t("common.error"));
+                          }
+                        } catch {
+                          toast(t("common.error"));
+                        } finally {
+                          setBuying(false);
+                        }
+                      }}
+                      disabled={buying}
+                      className="w-full flex items-center justify-center gap-2 bg-accent text-white rounded-xl px-4 py-3 text-[12px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-50"
                     >
-                      {t("marketplace.buyFor", { price: data.price })}
+                      {buying ? <Loader2 size={12} className="animate-spin" /> : null}
+                      {buying ? t("common.loading") : t("marketplace.buyFor", { price: data.price })}
                     </button>
                     <Link
                       href={`/s/${data.slug}`}
@@ -262,7 +292,7 @@ function MarketplaceDetailInner() {
             <nav className="flex items-center gap-4 text-[11px] tracking-[0.15em] uppercase text-ink-3" aria-label="Footer">
               <Link href="/legal/terms" className="hover:text-accent transition-colors no-underline">{t("login.terms")}</Link>
               <Link href="/legal/privacy" className="hover:text-accent transition-colors no-underline">{t("login.privacy")}</Link>
-              <span>canonix.app · 2026</span>
+              <span>canonix.app · {new Date().getFullYear()}</span>
             </nav>
           </div>
         </div>

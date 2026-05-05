@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 // GET /api/pricing — all active pricing config from DB
@@ -14,8 +16,18 @@ export async function GET() {
   return NextResponse.json({ plans, creditPacks });
 }
 
-// POST /api/pricing — seed default pricing if table is empty
+// POST /api/pricing — seed default pricing if table is empty (admin only)
 export async function POST() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { email: true } });
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail || user?.email !== adminEmail) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const count = await prisma.pricingConfig.count();
   if (count > 0) {
     return NextResponse.json({ seeded: false, count });

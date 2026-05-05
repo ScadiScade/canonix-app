@@ -171,7 +171,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, t]);
 
   useEffect(() => { fetchUniverse(); }, [fetchUniverse]);
 

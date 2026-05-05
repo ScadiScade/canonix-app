@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateBody, createGroupSchema, updateGroupSchema } from "@/lib/validators";
+import { canModifyUniverse } from "@/lib/api-auth";
 
 // POST /api/groups — create a new group
 export async function POST(req: NextRequest) {
@@ -16,8 +17,8 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { universeId, name, slug, color, icon, fields, isContainer } = parsed.data;
 
-  const universe = await prisma.universe.findUnique({ where: { id: universeId } });
-  if (!universe || universe.userId !== session.user.id) {
+  const access = await canModifyUniverse(universeId);
+  if (!access) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -58,9 +59,14 @@ export async function PUT(req: NextRequest) {
 
   const group = await prisma.entityGroup.findUnique({
     where: { id },
-    include: { universe: true },
+    include: { universe: { select: { userId: true, teamId: true, id: true } } },
   });
-  if (!group || group.universe.userId !== session.user.id) {
+  if (!group) {
+    return NextResponse.json({ error: "Group not found" }, { status: 404 });
+  }
+
+  const access = await canModifyUniverse(group.universe.id);
+  if (!access) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -95,15 +101,20 @@ export async function DELETE(req: NextRequest) {
   }
 
   const { id } = await req.json();
-  if (!id) {
+  if (!id || typeof id !== "string") {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
   const group = await prisma.entityGroup.findUnique({
     where: { id },
-    include: { universe: true },
+    include: { universe: { select: { userId: true, teamId: true, id: true } } },
   });
-  if (!group || group.universe.userId !== session.user.id) {
+  if (!group) {
+    return NextResponse.json({ error: "Group not found" }, { status: 404 });
+  }
+
+  const access = await canModifyUniverse(group.universe.id);
+  if (!access) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

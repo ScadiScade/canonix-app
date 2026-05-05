@@ -511,7 +511,7 @@ function GraphViewInner({ entities, relations, groups = [], onNodeClick }: Graph
         return { key: t as TypeFilter, label: g.name, color: g.color };
       }),
     ];
-  }, [entities, groups]);
+  }, [entities, groups, t]);
 
   return (
     <div className="w-full h-full bg-surface rounded-lg border border-ink-3/15 overflow-hidden relative">

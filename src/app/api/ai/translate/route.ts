@@ -102,7 +102,10 @@ Respond ONLY with valid JSON (no markdown, no comments):
       cost: COST,
       balance: newBalance,
     });
-  } catch (e) {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "Insufficient credits") {
+      return NextResponse.json({ error: "Недостаточно кредитов" }, { status: 402 });
+    }
     console.error("AI translate error:", e);
     return NextResponse.json({ error: "Translation failed" }, { status: 500 });
   }

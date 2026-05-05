@@ -103,14 +103,17 @@ export async function POST(req: NextRequest) {
 
     if (!imageUrl) {
       // If no image was generated, don't charge credits
-      return NextResponse.json({ error: "Не удалось сгенерировать изображение", raw: message }, { status: 502 });
+      return NextResponse.json({ error: "Не удалось сгенерировать изображение" }, { status: 502 });
     }
 
     // Deduct credits after successful generation
     const newBalance = await deductCredits(session.user.id, creditId, IMAGE_CREDIT_COST);
 
     return NextResponse.json({ imageUrl, cost: IMAGE_CREDIT_COST, balance: newBalance });
-  } catch (e) {
+  } catch (e: unknown) {
+    if (e instanceof Error && e.message === "Insufficient credits") {
+      return NextResponse.json({ error: "Недостаточно кредитов" }, { status: 402 });
+    }
     console.error("AI image generate error:", e);
     return NextResponse.json({ error: "AI image generation failed" }, { status: 500 });
   }

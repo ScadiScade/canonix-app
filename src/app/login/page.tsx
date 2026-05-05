@@ -92,7 +92,7 @@ function LoginPageInner() {
     else if (v === "expired") setError(t("login.verifyExpired"));
     else if (v === "invalid") setError(t("login.verifyInvalid"));
     else if (v === "missing") setError(t("login.verifyMissing"));
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   // Auto-login from Telegram bot link (tg_token param)
   useEffect(() => {
@@ -128,7 +128,7 @@ function LoginPageInner() {
         setLoading(false);
       }
     })();
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   const handleTelegramLogin = async () => {
     setTelegramLoading(true);

@@ -57,27 +57,45 @@ function SettingsInner() {
   }, [sessionStatus, fetchProfile]);
 
   const saveName = async () => {
-    await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: userName.trim() || null }),
-    });
-    setEditingName(false);
-    fetchProfile();
-    updateSession();
-    toast(t("dashboard.nameUpdated"));
+    try {
+      const res = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: userName.trim() || null }),
+      });
+      if (res.ok) {
+        setEditingName(false);
+        fetchProfile();
+        updateSession();
+        toast(t("dashboard.nameUpdated"));
+      } else {
+        const data = await res.json();
+        toast(data.error || t("common.error"), "error");
+      }
+    } catch {
+      toast(t("common.error"), "error");
+    }
   };
 
   const saveBio = async () => {
-    await fetch("/api/user", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bio: userBio.trim() || null }),
-    });
-    setEditingBio(false);
-    fetchProfile();
-    updateSession();
-    toast(t("dashboard.bioUpdated"));
+    try {
+      const res = await fetch("/api/user", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bio: userBio.trim() || null }),
+      });
+      if (res.ok) {
+        setEditingBio(false);
+        fetchProfile();
+        updateSession();
+        toast(t("dashboard.bioUpdated"));
+      } else {
+        const data = await res.json();
+        toast(data.error || t("common.error"), "error");
+      }
+    } catch {
+      toast(t("common.error"), "error");
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -162,14 +180,18 @@ function SettingsInner() {
                       const reader = new FileReader();
                       reader.onload = async (ev) => {
                         const base64 = ev.target?.result as string;
-                        await fetch("/api/user", {
+                        const res = await fetch("/api/user", {
                           method: "PUT",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ image: base64 }),
                         });
-                        fetchProfile();
-                        updateSession();
-                        toast(t("settings.photoUpdated"));
+                        if (res.ok) {
+                          fetchProfile();
+                          updateSession();
+                          toast(t("settings.photoUpdated"));
+                        } else {
+                          toast(t("settings.photoUploadError"), "error");
+                        }
                         setUploading(false);
                       };
                       reader.readAsDataURL(file);
@@ -183,14 +205,22 @@ function SettingsInner() {
               {profile?.image && (
                 <button
                   onClick={async () => {
-                    await fetch("/api/user", {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ image: null }),
-                    });
-                    fetchProfile();
-                    updateSession();
-                    toast(t("settings.photoDeleted"));
+                    try {
+                      const res = await fetch("/api/user", {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ image: null }),
+                      });
+                      if (res.ok) {
+                        fetchProfile();
+                        updateSession();
+                        toast(t("settings.photoDeleted"));
+                      } else {
+                        toast(t("common.error"), "error");
+                      }
+                    } catch {
+                      toast(t("common.error"), "error");
+                    }
                   }}
                   className="absolute -bottom-1 -right-1 w-5 h-5 bg-surface border border-ink-3/20 rounded-full flex items-center justify-center text-ink-3 hover:text-red-500 transition-colors"
                   title={t("common.delete")}
