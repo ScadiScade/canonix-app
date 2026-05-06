@@ -278,7 +278,7 @@ function MarketplaceDetailInner() {
             <nav className="flex items-center gap-4 text-[11px] tracking-[0.15em] uppercase text-ink-3" aria-label="Footer">
               <Link href="/legal/terms" className="hover:text-accent transition-colors no-underline">{t("login.terms")}</Link>
               <Link href="/legal/privacy" className="hover:text-accent transition-colors no-underline">{t("login.privacy")}</Link>
-              <span>canonix.app · {new Date().getFullYear()}</span>
+              <span>canonix · {new Date().getFullYear()}</span>
             </nav>
           </div>
         </div>
