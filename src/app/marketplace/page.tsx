@@ -153,16 +153,12 @@ export default function MarketplacePage() {
               <p className="text-ink-3 text-[17px]">{t("marketplace.tryDifferentFilters")}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 reveal-stagger">
               {listings.map(u => {
                 const lic = LICENSE_LABELS[u.license] || LICENSE_LABELS.open;
                 const LicIcon = lic.icon;
                 return (
-                  <Link
-                    key={u.id}
-                    href={`/marketplace/${u.slug}`}
-                    className="bg-surface rounded-xl border border-ink-3/10 hover:border-ink-3/25 hover:shadow-md transition-all p-5 no-underline group"
-                  >
+                  <Link key={u.id} href={`/s/${u.slug}`} className="bg-surface rounded-xl border border-ink-3/10 p-5 hover:shadow-lg hover:border-ink-3/20 transition-all hover-lift group no-underline block">
                     {/* Top: license + price */}
                     <div className="flex items-center justify-between mb-4">
                       <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[14px] tracking-[0.15em] uppercase ${lic.bg}`} style={{ color: lic.color }}>
@@ -221,7 +217,7 @@ export default function MarketplacePage() {
             </p>
             <Link
               href={session ? "/dashboard" : "/login"}
-              className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-6 py-3 text-[17px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors no-underline"
+              className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-6 py-3 text-[17px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors no-underline btn-press hover-glow accent-shimmer"
             >
               {session ? t("dashboard.myUniverses") : t("marketplace.startCreating")}
               <ArrowRight size={14} />

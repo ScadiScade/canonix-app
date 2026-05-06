@@ -79,7 +79,7 @@ function EntityDetailModal({ selected, groups, onClose, onAddRelation, onEdit, o
     >
       <div
         className="w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[85vh] bg-surface sm:rounded-xl rounded-t-2xl border border-ink-3/15 shadow-2xl overflow-hidden flex flex-col min-h-0"
-        style={{ animation: "scaleIn 0.15s ease-out" }}
+        style={{ animation: "scaleIn 0.2s var(--ease-spring)", transformOrigin: "center bottom" }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-ink-3/10 flex-shrink-0">

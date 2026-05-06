@@ -182,14 +182,14 @@ function DashboardInner() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowImport(true)}
-              className="flex items-center justify-center gap-1.5 bg-background text-ink-2 border border-ink-3/20 rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-ink-3/10 transition-colors shrink-0"
+              className="flex items-center justify-center gap-1.5 bg-background text-ink-2 border border-ink-3/20 rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-ink-3/10 transition-colors shrink-0 btn-press"
             >
               <Upload size={14} />
               {t("import.import")}
             </button>
             <button
               onClick={() => setShowCreate(true)}
-              className="flex items-center justify-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0"
+              className="flex items-center justify-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0 btn-press hover-glow"
             >
               <Plus size={14} />
               {t("dashboard.new")}
@@ -200,14 +200,14 @@ function DashboardInner() {
         {universes.length === 0 ? (
           <OnboardingGuide onCreateUniverse={() => setShowCreate(true)} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-[10px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[10px] reveal-stagger">
             {universes.map(u => {
               const VisIcon = visIcon(u.visibility);
               const badge = licenseBadge(u);
               return (
                 <div
                   key={u.id}
-                  className="bg-surface rounded-lg border border-ink-3/10 p-[18px_20px] hover:border-ink-3/25 hover:shadow-md transition-all group"
+                  className="bg-surface rounded-lg border border-ink-3/10 p-[18px_20px] hover:border-ink-3/25 hover:shadow-md transition-all group hover-lift"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1 min-w-0">

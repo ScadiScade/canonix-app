@@ -19,6 +19,16 @@ export function ScrollReveal({ children }: { children: React.ReactNode }) {
     const observe = () => {
       document.querySelectorAll(".reveal:not(.reveal-visible)").forEach((el) => {
         io.observe(el);
+        // Auto-stagger direct children of reveal-stagger containers
+        if (el.classList.contains("reveal-stagger")) {
+          const children = el.children;
+          for (let i = 0; i < children.length; i++) {
+            const child = children[i] as HTMLElement;
+            child.classList.add("reveal");
+            const delayIdx = (i % 8) + 1;
+            child.classList.add(`reveal-delay-${delayIdx}`);
+          }
+        }
       });
     };
 

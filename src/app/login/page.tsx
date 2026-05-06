@@ -267,22 +267,22 @@ function LoginPageInner() {
             <button
               type="button"
               onClick={() => switchMode("login")}
-              className={`flex-1 py-2 rounded-md text-[16px] tracking-[0.12em] uppercase transition-all ${
-                mode === "login"
-                  ? "bg-accent text-white shadow-sm"
-                  : "text-ink-3 hover:text-ink"
-              }`}
+              className={`flex-1 py-2 rounded-md text-[16px] tracking-[0.12em] uppercase transition-all duration-200 ${
+                  mode === "login"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-ink-3 hover:text-ink hover:bg-ink-3/5"
+                }`}
             >
               {t("login.login")}
             </button>
             <button
               type="button"
               onClick={() => switchMode("register")}
-              className={`flex-1 py-2 rounded-md text-[16px] tracking-[0.12em] uppercase transition-all ${
-                mode === "register"
-                  ? "bg-accent text-white shadow-sm"
-                  : "text-ink-3 hover:text-ink"
-              }`}
+              className={`flex-1 py-2 rounded-md text-[16px] tracking-[0.12em] uppercase transition-all duration-200 ${
+                  mode === "register"
+                    ? "bg-accent text-white shadow-sm"
+                    : "text-ink-3 hover:text-ink hover:bg-ink-3/5"
+                }`}
             >
               {t("login.register")}
             </button>
@@ -503,7 +503,7 @@ function LoginPageInner() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-accent text-white rounded-xl px-5 py-3 text-[17px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full bg-accent text-white rounded-xl px-5 py-3 text-[17px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 btn-press hover-glow accent-shimmer"
             >
               {loading ? (
                 <>
@@ -532,7 +532,7 @@ function LoginPageInner() {
             <button
               type="button"
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="w-full flex items-center justify-center gap-2.5 bg-surface border border-ink-3/15 rounded-xl px-5 py-3 text-[17px] tracking-[0.08em] text-ink hover:border-ink-3/30 hover:shadow-sm transition-all no-underline"
+              className="w-full flex items-center justify-center gap-2.5 bg-surface border border-ink-3/15 rounded-xl px-5 py-3 text-[17px] tracking-[0.08em] text-ink hover:border-ink-3/30 hover:shadow-sm transition-all no-underline btn-press"
             >
               <GoogleIcon />
               {t("login.continueWithGoogle")}

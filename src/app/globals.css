@@ -113,6 +113,20 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* ═══════════════════════════════════════════
+   Animation System — Spring-like curves & micro-interactions
+   ═══════════════════════════════════════════ */
+
+/* Spring-like cubic-bezier presets:
+   --ease-spring:   fast snap with slight overshoot
+   --ease-out-expo: smooth deceleration, no overshoot
+   --ease-bounce:   subtle bounce for playful feedback */
+:root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.5, 1.5, 0.5, 1);
+}
+
 @keyframes slideRight {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -139,7 +153,7 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; transform: translateY(0); }
 }
 .page-enter {
-  animation: pageEnter 0.2s ease-out;
+  animation: pageEnter 0.25s var(--ease-out-expo);
 }
 
 /* Bottom sheet animation for mobile modals */
@@ -151,21 +165,108 @@ h1, h2, h3, h4, h5, h6 {
 /* Apply slideUpSheet to mobile bottom sheets */
 @media (max-width: 639px) {
   .fixed.inset-0 [class*="rounded-t-2xl"] {
-    animation: slideUpSheet 0.25s ease-out !important;
+    animation: slideUpSheet 0.3s var(--ease-out-expo) !important;
   }
 }
 
 /* Modal backdrop animation */
 .fixed.inset-0.bg-ink\/30,
-.fixed.inset-0.bg-ink\/40 {
-  animation: fadeIn 0.15s ease-out;
+.fixed.inset-0.bg-ink\/40,
+.fixed.inset-0.bg-black\/40 {
+  animation: fadeIn 0.2s ease-out;
 }
+
+/* ── Exit animations ── */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes scaleOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.95); opacity: 0; }
+}
+@keyframes slideOutRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slideDownOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(30px); opacity: 0; }
+}
+
+.animate-exit {
+  animation: fadeOut 0.15s ease-in forwards;
+}
+.animate-exit-scale {
+  animation: scaleOut 0.15s ease-in forwards;
+}
+.animate-exit-slide {
+  animation: slideOutRight 0.2s ease-in forwards;
+}
+
+/* ── Micro-interactions ── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 91, 227, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(45, 91, 227, 0.15); }
+}
+@keyframes subtlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+@keyframes shimmerAccent {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ── Hover lift effect for cards ── */
+.hover-lift {
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease-out, border-color 0.25s ease-out;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -3px rgba(0, 0, 0, 0.04);
+}
+.dark .hover-lift:hover {
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -3px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Hover glow for accent elements ── */
+.hover-glow {
+  transition: box-shadow 0.3s ease-out, transform 0.2s var(--ease-spring);
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px -3px rgba(45, 91, 227, 0.3);
+}
+.dark .hover-glow:hover {
+  box-shadow: 0 0 20px -3px rgba(109, 143, 232, 0.25);
+}
+
+/* ── Button press feedback ── */
+.btn-press {
+  transition: transform 0.1s ease-out, box-shadow 0.15s ease-out;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+.btn-press:active:not(:disabled) {
+  box-shadow: none;
+}
+
+/* ── Staggered reveal delays ── */
+.reveal-delay-1 { transition-delay: 0.05s; }
+.reveal-delay-2 { transition-delay: 0.1s; }
+.reveal-delay-3 { transition-delay: 0.15s; }
+.reveal-delay-4 { transition-delay: 0.2s; }
+.reveal-delay-5 { transition-delay: 0.25s; }
+.reveal-delay-6 { transition-delay: 0.3s; }
+.reveal-delay-7 { transition-delay: 0.35s; }
+.reveal-delay-8 { transition-delay: 0.4s; }
 
 /* Scroll reveal animation */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
 }
 .reveal.reveal-visible {
   opacity: 1;
@@ -177,6 +278,18 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
     transform: none;
   }
+  .reveal-delay-1, .reveal-delay-2, .reveal-delay-3,
+  .reveal-delay-4, .reveal-delay-5, .reveal-delay-6,
+  .reveal-delay-7, .reveal-delay-8 {
+    transition-delay: 0s;
+  }
+  .hover-lift:hover { transform: none; }
+}
+
+/* ── Focus ring animation ── */
+@keyframes focusRing {
+  from { box-shadow: 0 0 0 0 rgba(45, 91, 227, 0.4); }
+  to { box-shadow: 0 0 0 3px rgba(45, 91, 227, 0); }
 }
 
 /* Skeleton shimmer */
@@ -190,4 +303,18 @@ h1, h2, h3, h4, h5, h6 {
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--r-md);
   color: transparent;
+}
+
+/* ── Smooth transitions for interactive elements ── */
+button, a, input, textarea, select, summary {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-timing-function: var(--ease-spring);
+  transition-duration: 0.15s;
+}
+
+/* ── Animated gradient for accent CTA buttons ── */
+.accent-shimmer {
+  background-size: 200% auto;
+  animation: shimmerAccent 3s linear infinite;
+  background-image: linear-gradient(90deg, var(--accent) 0%, var(--accent) 40%, rgba(255,255,255,0.15) 50%, var(--accent) 60%, var(--accent) 100%);
 }

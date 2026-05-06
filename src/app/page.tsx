@@ -91,36 +91,36 @@ export default function Home() {
       />
       <main id="main-content">
         {/* ═══ Hero: Pain → Solution ═══ */}
-        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-20 md:pt-32 pb-14 md:pb-20 text-center">
-          <p className="text-[13px] tracking-[0.2em] uppercase text-ink-3 mb-4">{t("landing.heroTag")}</p>
-          <h1 className="font-serif text-[34px] sm:text-[48px] md:text-[60px] font-light text-ink leading-[1.08] mb-5">
+        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-20 md:pt-32 pb-14 md:pb-20 text-center reveal">
+          <p className="text-[13px] tracking-[0.2em] uppercase text-ink-3 mb-4 reveal-delay-1">{t("landing.heroTag")}</p>
+          <h1 className="font-serif text-[34px] sm:text-[48px] md:text-[60px] font-light text-ink leading-[1.08] mb-5 reveal-delay-2">
             {t("landing.heroTitle1")}<br />{t("landing.heroTitle2")}
           </h1>
-          <p className="text-ink-2 text-[16px] sm:text-[18px] max-w-lg mx-auto leading-relaxed mb-8">
+          <p className="text-ink-2 text-[16px] sm:text-[18px] max-w-lg mx-auto leading-relaxed mb-8 reveal-delay-3">
             {t("landing.heroDesc")}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center reveal-delay-4">
             <Link
               href={session ? "/dashboard" : "/login"}
-              className="bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline inline-flex items-center gap-2 shadow-lg shadow-accent/15 w-full sm:w-auto justify-center"
+              className="bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline inline-flex items-center gap-2 shadow-lg shadow-accent/15 w-full sm:w-auto justify-center btn-press hover-glow accent-shimmer"
             >
               {session ? t("landing.myUniverses") : t("landing.startFree")}
               <ArrowRight size={14} />
             </Link>
             <Link
               href="/marketplace"
-              className="bg-surface text-ink border border-ink-3/20 rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:border-ink-3/40 transition-colors no-underline inline-flex items-center gap-2 w-full sm:w-auto justify-center"
+              className="bg-surface text-ink border border-ink-3/20 rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:border-ink-3/40 hover:bg-ink-3/3 transition-colors no-underline inline-flex items-center gap-2 w-full sm:w-auto justify-center btn-press"
             >
               {t("landing.marketplace")}
               <ChevronRight size={14} />
             </Link>
           </div>
-          <p className="text-[13px] text-ink-3 mt-4">{t("landing.heroSub")}</p>
+          <p className="text-[13px] text-ink-3 mt-4 reveal-delay-5">{t("landing.heroSub")}</p>
         </section>
 
         {/* ── Preview mockup ── */}
         <section className="max-w-4xl mx-auto px-4 md:px-7 pb-24 reveal">
-          <div className="bg-surface rounded-xl border border-ink-3/12 p-4 md:p-6">
+          <div className="bg-surface rounded-xl border border-ink-3/12 p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-500">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <Map size={14} className="text-accent" />
@@ -134,7 +134,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {previewEntities.map(e => (
-                <div key={e.nameKey} className="bg-background rounded-lg p-3 border border-ink-3/8">
+                <div key={e.nameKey} className="bg-background rounded-lg p-3 border border-ink-3/8 hover-lift">
                   <div className="flex items-center gap-1.5 mb-1">
                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.color }} />
                     <span className="text-[11px] tracking-[0.12em] uppercase text-ink-3">{t(e.typeKey)}</span>
@@ -182,7 +182,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {entityTypes.map(({ icon: Icon, typeKey, descKey, color }) => (
-              <div key={typeKey} className="bg-surface rounded-lg p-4 border border-ink-3/10 hover:border-ink-3/25 transition-colors">
+              <div key={typeKey} className="bg-surface rounded-lg p-4 border border-ink-3/10 hover:border-ink-3/25 transition-all hover-lift">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: color + "12" }}>
                   <Icon size={15} style={{ color }} />
                 </div>
@@ -201,7 +201,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {views.map(({ icon: Icon, titleKey, descKey, color }) => (
-              <div key={titleKey} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover:border-ink-3/25 transition-colors">
+              <div key={titleKey} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover:border-ink-3/25 transition-all hover-lift">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: color + "12" }}>
                   <Icon size={15} style={{ color }} />
                 </div>
@@ -219,7 +219,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {steps.map(({ num, titleKey, descKey }) => (
-              <div key={num} className="bg-surface rounded-lg p-5 border border-ink-3/10">
+              <div key={num} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover-lift">
                 <span className="text-[12px] tracking-[0.15em] text-accent/40 uppercase mb-2 block">{num}</span>
                 <h3 className="font-serif text-[19px] font-light text-ink mb-1">{t(titleKey)}</h3>
                 <p className="text-[14px] text-ink-2 leading-relaxed">{t(descKey)}</p>
@@ -235,10 +235,10 @@ export default function Home() {
           </div>
           <div className="space-y-2">
             {faqItems.map(({ qKey, aKey }) => (
-              <details key={qKey} className="group bg-surface rounded-lg border border-ink-3/10 open:border-ink-3/20 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+              <details key={qKey} className="group bg-surface rounded-lg border border-ink-3/10 open:border-ink-3/20 transition-all hover:bg-ink-3/2" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
                 <summary className="flex items-center justify-between gap-3 p-4 cursor-pointer list-none select-none">
                   <span className="font-serif text-[16px] font-light text-ink" itemProp="name">{t(qKey)}</span>
-                  <ChevronRight size={14} className="text-ink-3 transition-transform group-open:rotate-90 flex-shrink-0" />
+                  <ChevronRight size={14} className="text-ink-3 transition-transform duration-200 group-open:rotate-90 flex-shrink-0" />
                 </summary>
                 <div className="px-4 pb-4 text-[14px] text-ink-2 leading-relaxed" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
                   <p itemProp="text">{t(aKey)}</p>
@@ -258,7 +258,7 @@ export default function Home() {
           </p>
           <Link
             href={session ? "/dashboard" : "/login"}
-            className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/15"
+            className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/15 btn-press hover-glow accent-shimmer"
           >
             {session ? t("landing.myUniverses") : t("landing.createUniverse")}
             <ArrowRight size={14} />

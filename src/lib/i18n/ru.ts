@@ -496,7 +496,7 @@ const ru = {
   "pricing.f19": "API доступ",
   "pricing.f20": "Кастомные интеграции",
   "pricing.f21": "SLA 99.9%",
-  "pricing.perSeat": "+ ",
+  "pricing.perSeat": "+ {price} ₽/мес за каждого нового участника",
   "pricing.renewsOn": "Продление ",
   "pricing.nextPeriod": "в следующем периоде",
   "pricing.scheduledChange": "Запланирован переход на ",

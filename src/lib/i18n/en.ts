@@ -498,7 +498,7 @@ const en: Translations = {
   "pricing.f19": "API access",
   "pricing.f20": "Custom integrations",
   "pricing.f21": "SLA 99.9%",
-  "pricing.perSeat": "+ ",
+  "pricing.perSeat": "+ {price} ₽/month per additional team member",
   "pricing.renewsOn": "Renews ",
   "pricing.nextPeriod": "next period",
   "pricing.scheduledChange": "Scheduled change to ",

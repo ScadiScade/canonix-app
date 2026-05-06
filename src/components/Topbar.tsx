@@ -74,9 +74,9 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
         <div className="h-full max-w-[1400px] mx-auto px-4 md:px-7 flex items-center justify-between gap-4">
           {/* Left: Logo + breadcrumb */}
           <div className="flex items-center gap-3 min-w-0">
-            <Link href="/" className="flex items-center gap-2 no-underline shrink-0 group">
-              <Map size={20} className="text-accent transition-transform group-hover:scale-110" />
-              <span className="font-serif text-[20px] sm:text-[20px] font-light text-ink tracking-tight">Canonix</span>
+            <Link href="/" className="flex items-center gap-2 no-underline shrink-0 group hover-glow rounded-lg px-1.5 py-0.5 -ml-1.5">
+              <Map size={20} className="text-accent transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[8deg]" />
+              <span className="font-serif text-[20px] sm:text-[20px] font-light text-ink tracking-tight group-hover:text-accent transition-colors duration-300">Canonix</span>
             </Link>
             {universeName && universeSlug && (
               <>
@@ -133,7 +133,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
               <div ref={userMenuRef} className="relative">
                 <button
                   onClick={() => setUserMenu(!userMenu)}
-                  className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 hover:bg-ink-3/5 transition-all"
+                  className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 hover:bg-ink-3/5 transition-all btn-press"
                 >
                   {session.user?.image ? (
                     <Image src={session.user.image} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover border border-ink-3/10" />
@@ -144,7 +144,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
                 </button>
 
                 {userMenu && (
-                  <div className="absolute right-0 top-full mt-1.5 bg-surface border border-ink-3/12 rounded-xl shadow-xl overflow-hidden z-50 min-w-[220px]" style={{ animation: "scaleIn 0.12s ease-out" }}>
+                  <div className="absolute right-0 top-full mt-1.5 bg-surface border border-ink-3/12 rounded-xl shadow-xl overflow-hidden z-50 min-w-[220px]" style={{ animation: "scaleIn 0.2s var(--ease-spring)", transformOrigin: "top right" }}>
                     {/* User info */}
                     <div className="px-4 py-3 border-b border-ink-3/8">
                       <p className="text-[15px] text-ink font-medium truncate">{session.user?.name || session.user?.email?.split("@")[0]}</p>
@@ -206,7 +206,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-1.5 bg-accent text-white rounded-lg px-4 py-1.5 text-[14px] tracking-[0.05em] uppercase hover:bg-accent/90 transition-colors no-underline"
+                className="flex items-center gap-1.5 bg-accent text-white rounded-lg px-4 py-1.5 text-[14px] tracking-[0.05em] uppercase hover:bg-accent/90 transition-colors no-underline btn-press hover-glow"
               >
                 <LogIn size={13} />
                 {t("topbar.login")}
@@ -217,7 +217,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={mobileOpen ? t("common.close") : t("topbar.menu")}
-              className="md:hidden flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-ink-3/5 transition-all"
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-md text-ink-3 hover:text-ink hover:bg-ink-3/5 transition-all btn-press"
             >
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -229,7 +229,7 @@ export default function Topbar({ universeName, universeSlug }: { universeName?: 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden" style={{ animation: "fadeIn 0.15s ease-out" }}>
           <div className="absolute inset-0 bg-ink/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-topbar right-0 bottom-0 w-full sm:w-72 bg-surface sm:border-l border-t border-ink-3/10 shadow-lg overflow-y-auto" style={{ animation: "slideUp 0.2s ease-out" }}>
+          <div className="absolute top-topbar right-0 bottom-0 w-full sm:w-72 bg-surface sm:border-l border-t border-ink-3/10 shadow-lg overflow-y-auto" style={{ animation: "slideUp 0.3s var(--ease-out-expo)" }}>
             <nav className="p-3 space-y-0.5" aria-label="Mobile navigation">
               {/* Core nav */}
               {coreNav.map(link => {

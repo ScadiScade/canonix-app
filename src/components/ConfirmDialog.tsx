@@ -49,7 +49,7 @@ export function ConfirmDialog({
       <div
         className="bg-surface rounded-xl border border-ink-3/15 shadow-2xl w-full max-w-sm overflow-hidden"
         onClick={e => e.stopPropagation()}
-        style={{ animation: "scaleIn 0.15s ease-out" }}
+        style={{ animation: "scaleIn 0.2s var(--ease-spring)", transformOrigin: "center center" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-2">

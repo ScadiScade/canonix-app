@@ -10,6 +10,7 @@ interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  exiting?: boolean;
 }
 
 interface ToastContextValue {
@@ -26,17 +27,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const { t } = useLocale();
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const remove = (id: string) => {
+    // Mark as exiting first, then remove after animation
+    setToasts(prev => prev.map(t => t.id === id ? { ...t, exiting: true } : t));
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 200);
+  };
+
   const toast = useCallback((message: string, type: ToastType = "success") => {
     const id = Math.random().toString(36).slice(2);
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
+      remove(id);
     }, 3000);
   }, []);
-
-  const remove = (id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  };
 
   const icons = { success: CheckCircle, error: AlertCircle, info: Info };
   const colors = {
@@ -54,14 +59,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           return (
             <div
               key={item.id}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg text-[18px] animate-in ${colors[item.type]}`}
-              style={{ animation: "slideIn 0.2s ease-out" }}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg border shadow-lg text-[18px] ${colors[item.type]}`}
+              style={{ animation: item.exiting ? "slideOut 0.2s ease-in forwards" : "slideIn 0.25s var(--ease-out-expo)" }}
               role={item.type === "error" ? "alert" : "status"}
               aria-live={item.type === "error" ? "assertive" : "polite"}
             >
               <Icon size={14} className="flex-shrink-0" />
               <span className="flex-1">{item.message}</span>
-              <button onClick={() => remove(item.id)} className="p-0.5 hover:opacity-70" aria-label={t("common.close")}>
+              <button onClick={() => remove(item.id)} className="p-0.5 hover:opacity-70 transition-opacity" aria-label={t("common.close")}>
                 <X size={12} />
               </button>
             </div>
@@ -72,6 +77,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         @keyframes slideIn {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+          from { transform: translateX(0); opacity: 1; }
+          to { transform: translateX(100%); opacity: 0; }
         }
       `}</style>
     </ToastContext.Provider>

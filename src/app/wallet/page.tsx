@@ -105,7 +105,7 @@ export default function WalletPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center py-40">
-          <Link href="/login" className="bg-accent text-white rounded-xl px-6 py-3 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline">
+          <Link href="/login" className="bg-accent text-white rounded-xl px-6 py-3 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline btn-press hover-glow accent-shimmer">
             {t("pricing.startFree")}
           </Link>
         </div>
@@ -181,7 +181,7 @@ export default function WalletPage() {
               <button
                 onClick={handleTopup}
                 disabled={loadingTopup || !canTopup}
-                className="px-4 sm:px-6 py-2.5 bg-accent text-white rounded-lg text-[14px] sm:text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm font-medium shrink-0"
+                className="px-4 sm:px-6 py-2.5 bg-accent text-white rounded-lg text-[14px] sm:text-[15px] tracking-[0.08em] uppercase hover:bg-accent/90 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm font-medium shrink-0 btn-press hover-glow"
               >
                 {loadingTopup ? <Loader2 size={14} className="animate-spin" /> : <><Plus size={14} /><span className="hidden sm:inline">{t("wallet.topup")}</span><span className="sm:hidden">+</span></>}
               </button>

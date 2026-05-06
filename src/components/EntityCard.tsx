@@ -49,7 +49,7 @@ export function EntityCard({ entity, groups = [], onClick, onAddRelation, onDele
     return (
       <div
         onClick={onClick}
-        className="bg-surface rounded-lg cursor-pointer hover:shadow-md transition-shadow border border-transparent hover:border-ink-3/20 overflow-hidden"
+        className="bg-surface rounded-lg cursor-pointer hover:shadow-md transition-all hover-lift border border-transparent hover:border-ink-3/20 overflow-hidden"
       >
         {entity.imageUrl ? (
           <div className="h-20 sm:h-24 overflow-hidden relative">
@@ -81,7 +81,7 @@ export function EntityCard({ entity, groups = [], onClick, onAddRelation, onDele
   }
 
   return (
-    <div className="bg-surface rounded-lg border border-ink-3/15 overflow-hidden">
+    <div className="bg-surface rounded-lg border border-ink-3/15 overflow-hidden hover-lift">
       {/* Header */}
       <div className="p-[18px_20px] border-b border-ink-3/10">
         <div className="flex items-start justify-between mb-2">

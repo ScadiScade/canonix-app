@@ -188,7 +188,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background">
       {successMsg && (
-        <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 rounded-xl px-5 py-3 shadow-lg flex items-center gap-3 ${successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? "bg-amber-500 text-white" : "bg-green-600 text-white"}`} style={{ animation: "fadeIn 0.2s ease-out" }}>
+        <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 rounded-xl px-5 py-3 shadow-lg flex items-center gap-3 ${successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? "bg-amber-500 text-white" : "bg-green-600 text-white"}`} style={{ animation: "fadeIn 0.25s var(--ease-out-expo)" }}>
           <span className="text-[17px]">{successMsg}</span>
           {successMsg.includes("Недостаточно") || successMsg.includes("Insufficient") ? (
             <Link href="/wallet" className="bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1 text-[14px] tracking-[0.08em] uppercase no-underline">{t("pricing.topup")}</Link>
@@ -248,15 +248,24 @@ export default function PricingPage() {
               const displayPrice = (plan === "pro" && p.id === "corporate") ? p.price - PRO_PRICE + UPGRADE_MARKUP : p.price;
               const isUpgrade = plan === "pro" && p.id === "corporate";
               return (
-                <div key={p.id} className={`relative bg-surface rounded-2xl border p-6 md:p-7 flex flex-col transition-all ${
+                <div key={p.id} className={`relative bg-surface rounded-2xl border p-6 md:p-7 flex flex-col transition-all hover-lift ${
                   p.popular ? "border-accent/40 shadow-lg shadow-accent/8 hover:shadow-xl" : "border-ink-3/10 hover:shadow-lg"
                 } ${isCurrent ? "ring-2 ring-accent/30" : ""}`}>
-                  {p.popular && !isBelow && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
+                  {/* Top-centered badges */}
+                  {isCurrent && !hasPending && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium z-10">
+                      {t("pricing.current")}
+                    </div>
+                  )}
+                  {isCurrent && hasPending && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium z-10">
+                      {t("pricing.changesAtEnd")}
+                    </div>
+                  )}
+                  {p.popular && !isBelow && !isCurrent && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-accent text-white text-[13px] tracking-[0.15em] uppercase px-4 py-1 rounded-full font-medium">{t("pricing.popular")}</div>}
                   <div className="flex items-center gap-3 h-14 mb-5">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
-                    {isCurrent && !hasPending && <span className="ml-auto bg-accent/10 text-accent text-[12px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full font-medium">{t("pricing.current")}</span>}
-                    {isCurrent && hasPending && <span className="ml-auto bg-amber-500/10 text-amber-500 text-[12px] tracking-[0.12em] uppercase px-2.5 py-1 rounded-full font-medium">{t("pricing.changesAtEnd")}</span>}
                   </div>
                   <div className="h-[52px] mb-6">
                     {isUpgrade && p.price > 0 ? (
@@ -264,7 +273,7 @@ export default function PricingPage() {
                     ) : (
                       <div><span className="text-[36px] font-light text-ink">{displayPrice === 0 ? "0 ₽" : `${displayPrice} ₽`}</span><span className="text-[17px] text-ink-3 ml-1">{t(p.periodKey)}</span></div>
                     )}
-                    {p.seatPrice && !isBelow && <div className="text-[14px] text-ink-3 mt-1">{t(p.seatKey!)} {p.seatPrice} ₽{t(p.periodKey)}</div>}
+                    {p.seatPrice && !isBelow && <div className="text-[14px] text-ink-3 mt-1">{t(p.seatKey!, { price: p.seatPrice })}</div>}
                   </div>
                   <ul className="space-y-3 mb-7 flex-1">
                     {p.features.map((f, i) => (
@@ -325,7 +334,7 @@ export default function PricingPage() {
               const totalCredits = pack.credits * qty;
               const totalPrice = pack.price * qty;
               return (
-                <div key={pack.id} className={`bg-surface rounded-2xl border p-6 flex flex-col items-center text-center transition-all hover:shadow-lg ${pack.popular ? "border-accent/30 shadow-md shadow-accent/5" : "border-ink-3/10"}`}>
+                <div key={pack.id} className={`bg-surface rounded-2xl border p-6 flex flex-col items-center text-center transition-all hover:shadow-lg hover-lift ${pack.popular ? "border-accent/30 shadow-md shadow-accent/5" : "border-ink-3/10"}`}>
                   <div className="h-[52px] flex flex-col items-center justify-center gap-1 mb-2">
                     {savings > 0 && <span className="text-[13px] tracking-[0.15em] uppercase text-green-600 font-medium">−{savings}%</span>}
                     {pack.popular && <span className="text-[14px] tracking-[0.2em] uppercase text-accent font-medium">{t("pricing.bestValue")}</span>}
@@ -384,10 +393,10 @@ export default function PricingPage() {
               <div key={i} className="bg-surface rounded-xl border border-ink-3/10 overflow-hidden">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
                   <span className="text-[18px] text-ink font-medium pr-4">{t(item.qKey)}</span>
-                  <ChevronDown size={18} className={`text-ink-3 flex-shrink-0 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
+                  <ChevronDown size={18} className={`text-ink-3 flex-shrink-0 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 -mt-1" style={{ animation: "fadeIn 0.15s ease-out" }}>
+                  <div className="px-5 pb-4 -mt-1" style={{ animation: "fadeIn 0.2s var(--ease-out-expo)" }}>
                     <p className="text-[17px] text-ink-2 leading-relaxed">{t(item.aKey)}</p>
                   </div>
                 )}
@@ -404,7 +413,7 @@ export default function PricingPage() {
             <div className="bg-gradient-to-br from-accent/8 via-surface to-accent/4 border border-accent/15 rounded-2xl p-8 md:p-10">
               <h2 className="font-serif text-[28px] md:text-[32px] font-light text-ink mb-3">{t("pricing.ctaTitle")}</h2>
               <p className="text-ink-2 text-[19px] mb-6">{t("pricing.ctaDesc")}</p>
-              <Link href="/login" className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-7 py-3.5 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/20">
+              <Link href="/login" className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-7 py-3.5 text-[17px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/20 btn-press hover-glow accent-shimmer">
                 {t("pricing.startFree")}<ArrowRight size={14} />
               </Link>
             </div>
@@ -415,7 +424,7 @@ export default function PricingPage() {
       {/* CONFIRMATION MODAL */}
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setConfirmAction(null)}>
-          <div className="bg-surface rounded-2xl border border-ink-3/10 shadow-2xl max-w-sm w-full mx-4 p-6" onClick={e => e.stopPropagation()} style={{ animation: "fadeIn 0.15s ease-out" }}>
+          <div className="bg-surface rounded-2xl border border-ink-3/10 shadow-2xl max-w-sm w-full mx-4 p-6" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.2s var(--ease-spring)", transformOrigin: "center center" }}>
             <h3 className="text-[20px] font-medium text-ink mb-2">{confirmAction.title}</h3>
             <p className="text-[16px] text-ink-2 leading-relaxed mb-6">{confirmAction.description}</p>
             <div className="flex items-center gap-3">
