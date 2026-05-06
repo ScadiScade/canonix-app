@@ -196,6 +196,15 @@ const en: Translations = {
   "import.entities": "entities",
   "import.relations": "relations",
   "import.import": "Import",
+  // Notes
+  "notes.title": "Notes",
+  "notes.new": "New note",
+  "notes.titlePlaceholder": "Note title",
+  "notes.contentPlaceholder": "Write your note here…",
+  "notes.created": "Note created",
+  "notes.updated": "Note updated",
+  "notes.deleted": "Note deleted",
+  "notes.empty": "No notes yet. Add your first note!",
 
   // AI Assistant
   "ai.title": "AI Assistant",

@@ -13,6 +13,7 @@ import { UniverseSettings } from "@/components/UniverseSettings";
 import { AiAssistant } from "@/components/AiAssistant";
 import { GroupForm } from "@/components/GroupForm";
 import { TimelineScaleForm } from "@/components/TimelineScaleForm";
+import { NotesPanel } from "@/components/NotesPanel";
 import { useLocale } from "@/lib/i18n";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useModalBehavior } from "@/lib/useModalBehavior";
@@ -26,6 +27,7 @@ import {
   Settings,
   Share2,
   X,
+  FileText,
 } from "lucide-react";
 
 const GraphView = dynamic(() => import("@/components/GraphView").then(m => ({ default: m.GraphView })), {
@@ -33,7 +35,7 @@ const GraphView = dynamic(() => import("@/components/GraphView").then(m => ({ de
   loading: () => <div className="flex items-center justify-center h-full text-ink-3 text-[13px]">Loading graph…</div>,
 });
 
-type ViewMode = "grid" | "graph" | "timeline";
+type ViewMode = "grid" | "graph" | "timeline" | "notes";
 
 interface Entity {
   id: string;
@@ -120,6 +122,16 @@ interface GroupData {
   isContainer?: boolean;
 }
 
+interface NoteData {
+  id: string;
+  title: string;
+  content: string;
+  entityId: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface UniverseData {
   id: string;
   name: string;
@@ -133,6 +145,7 @@ interface UniverseData {
   relations: Relation[];
   groups: GroupData[];
   timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
+  notes?: NoteData[];
 }
 
 function UniversePageInner({ params }: { params: { slug: string } }) {
@@ -322,6 +335,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                     ["grid", LayoutGrid, "Bento"],
                     ["graph", GitBranch, t("universe.graph")],
                     ["timeline", Clock, t("universe.timeline")],
+                    ["notes", FileText, t("notes.title")],
                   ] as const).map(([mode, Icon, label]) => (
                     <button
                       key={mode}
@@ -482,6 +496,16 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                   onSelect={setSelectedId}
                 />
               </div>
+            )}
+
+            {view === "notes" && (
+              <NotesPanel
+                universeId={universe.id}
+                notes={universe.notes || []}
+                entities={universe.entities.map(e => ({ id: e.id, name: e.name, type: e.type }))}
+                onRefresh={fetchUniverse}
+                toast={toast}
+              />
             )}
           </div>
         </div>

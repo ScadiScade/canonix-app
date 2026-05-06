@@ -82,6 +82,7 @@ model Universe {
   relations     Relation[]
   groups        EntityGroup[]
   timelineScales TimelineScale[]
+  notes         Note[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -129,6 +130,7 @@ model Entity {
 
   sourceRelations Relation[] @relation("SourceEntity")
   targetRelations Relation[] @relation("TargetEntity")
+  noteLinks       Note[]
 
   @@index([universeId])
   @@index([groupId])
@@ -164,6 +166,22 @@ model TimelineScale {
 
   @@unique([slug, universeId])
   @@index([universeId])
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @default("")
+  universeId  String
+  universe    Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  entityId    String?
+  entity      Entity?  @relation(fields: [entityId], references: [id], onDelete: SetNull)
+  sortOrder   Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([universeId])
+  @@index([entityId])
 }
 
 model AiCredit {

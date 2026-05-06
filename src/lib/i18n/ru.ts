@@ -194,6 +194,15 @@ const ru = {
   "import.entities": "сущностей",
   "import.relations": "связей",
   "import.import": "Импортировать",
+  // Notes
+  "notes.title": "Заметки",
+  "notes.new": "Новая заметка",
+  "notes.titlePlaceholder": "Заголовок заметки",
+  "notes.contentPlaceholder": "Напишите заметку здесь…",
+  "notes.created": "Заметка создана",
+  "notes.updated": "Заметка обновлена",
+  "notes.deleted": "Заметка удалена",
+  "notes.empty": "Заметок пока нет. Добавьте первую!",
 
   // AI Assistant
   "ai.title": "AI-ассистент",
