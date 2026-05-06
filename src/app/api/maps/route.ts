@@ -4,6 +4,28 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { canModifyUniverse } from "@/lib/api-auth";
 
+// GET /api/maps?universeId=... — list maps for a universe
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const universeId = searchParams.get("universeId");
+
+  if (!universeId) {
+    return NextResponse.json({ error: "universeId required" }, { status: 400 });
+  }
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maps = await (prisma as any).map.findMany({
+      where: { universeId },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(maps);
+  } catch {
+    // Map table may not exist yet (before migration)
+    return NextResponse.json([]);
+  }
+}
+
 // POST /api/maps — create a map
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);

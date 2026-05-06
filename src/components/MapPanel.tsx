@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Map, Plus, Sparkles, Trash2, Edit3, FileImage } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 
@@ -15,17 +15,32 @@ interface MapData {
 
 interface MapPanelProps {
   universeId: string;
-  maps: MapData[];
-  onRefresh: () => void;
   toast: (msg: string, type?: "info" | "error") => void;
 }
 
-export function MapPanel({ universeId, maps, onRefresh, toast }: MapPanelProps) {
+export function MapPanel({ universeId, toast }: MapPanelProps) {
   const { t } = useLocale();
+  const [maps, setMaps] = useState<MapData[]>([]);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  const loadMaps = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/maps?universeId=${universeId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMaps(Array.isArray(data) ? data : []);
+      } else {
+        setMaps([]);
+      }
+    } catch {
+      setMaps([]);
+    }
+  }, [universeId]);
+
+  useEffect(() => { loadMaps(); }, [loadMaps]);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -42,7 +57,7 @@ export function MapPanel({ universeId, maps, onRefresh, toast }: MapPanelProps) 
       setNewName("");
       setNewDesc("");
       setCreating(false);
-      onRefresh();
+      loadMaps();
       toast(t("map.created"));
     } else {
       toast(t("common.error"), "error");
@@ -58,7 +73,7 @@ export function MapPanel({ universeId, maps, onRefresh, toast }: MapPanelProps) 
         body: JSON.stringify({ universeId }),
       });
       if (res.ok) {
-        onRefresh();
+        loadMaps();
         toast(t("map.generated"));
       } else {
         toast(t("common.error"), "error");
@@ -72,7 +87,7 @@ export function MapPanel({ universeId, maps, onRefresh, toast }: MapPanelProps) 
     if (!confirm(t("map.confirmDelete"))) return;
     const res = await fetch(`/api/maps?id=${id}`, { method: "DELETE" });
     if (res.ok) {
-      onRefresh();
+      loadMaps();
       toast(t("map.deleted"), "info");
     } else {
       toast(t("common.error"), "error");

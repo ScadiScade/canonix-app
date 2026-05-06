@@ -29,7 +29,6 @@ export async function GET(
       relations: true,
       timelineScales: { orderBy: { createdAt: "asc" } },
       notes: { orderBy: { sortOrder: "asc" } },
-      maps: { orderBy: { createdAt: "desc" } },
     },
   });
 

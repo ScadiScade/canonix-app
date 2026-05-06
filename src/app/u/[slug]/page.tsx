@@ -148,17 +148,7 @@ interface UniverseData {
   groups: GroupData[];
   timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
   notes?: NoteData[];
-  maps?: MapData[];
   tags?: string;
-}
-
-interface MapData {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 function UniversePageInner({ params }: { params: { slug: string } }) {
@@ -525,8 +515,6 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
             {view === "map" && (
               <MapPanel
                 universeId={universe.id}
-                maps={universe.maps || []}
-                onRefresh={fetchUniverse}
                 toast={toast}
               />
             )}
