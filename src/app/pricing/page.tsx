@@ -267,7 +267,7 @@ export default function PricingPage() {
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${p.color}12`, color: p.color }}>{p.icon}</div>
                     <h3 className="font-serif text-[22px] font-light text-ink">{t(p.nameKey)}</h3>
                   </div>
-                  <div className="h-[52px] mb-6">
+                  <div className="mb-6">
                     {isUpgrade && p.price > 0 ? (
                       <div><span className="text-[36px] font-light text-ink">{displayPrice} ₽</span><span className="text-[17px] text-ink-3 ml-1">{t(p.periodKey)}</span><div className="text-[14px] text-ink-3 mt-0.5 line-through">{p.price} ₽ {t(p.periodKey)}</div></div>
                     ) : (
