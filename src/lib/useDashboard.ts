@@ -34,6 +34,7 @@ export function useDashboard() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [editingBio, setEditingBio] = useState(false);
   const [userName, setUserName] = useState("");
@@ -93,6 +94,25 @@ export function useDashboard() {
     else toast(t("common.error"), "error");
   }, [fetchUniverses, toast, t]);
 
+  const handleImport = useCallback(async (data: Record<string, unknown>) => {
+    const res = await fetch("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (res.ok) {
+      const universe = await res.json();
+      setShowImport(false);
+      fetchUniverses();
+      toast(t("dashboard.universeCreated"));
+      return universe.slug as string;
+    } else {
+      const err = await res.json();
+      toast(err.error || t("common.error"), "error");
+      return null;
+    }
+  }, [fetchUniverses, toast, t]);
+
   const confirmDeleteUniverse = useCallback(async () => {
     if (!deleteTarget) return;
     const res = await fetch(`/api/universes?id=${deleteTarget.id}`, { method: "DELETE" });
@@ -136,7 +156,8 @@ export function useDashboard() {
     showCreate, setShowCreate,
     editingName, setEditingName, userName, setUserName, saveName,
     editingBio, setEditingBio, userBio, setUserBio, saveBio,
-    deleteTarget, setDeleteTarget, handleCreate, duplicateUniverse, confirmDeleteUniverse,
+    deleteTarget, setDeleteTarget, handleCreate, duplicateUniverse, handleImport, confirmDeleteUniverse,
+    showImport, setShowImport,
     totalEntities, totalRelations, listedCount,
     fetchProfile,
   };

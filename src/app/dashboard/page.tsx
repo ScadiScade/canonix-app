@@ -2,6 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { UniverseCreateForm } from "@/components/UniverseCreateForm";
+import { ImportDialog } from "@/components/ImportDialog";
 import { OnboardingGuide } from "@/components/OnboardingGuide";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ToastProvider } from "@/components/Toast";
@@ -9,7 +10,7 @@ import { useLocale } from "@/lib/i18n";
 import { useDashboard } from "@/lib/useDashboard";
 import {
   Map, Plus, Globe, Lock, Link2, Trash2, ExternalLink,
-  User, ShoppingBag, Unlock, Edit3, Check, X, LogOut, Copy,
+  User, ShoppingBag, Unlock, Edit3, Check, X, LogOut, Copy, Upload,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +24,7 @@ function DashboardInner() {
     editingName, setEditingName, userName, setUserName, saveName,
     editingBio, setEditingBio, userBio, setUserBio, saveBio,
     deleteTarget, setDeleteTarget, handleCreate, duplicateUniverse, confirmDeleteUniverse,
+    showImport, setShowImport, handleImport,
     totalEntities, totalRelations, listedCount,
   } = useDashboard();
 
@@ -177,13 +179,22 @@ function DashboardInner() {
             <h2 className="font-serif text-[22px] sm:text-[26px] font-light text-ink leading-tight">{t("dashboard.myUniverses")}</h2>
             <p className="text-ink-3 text-[15px] sm:text-[16px] mt-0.5">{t("dashboard.myUniversesDesc")}</p>
           </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center justify-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0"
-          >
-            <Plus size={14} />
-            {t("dashboard.new")}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowImport(true)}
+              className="flex items-center justify-center gap-1.5 bg-background text-ink-2 border border-ink-3/20 rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-ink-3/10 transition-colors shrink-0"
+            >
+              <Upload size={14} />
+              {t("import.import")}
+            </button>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="flex items-center justify-center gap-1.5 bg-accent text-white rounded-xl px-4 py-2 text-[14px] sm:text-[16px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors shrink-0"
+            >
+              <Plus size={14} />
+              {t("dashboard.new")}
+            </button>
+          </div>
         </div>
 
         {universes.length === 0 ? (
@@ -270,6 +281,13 @@ function DashboardInner() {
         <UniverseCreateForm
           onSubmit={handleCreate}
           onCancel={() => setShowCreate(false)}
+        />
+      )}
+
+      {showImport && (
+        <ImportDialog
+          onImport={handleImport}
+          onCancel={() => setShowImport(false)}
         />
       )}
 

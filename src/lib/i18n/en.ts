@@ -185,6 +185,17 @@ const en: Translations = {
   "templates.dndDesc": "NPCs, locations, quests, factions, items, monsters",
   "templates.real": "Real world",
   "templates.realDesc": "Persons, countries, events, organizations",
+  // Import
+  "import.title": "Import universe",
+  "import.dropzone": "Drop JSON file here",
+  "import.dropzoneHint": "or click to select file",
+  "import.invalidJson": "Invalid JSON file",
+  "import.noName": "File must contain a universe name",
+  "import.preview": "Preview",
+  "import.groups": "groups",
+  "import.entities": "entities",
+  "import.relations": "relations",
+  "import.import": "Import",
 
   // AI Assistant
   "ai.title": "AI Assistant",

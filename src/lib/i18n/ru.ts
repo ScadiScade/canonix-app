@@ -183,6 +183,17 @@ const ru = {
   "templates.dndDesc": "NPC, локации, квесты, фракции, предметы, монстры",
   "templates.real": "Реальный мир",
   "templates.realDesc": "Персоны, страны, события, организации",
+  // Import
+  "import.title": "Импорт вселенной",
+  "import.dropzone": "Перетащите JSON-файл сюда",
+  "import.dropzoneHint": "или нажмите, чтобы выбрать файл",
+  "import.invalidJson": "Невалидный JSON-файл",
+  "import.noName": "Файл должен содержать имя вселенной",
+  "import.preview": "Предпросмотр",
+  "import.groups": "групп",
+  "import.entities": "сущностей",
+  "import.relations": "связей",
+  "import.import": "Импортировать",
 
   // AI Assistant
   "ai.title": "AI-ассистент",
