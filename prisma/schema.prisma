@@ -83,6 +83,7 @@ model Universe {
   groups        EntityGroup[]
   timelineScales TimelineScale[]
   notes         Note[]
+  storylines    Storyline[]
   tags          String          @default("[]") // JSON array of tag strings
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -132,6 +133,7 @@ model Entity {
   sourceRelations Relation[] @relation("SourceEntity")
   targetRelations Relation[] @relation("TargetEntity")
   noteLinks       Note[]
+  chapterLinks    Chapter[]
 
   @@index([universeId])
   @@index([groupId])
@@ -182,6 +184,37 @@ model Note {
   updatedAt   DateTime @updatedAt
 
   @@index([universeId])
+  @@index([entityId])
+}
+
+model Storyline {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @default("")
+  color       String    @default("#78716C") // hex color
+  sortOrder   Float     @default(0)
+  universeId  String
+  universe    Universe  @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  chapters    Chapter[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([universeId])
+}
+
+model Chapter {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    @default("")
+  sortOrder   Float     @default(0)
+  storylineId String
+  storyline   Storyline @relation(fields: [storylineId], references: [id], onDelete: Cascade)
+  entityId    String?   // Optional link to an entity
+  entity      Entity?   @relation(fields: [entityId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([storylineId])
   @@index([entityId])
 }
 

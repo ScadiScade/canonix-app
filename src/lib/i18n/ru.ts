@@ -206,6 +206,27 @@ const ru = {
   "notes.deleted": "Заметка удалена",
   "notes.empty": "Заметок пока нет. Добавьте первую!",
 
+  // Storylines
+  "storylines.title": "Сюжеты",
+  "storylines.created": "Сюжет создан",
+  "storylines.updated": "Сюжет обновлён",
+  "storylines.deleted": "Сюжет удалён",
+  "storylines.confirmDelete": "Удалить этот сюжет и все его главы?",
+  "storylines.titlePlaceholder": "Название сюжета",
+  "storylines.descPlaceholder": "Описание (необязательно)",
+  "storylines.color": "Цвет",
+  "storylines.create": "Создать сюжет",
+  "storylines.chapters": "глав",
+  "storylines.noEntity": "Без привязки к сущности",
+  "storylines.addChapter": "Добавить главу",
+  "storylines.chapterCreated": "Глава создана",
+  "storylines.chapterUpdated": "Глава обновлена",
+  "storylines.chapterDeleted": "Глава удалена",
+  "storylines.confirmDeleteChapter": "Удалить эту главу?",
+  "storylines.chapterTitlePlaceholder": "Название главы",
+  "storylines.chapterContentPlaceholder": "Содержание главы...",
+  "storylines.empty": "Сюжетов пока нет. Создайте первый сюжет!",
+
   // AI Assistant
   "ai.title": "AI-ассистент",
   "ai.generateEntities": "Карточки",

@@ -208,6 +208,27 @@ const en: Translations = {
   "notes.deleted": "Note deleted",
   "notes.empty": "No notes yet. Add your first note!",
 
+  // Storylines
+  "storylines.title": "Storylines",
+  "storylines.created": "Storyline created",
+  "storylines.updated": "Storyline updated",
+  "storylines.deleted": "Storyline deleted",
+  "storylines.confirmDelete": "Delete this storyline and all its chapters?",
+  "storylines.titlePlaceholder": "Storyline title",
+  "storylines.descPlaceholder": "Description (optional)",
+  "storylines.color": "Color",
+  "storylines.create": "Create storyline",
+  "storylines.chapters": "chapters",
+  "storylines.noEntity": "No linked entity",
+  "storylines.addChapter": "Add chapter",
+  "storylines.chapterCreated": "Chapter created",
+  "storylines.chapterUpdated": "Chapter updated",
+  "storylines.chapterDeleted": "Chapter deleted",
+  "storylines.confirmDeleteChapter": "Delete this chapter?",
+  "storylines.chapterTitlePlaceholder": "Chapter title",
+  "storylines.chapterContentPlaceholder": "Chapter content...",
+  "storylines.empty": "No storylines yet. Create your first storyline!",
+
   // AI Assistant
   "ai.title": "AI Assistant",
   "ai.generateEntities": "Cards",

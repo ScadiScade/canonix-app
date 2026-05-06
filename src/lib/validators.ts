@@ -239,6 +239,44 @@ export const updateTimelineScaleSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
+export const createStorylineSchema = z.object({
+  universeId: z.string().cuid(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+});
+
+export const updateStorylineSchema = z.object({
+  id: z.string().cuid(),
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(5000).optional(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  sortOrder: z.number().optional(),
+});
+
+export const deleteStorylineSchema = z.object({
+  id: z.string().cuid(),
+});
+
+export const createChapterSchema = z.object({
+  storylineId: z.string().cuid(),
+  title: z.string().min(1).max(200),
+  content: z.string().max(50000).optional(),
+  entityId: z.string().cuid().optional(),
+});
+
+export const updateChapterSchema = z.object({
+  id: z.string().cuid(),
+  title: z.string().min(1).max(200).optional(),
+  content: z.string().max(50000).optional(),
+  entityId: z.string().cuid().nullable().optional(),
+  sortOrder: z.number().optional(),
+});
+
+export const deleteChapterSchema = z.object({
+  id: z.string().cuid(),
+});
+
 // ── Helper ──
 export function validateBody<T extends z.ZodType>(schema: T, body: unknown): { success: true; data: z.infer<T> } | { success: false; error: string } {
   const result = schema.safeParse(body);
