@@ -308,7 +308,7 @@ export function EntityDetail({ entity, groups = [], onAddRelation, onEdit, onDel
       {/* Full image viewer */}
       {showFullImage && entity.imageUrl && (
         <div
-          className="fixed inset-0 bg-ink/80 dark:bg-white/20 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-ink/80 dark:bg-white/30 z-[60] flex items-center justify-center p-4"
           onClick={() => setShowFullImage(false)}
           role="dialog"
           aria-modal="true"

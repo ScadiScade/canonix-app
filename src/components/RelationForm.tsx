@@ -31,7 +31,7 @@ export function RelationForm({ entities, universeId, sourceId, onSubmit, onCance
   };
 
   return (
-    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("relation.title")}>
+    <div className="fixed inset-0 bg-ink/60 dark:bg-white/30 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("relation.title")}>
       <div className="bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/20 w-full sm:max-w-md p-6 shadow-xl" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-serif text-[20px] font-light">{t("relation.title")}</h3>

@@ -70,7 +70,7 @@ function EntityDetailModal({ selected, groups, onClose, onAddRelation, onEdit, o
 
   return (
     <div
-      className="fixed inset-0 bg-ink/40 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 bg-ink/60 dark:bg-white/30 z-50 flex items-end sm:items-center justify-center sm:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -559,7 +559,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
 
       {/* Create/Edit Entity Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={() => { setShowForm(null); setEditEntity(null); }} role="dialog" aria-modal="true" aria-label={editEntity ? t("entityForm.editEntity") : t("entityForm.newEntity")}>
+        <div className="fixed inset-0 bg-ink/60 dark:bg-white/30 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={() => { setShowForm(null); setEditEntity(null); }} role="dialog" aria-modal="true" aria-label={editEntity ? t("entityForm.editEntity") : t("entityForm.newEntity")}>
           <div className="w-full sm:max-w-lg max-h-[90vh] flex flex-col min-h-0 bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/15 shadow-xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ animation: "scaleIn 0.15s ease-out" }}>
             <EntityForm
               type={showForm}

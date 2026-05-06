@@ -58,7 +58,7 @@ export function UniverseSettings({ universe, onUpdate, onDelete, onExport, onClo
   ];
 
   return (
-    <div className="fixed inset-0 bg-ink/30 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={t("universeSettings.title")}>
+    <div className="fixed inset-0 z-50 bg-ink/60 dark:bg-white/30 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose} role="dialog" aria-modal="true" aria-label={t("universeSettings.title")}>
       <div
         onClick={e => e.stopPropagation()}
         className="bg-surface sm:rounded-lg rounded-t-2xl border border-ink-3/20 w-full sm:max-w-md shadow-xl max-h-[90vh] flex flex-col min-h-0 overflow-hidden"

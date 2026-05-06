@@ -126,7 +126,7 @@ export function TimelineScaleForm({ universeId, scales, onCreated, onUpdated, on
   };
 
   return (
-    <div className="fixed inset-0 bg-ink/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-ink/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-surface rounded-xl border border-ink-3/15 shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-3 border-b border-ink-3/10">
           <span className="text-[17px] font-medium text-ink">{t("timeline.manageScales")}</span>
