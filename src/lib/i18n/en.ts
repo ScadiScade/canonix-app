@@ -165,6 +165,8 @@ const en: Translations = {
   "universeSettings.licensePaidDesc": "Sell access to the universe structure",
   "universeSettings.price": "Price (₽)",
   "universeSettings.export": "Export to JSON",
+  "universeSettings.tags": "Tags",
+  "universeSettings.tagsPlaceholder": "Add tag…",
   "universeSettings.deleteUniverse": "Delete universe",
   "universeSettings.deleteWarning": "All universe data will be permanently deleted. Continue?",
   "universeSettings.deleteForever": "Delete forever",

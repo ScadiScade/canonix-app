@@ -16,6 +16,7 @@ export interface Universe {
   listedAt: string | null;
   _count: { entities: number; relations: number };
   updatedAt: string;
+  tags?: string;
 }
 
 export interface UserProfile {

@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { X, Settings, Trash2, Download, Globe, Lock, Link2 } from "lucide-react";
+import { X, Settings, Trash2, Download, Globe, Lock, Link2, Plus } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 import { useModalBehavior } from "@/lib/useModalBehavior";
 
@@ -15,8 +15,9 @@ interface UniverseSettingsProps {
     license: string;
     price: number;
     listedAt: string | null;
+    tags?: string;
   };
-  onUpdate: (data: { id: string; name?: string; description?: string; visibility?: string; license?: string; price?: number; listedAt?: string | null }) => void;
+  onUpdate: (data: { id: string; name?: string; description?: string; visibility?: string; license?: string; price?: number; listedAt?: string | null; tags?: string[] }) => void;
   onDelete: () => void;
   onExport: () => void;
   onClose: () => void;
@@ -30,6 +31,10 @@ export function UniverseSettings({ universe, onUpdate, onDelete, onExport, onClo
   const [visibility, setVisibility] = useState(universe.visibility);
   const [license, setLicense] = useState(universe.license);
   const [price, setPrice] = useState(universe.price);
+  const [tags, setTags] = useState<string[]>(() => {
+    try { return JSON.parse(universe.tags || "[]"); } catch { return []; }
+  });
+  const [tagInput, setTagInput] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSave = () => {
@@ -41,6 +46,7 @@ export function UniverseSettings({ universe, onUpdate, onDelete, onExport, onClo
       license,
       price: license === "paid" ? price : 0,
       listedAt: license !== "none" ? (universe.listedAt || new Date().toISOString()) : null,
+      tags,
     });
     onClose();
   };
@@ -176,6 +182,57 @@ export function UniverseSettings({ universe, onUpdate, onDelete, onExport, onClo
               <Download size={14} />
               {t("universeSettings.export")}
             </button>
+          </div>
+
+          {/* Tags */}
+          <div className="pt-2 border-t border-ink-3/10">
+            <label className="text-[15px] tracking-[0.2em] uppercase text-ink-3 block mb-2">{t("universeSettings.tags")}</label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {tags.map(tag => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[13px] text-ink bg-background border border-ink-3/15"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => setTags(tags.filter(t => t !== tag))}
+                    className="text-ink-3 hover:text-red-500 transition-colors"
+                  >
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                value={tagInput}
+                onChange={e => setTagInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" && tagInput.trim()) {
+                    e.preventDefault();
+                    const val = tagInput.trim().toLowerCase();
+                    if (!tags.includes(val)) setTags([...tags, val]);
+                    setTagInput("");
+                  }
+                }}
+                placeholder={t("universeSettings.tagsPlaceholder")}
+                className="flex-1 bg-background border border-ink-3/20 rounded-md px-3 py-2 text-[15px] text-ink focus:outline-none focus:border-accent"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (tagInput.trim()) {
+                    const val = tagInput.trim().toLowerCase();
+                    if (!tags.includes(val)) setTags([...tags, val]);
+                    setTagInput("");
+                  }
+                }}
+                className="bg-background text-ink-2 rounded-md px-3 py-2 text-[15px] hover:bg-ink-3/10 transition-colors border border-ink-3/20"
+              >
+                <Plus size={14} />
+              </button>
+            </div>
           </div>
 
           {/* Delete */}

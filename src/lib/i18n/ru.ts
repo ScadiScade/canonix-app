@@ -163,6 +163,8 @@ const ru = {
   "universeSettings.licensePaidDesc": "Продажа доступа к структуре вселенной",
   "universeSettings.price": "Цена (₽)",
   "universeSettings.export": "Экспорт в JSON",
+  "universeSettings.tags": "Теги",
+  "universeSettings.tagsPlaceholder": "Добавить тег…",
   "universeSettings.deleteUniverse": "Удалить вселенную",
   "universeSettings.deleteWarning": "Все данные вселенной будут удалены безвозвратно. Продолжить?",
   "universeSettings.deleteForever": "Удалить навсегда",

@@ -83,6 +83,7 @@ model Universe {
   groups        EntityGroup[]
   timelineScales TimelineScale[]
   notes         Note[]
+  tags          String          @default("[]") // JSON array of tag strings
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

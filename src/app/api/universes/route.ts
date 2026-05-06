@@ -153,7 +153,7 @@ export async function PUT(req: Request) {
   const body = await req.json();
   const parsed = validateBody(updateUniverseSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { id, name, description, visibility, license, price, listedAt } = parsed.data;
+  const { id, name, description, visibility, license, price, listedAt, tags } = parsed.data;
 
   if (!(await canAccessUniverse(id, session.user.id))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -168,6 +168,7 @@ export async function PUT(req: Request) {
       ...(license !== undefined && { license }),
       ...(price !== undefined && { price }),
       ...(listedAt !== undefined && { listedAt: listedAt ? new Date(listedAt) : null }),
+      ...(tags !== undefined && { tags: JSON.stringify(tags) }),
     },
   });
 

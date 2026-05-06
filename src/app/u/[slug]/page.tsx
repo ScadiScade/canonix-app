@@ -146,6 +146,7 @@ interface UniverseData {
   groups: GroupData[];
   timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
   notes?: NoteData[];
+  tags?: string;
 }
 
 function UniversePageInner({ params }: { params: { slug: string } }) {

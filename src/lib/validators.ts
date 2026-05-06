@@ -34,6 +34,7 @@ export const updateUniverseSchema = z.object({
   license: z.enum(["none", "open", "paid"]).optional(),
   price: z.number().int().min(0).max(1000000).optional(),
   listedAt: z.string().datetime().nullable().optional(),
+  tags: z.array(z.string().max(50)).max(20).optional(),
 });
 
 export const deleteUniverseSchema = z.object({

@@ -270,6 +270,19 @@ function DashboardInner() {
                   {u.description && (
                     <p className="text-[17px] text-ink-2 line-clamp-2">{u.description}</p>
                   )}
+                  {(() => {
+                    try {
+                      const tagList = JSON.parse(u.tags || "[]") as string[];
+                      if (tagList.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {tagList.map(tag => (
+                            <span key={tag} className="px-1.5 py-0.5 rounded-md text-[11px] text-ink-3 bg-background border border-ink-3/10">{tag}</span>
+                          ))}
+                        </div>
+                      );
+                    } catch { return null; }
+                  })()}
                 </div>
               );
             })}
