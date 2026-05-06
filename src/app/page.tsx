@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 import {
   Map, Users, Globe, Zap, Building2, LayoutGrid, GitBranch,
-  Clock, ArrowRight, ChevronRight,
+  Clock, ArrowRight, ChevronRight, Sparkles, Crown, X,
 } from "lucide-react";
 
 const entityTypes: { icon: typeof Users; typeKey: TranslationKey; descKey: TranslationKey; color: string }[] = [
@@ -15,7 +15,7 @@ const entityTypes: { icon: typeof Users; typeKey: TranslationKey; descKey: Trans
   { icon: Building2, typeKey: "landing.etOrg", descKey: "landing.etOrgDesc", color: "#9333EA" },
 ];
 
-const features: { icon: typeof LayoutGrid; titleKey: TranslationKey; descKey: TranslationKey; color: string }[] = [
+const views: { icon: typeof LayoutGrid; titleKey: TranslationKey; descKey: TranslationKey; color: string }[] = [
   { icon: LayoutGrid, titleKey: "landing.fBento", descKey: "landing.fBentoDesc", color: "#2D5BE3" },
   { icon: GitBranch, titleKey: "landing.fGraph", descKey: "landing.fGraphDesc", color: "#16A34A" },
   { icon: Clock, titleKey: "landing.fTimeline", descKey: "landing.fTimelineDesc", color: "#D97706" },
@@ -90,30 +90,32 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main id="main-content">
-        {/* ── Hero ── */}
-        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-20 md:pt-32 pb-16 md:pb-24 text-center">
-          <h1 className="font-serif text-[36px] sm:text-[52px] md:text-[64px] font-light text-ink leading-[1.08] mb-5">
+        {/* ═══ Hero: Pain → Solution ═══ */}
+        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-20 md:pt-32 pb-14 md:pb-20 text-center">
+          <p className="text-[13px] tracking-[0.2em] uppercase text-ink-3 mb-4">{t("landing.heroTag")}</p>
+          <h1 className="font-serif text-[34px] sm:text-[48px] md:text-[60px] font-light text-ink leading-[1.08] mb-5">
             {t("landing.heroTitle1")}<br />{t("landing.heroTitle2")}
           </h1>
-          <p className="text-ink-2 text-[17px] sm:text-[19px] max-w-lg mx-auto leading-relaxed mb-8">
+          <p className="text-ink-2 text-[16px] sm:text-[18px] max-w-lg mx-auto leading-relaxed mb-8">
             {t("landing.heroDesc")}
           </p>
-          <div className="flex gap-3 justify-center flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Link
               href={session ? "/dashboard" : "/login"}
-              className="bg-accent text-white rounded-xl px-7 py-3 text-[15px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors no-underline inline-flex items-center gap-2"
+              className="bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline inline-flex items-center gap-2 shadow-lg shadow-accent/15 w-full sm:w-auto justify-center"
             >
               {session ? t("landing.myUniverses") : t("landing.startFree")}
               <ArrowRight size={14} />
             </Link>
             <Link
               href="/marketplace"
-              className="bg-surface text-ink border border-ink-3/20 rounded-xl px-7 py-3 text-[15px] tracking-[0.12em] uppercase hover:border-ink-3/40 transition-colors no-underline inline-flex items-center gap-2"
+              className="bg-surface text-ink border border-ink-3/20 rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:border-ink-3/40 transition-colors no-underline inline-flex items-center gap-2 w-full sm:w-auto justify-center"
             >
               {t("landing.marketplace")}
               <ChevronRight size={14} />
             </Link>
           </div>
+          <p className="text-[13px] text-ink-3 mt-4">{t("landing.heroSub")}</p>
         </section>
 
         {/* ── Preview mockup ── */}
@@ -144,6 +146,34 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ═══ Pain point: Free vs Pro (loss aversion + anchoring) ═══ */}
+        <section className="max-w-4xl mx-auto px-4 md:px-7 pb-20 reveal">
+          <div className="text-center mb-8">
+            <h2 className="font-serif text-[24px] sm:text-[32px] md:text-[38px] font-light text-ink">{t("landing.painTitle")}</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-surface rounded-xl border border-ink-3/10 p-6">
+              <p className="text-[13px] tracking-[0.15em] uppercase text-ink-3 mb-3">{t("landing.painFreeLabel")}</p>
+              <ul className="space-y-2.5">
+                <li className="flex items-start gap-2.5 text-[15px] text-ink-2"><X size={14} className="text-red-400 mt-0.5 flex-shrink-0" />{t("landing.painF1")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink-2"><X size={14} className="text-red-400 mt-0.5 flex-shrink-0" />{t("landing.painF2")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink-2"><X size={14} className="text-red-400 mt-0.5 flex-shrink-0" />{t("landing.painF3")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink-2"><X size={14} className="text-red-400 mt-0.5 flex-shrink-0" />{t("landing.painF4")}</li>
+              </ul>
+            </div>
+            <div className="bg-accent-light rounded-xl border border-accent/15 p-6 relative">
+              <div className="absolute top-4 right-4 bg-accent text-white text-[11px] tracking-[0.15em] uppercase px-2.5 py-0.5 rounded-full">{t("landing.painProBadge")}</div>
+              <p className="text-[13px] tracking-[0.15em] uppercase text-accent mb-3">{t("landing.painProLabel")}</p>
+              <ul className="space-y-2.5">
+                <li className="flex items-start gap-2.5 text-[15px] text-ink"><Sparkles size={14} className="text-accent mt-0.5 flex-shrink-0" />{t("landing.painP1")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink"><Sparkles size={14} className="text-accent mt-0.5 flex-shrink-0" />{t("landing.painP2")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink"><Sparkles size={14} className="text-accent mt-0.5 flex-shrink-0" />{t("landing.painP3")}</li>
+                <li className="flex items-start gap-2.5 text-[15px] text-ink"><Crown size={14} className="text-accent mt-0.5 flex-shrink-0" />{t("landing.painP4")}</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* ── Entity types ── */}
         <section className="max-w-4xl mx-auto px-4 md:px-7 pb-24 reveal">
           <div className="text-center mb-8">
@@ -170,7 +200,7 @@ export default function Home() {
             <p className="text-ink-2 text-[15px] sm:text-[17px] mt-2 max-w-md mx-auto">{t("landing.featuresDesc")}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {features.map(({ icon: Icon, titleKey, descKey, color }) => (
+            {views.map(({ icon: Icon, titleKey, descKey, color }) => (
               <div key={titleKey} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover:border-ink-3/25 transition-colors">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: color + "12" }}>
                   <Icon size={15} style={{ color }} />
@@ -218,7 +248,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── CTA ── */}
+        {/* ═══ CTA: Urgency + loss aversion ═══ */}
         <section className="max-w-2xl mx-auto px-4 md:px-7 pb-24 text-center reveal">
           <h2 className="font-serif text-[30px] md:text-[42px] font-light text-ink leading-[1.1] mb-4">
             {t("landing.ctaTitle1")}<br />{t("landing.ctaTitle2")}
@@ -228,11 +258,12 @@ export default function Home() {
           </p>
           <Link
             href={session ? "/dashboard" : "/login"}
-            className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-7 py-3 text-[15px] tracking-[0.12em] uppercase hover:bg-accent/90 transition-colors no-underline"
+            className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/15"
           >
             {session ? t("landing.myUniverses") : t("landing.createUniverse")}
             <ArrowRight size={14} />
           </Link>
+          <p className="text-[13px] text-ink-3 mt-4">{t("landing.ctaSub")}</p>
         </section>
       </main>
 
