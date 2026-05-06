@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Map, Search, Unlock, Lock, ShoppingBag, ArrowRight, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Search, Unlock, Lock, ShoppingBag, ArrowRight, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 
 interface ListingUser {

@@ -1,6 +1,4 @@
-﻿import Link from "next/link";
-
-export default function ConsentPage() {
+﻿export default function ConsentPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-3xl mx-auto px-4 md:px-7 py-10 md:py-16">
