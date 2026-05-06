@@ -184,6 +184,14 @@ export const editEntitySchema = z.object({
   instruction: z.string().min(1).max(5000),
 });
 
+export const suggestRelationsSchema = z.object({
+  universeId: z.string().cuid(),
+});
+
+export const generateDescriptionsSchema = z.object({
+  universeId: z.string().cuid(),
+});
+
 export const improvePromptSchema = z.object({
   prompt: z.string().min(1).max(5000),
   context: z.string().max(10000).optional(),

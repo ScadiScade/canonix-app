@@ -10,7 +10,7 @@ import { safeJsonParse } from "@/lib/safeJson";
 import { useCredits } from "@/components/CreditProvider";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 
-type AiAction = "generate-entities" | "edit-entity" | "generate-groups" | "scenario" | "suggestion" | "expand" | "edit";
+type AiAction = "generate-entities" | "edit-entity" | "generate-groups" | "suggest-relations" | "generate-descriptions" | "scenario" | "suggestion" | "expand" | "edit";
 
 interface AiActionOption {
   id: AiAction;
@@ -46,6 +46,20 @@ interface GeneratedRelation {
   label: string;
 }
 
+interface SuggestedRelation {
+  sourceId: string;
+  sourceName: string;
+  targetId: string;
+  targetName: string;
+  label: string;
+}
+
+interface GeneratedDescription {
+  entityId: string;
+  name: string;
+  description: string;
+}
+
 interface AiAssistantProps {
   universeId?: string;
   universeContext?: string;
@@ -62,6 +76,8 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
     { id: "generate-entities", label: t("ai.generateEntities"), icon: <Plus size={14} />, cost: 5, description: t("ai.generateEntitiesDesc"), hintKey: "ai.generateEntitiesHint" },
     { id: "generate-groups", label: t("ai.generateGroups"), icon: <Layers size={14} />, cost: 5, description: t("ai.generateGroupsDesc"), hintKey: "ai.generateGroupsHint" },
     { id: "edit-entity", label: t("ai.editEntity"), icon: <Pencil size={14} />, cost: 3, description: t("ai.editEntityDesc"), hintKey: "ai.editEntityHint" },
+    { id: "suggest-relations", label: t("ai.suggestRelations"), icon: <GitBranch size={14} />, cost: 3, description: t("ai.suggestRelationsDesc"), hintKey: "ai.suggestRelationsHint" },
+    { id: "generate-descriptions", label: t("ai.generateDescriptions"), icon: <FileText size={14} />, cost: 3, description: t("ai.generateDescriptionsDesc"), hintKey: "ai.generateDescriptionsHint" },
     { id: "scenario", label: t("ai.scenario"), icon: <FileText size={14} />, cost: 3, description: t("ai.scenarioDesc"), hintKey: "ai.scenarioHint" },
     { id: "suggestion", label: t("ai.suggestion"), icon: <Sparkles size={14} />, cost: 1, description: t("ai.suggestionDesc"), hintKey: "ai.suggestionHint" },
     { id: "expand", label: t("ai.expand"), icon: <ChevronDown size={14} />, cost: 2, description: t("ai.expandDesc"), hintKey: "ai.expandHint" },
@@ -99,6 +115,16 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
   // Note actions state (scenario, suggestion → save as note on entity)
   const [noteEntityId, setNoteEntityId] = useState<string | null>(null);
   const [savingNote, setSavingNote] = useState(false);
+
+  // Suggest relations state
+  const [suggestedRels, setSuggestedRels] = useState<SuggestedRelation[]>([]);
+  const [selectedRelIndices, setSelectedRelIndices] = useState<Set<number>>(new Set());
+  const [confirmingRels, setConfirmingRels] = useState(false);
+
+  // Generate descriptions state
+  const [genDescriptions, setGenDescriptions] = useState<GeneratedDescription[]>([]);
+  const [selectedDescIndices, setSelectedDescIndices] = useState<Set<number>>(new Set());
+  const [confirmingDescs, setConfirmingDescs] = useState(false);
 
   // Prompt improvement state
   const [improvingPrompt, setImprovingPrompt] = useState(false);
@@ -461,6 +487,133 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
     }
   };
 
+  // ── Suggest relations ──
+  const handleSuggestRelations = async () => {
+    if (!universeId) return;
+    setLoading(true);
+    setError(null);
+    setSuggestedRels([]);
+
+    try {
+      const res = await fetch("/api/ai/suggest-relations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ universeId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || t("common.error"));
+        if (data.balance !== undefined) setBalance(data.balance);
+      } else {
+        const rels = data.relations || [];
+        setSuggestedRels(rels);
+        setSelectedRelIndices(new Set(rels.map((_: SuggestedRelation, i: number) => i)));
+        setBalance(data.balance);
+      }
+    } catch {
+      setError(t("common.error"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmRelations = async () => {
+    if (!universeId || selectedRelIndices.size === 0) return;
+    setConfirmingRels(true);
+    setError(null);
+
+    try {
+      const selected = suggestedRels.filter((_, i) => selectedRelIndices.has(i));
+      let failed = false;
+      for (const r of selected) {
+        const res = await fetch("/api/relations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sourceId: r.sourceId, targetId: r.targetId, label: r.label, universeId }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setError(data.error || t("common.error"));
+          failed = true;
+          break;
+        }
+      }
+      if (!failed) {
+        setSuggestedRels([]);
+        setSelectedRelIndices(new Set());
+        setAction(null);
+        if (onEntitiesCreated) onEntitiesCreated();
+      }
+    } catch {
+      setError(t("common.error"));
+    } finally {
+      setConfirmingRels(false);
+    }
+  };
+
+  // ── Generate descriptions ──
+  const handleGenerateDescriptions = async () => {
+    if (!universeId) return;
+    setLoading(true);
+    setError(null);
+    setGenDescriptions([]);
+
+    try {
+      const res = await fetch("/api/ai/generate-descriptions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ universeId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || t("common.error"));
+        if (data.balance !== undefined) setBalance(data.balance);
+      } else {
+        const descs = data.descriptions || [];
+        setGenDescriptions(descs);
+        setSelectedDescIndices(new Set(descs.map((_: GeneratedDescription, i: number) => i)));
+        setBalance(data.balance);
+      }
+    } catch {
+      setError(t("common.error"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmDescriptions = async () => {
+    if (selectedDescIndices.size === 0) return;
+    setConfirmingDescs(true);
+    setError(null);
+
+    try {
+      const selected = genDescriptions.filter((_, i) => selectedDescIndices.has(i));
+      let failed = false;
+      for (const d of selected) {
+        const res = await fetch("/api/entities", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: d.entityId, description: d.description }),
+        });
+        if (!res.ok) {
+          setError(t("common.error"));
+          failed = true;
+          break;
+        }
+      }
+      if (!failed) {
+        setGenDescriptions([]);
+        setSelectedDescIndices(new Set());
+        setAction(null);
+        if (onEntityEdited) onEntityEdited();
+      }
+    } catch {
+      setError(t("common.error"));
+    } finally {
+      setConfirmingDescs(false);
+    }
+  };
+
   if (!open) {
     return (
       <button
@@ -512,7 +665,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {/* Action selector */}
-        {!action && !result && !imageResult && genEntities.length === 0 && !editEntityId && !editUpdates && genGroups.length === 0 && (
+        {!action && !result && !imageResult && genEntities.length === 0 && !editEntityId && !editUpdates && genGroups.length === 0 && suggestedRels.length === 0 && genDescriptions.length === 0 && (
           <>
             <p className="text-[18px] text-ink-2 mb-2">{t("ai.selectAction")}</p>
             <div className="grid grid-cols-2 gap-2">
@@ -520,7 +673,7 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
                 <button
                   key={a.id}
                   onClick={() => setAction(a.id)}
-                  disabled={(a.id === "generate-entities" && !universeId) || (a.id === "edit-entity" && entities.length === 0) || (a.id === "generate-groups" && !universeId) || ((a.id === "scenario" || a.id === "suggestion" || a.id === "expand" || a.id === "edit") && entities.length === 0)}
+                  disabled={(a.id === "generate-entities" && !universeId) || (a.id === "edit-entity" && entities.length === 0) || (a.id === "generate-groups" && !universeId) || (a.id === "suggest-relations" && (entities.length < 2 || !universeId)) || (a.id === "generate-descriptions" && (entities.length === 0 || !universeId)) || ((a.id === "scenario" || a.id === "suggestion" || a.id === "expand" || a.id === "edit") && entities.length === 0)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg border border-ink-3/10 hover:border-accent/40 hover:bg-accent-light/30 transition-colors text-left disabled:opacity-40 disabled:cursor-not-allowed group"
                 >
                   <span className="text-accent">{a.icon}</span>
@@ -1048,6 +1201,187 @@ export function AiAssistant({ universeId, universeContext, groups = [], entities
                 className="flex-1 py-2 bg-background border border-ink-3/20 text-ink-2 rounded-md text-[18px] hover:text-ink"
               >
                 {t("ai.generate")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Suggest relations: trigger */}
+        {action === "suggest-relations" && suggestedRels.length === 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <button onClick={() => { setAction(null); }} className="text-ink-3 hover:text-ink">
+                ← {t("common.back")}
+              </button>
+              <span className="text-[18px] text-ink">{t("ai.suggestRelations")} (3 {t("common.credits")})</span>
+            </div>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{t("ai.suggestRelationsHint")}</p>
+            <button
+              onClick={handleSuggestRelations}
+              disabled={loading || !universeId || entities.length < 2}
+              className="w-full py-2 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <GitBranch size={14} />}
+              {t("ai.suggestRelations")} (3 {t("common.credits")})
+            </button>
+          </div>
+        )}
+
+        {/* Suggest relations: preview + confirm */}
+        {suggestedRels.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] text-ink font-medium">{t("ai.suggestedRelations")}: {suggestedRels.length}</span>
+              <button onClick={() => { setSuggestedRels([]); setSelectedRelIndices(new Set()); setAction(null); }} className="text-ink-3 hover:text-ink text-[17px]">
+                {t("common.cancel")}
+              </button>
+            </div>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {suggestedRels.map((r, i) => {
+                const isSelected = selectedRelIndices.has(i);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setSelectedRelIndices(prev => {
+                        const next = new Set(prev);
+                        if (next.has(i)) next.delete(i); else next.add(i);
+                        return next;
+                      });
+                    }}
+                    className={`w-full text-left bg-background rounded-lg border p-3 transition-colors ${isSelected ? "border-accent/40 bg-accent-light/10" : "border-ink-3/10 hover:border-ink-3/25"}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? "bg-accent border-accent" : "border-ink-3/30"}`}>
+                        {isSelected && <Check size={10} className="text-white" />}
+                      </div>
+                      <span className="text-[17px] text-ink">{r.sourceName}</span>
+                      <span className="text-[15px] text-accent">→ {r.label} →</span>
+                      <span className="text-[17px] text-ink">{r.targetName}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => {
+                  if (selectedRelIndices.size === suggestedRels.length) {
+                    setSelectedRelIndices(new Set());
+                  } else {
+                    setSelectedRelIndices(new Set(suggestedRels.map((_, i) => i)));
+                  }
+                }}
+                className="text-[16px] text-accent hover:underline"
+              >
+                {selectedRelIndices.size === suggestedRels.length ? t("ai.deselectAll") : t("ai.selectAll")}
+              </button>
+              <span className="text-[16px] text-ink-3">{selectedRelIndices.size} {t("ai.of")} {suggestedRels.length}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleConfirmRelations}
+                disabled={confirmingRels || selectedRelIndices.size === 0}
+                className="flex-1 py-2.5 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
+              >
+                {confirmingRels ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                {t("ai.createRelations")} {selectedRelIndices.size}
+              </button>
+              <button
+                onClick={() => { setSuggestedRels([]); setSelectedRelIndices(new Set()); setAction(null); }}
+                className="px-4 py-2.5 bg-background border border-ink-3/20 text-ink-2 rounded-md text-[18px] hover:text-ink"
+              >
+                {t("ai.reject")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Generate descriptions: trigger */}
+        {action === "generate-descriptions" && genDescriptions.length === 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <button onClick={() => { setAction(null); }} className="text-ink-3 hover:text-ink">
+                ← {t("common.back")}
+              </button>
+              <span className="text-[18px] text-ink">{t("ai.generateDescriptions")} (3 {t("common.credits")})</span>
+            </div>
+            <p className="text-[15px] text-ink-3 leading-relaxed">{t("ai.generateDescriptionsHint")}</p>
+            <button
+              onClick={handleGenerateDescriptions}
+              disabled={loading || !universeId}
+              className="w-full py-2 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+              {t("ai.generateDescriptions")} (3 {t("common.credits")})
+            </button>
+          </div>
+        )}
+
+        {/* Generate descriptions: preview + confirm */}
+        {genDescriptions.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[18px] text-ink font-medium">{t("ai.generatedDescriptions")}: {genDescriptions.length}</span>
+              <button onClick={() => { setGenDescriptions([]); setSelectedDescIndices(new Set()); setAction(null); }} className="text-ink-3 hover:text-ink text-[17px]">
+                {t("common.cancel")}
+              </button>
+            </div>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {genDescriptions.map((d, i) => {
+                const isSelected = selectedDescIndices.has(i);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setSelectedDescIndices(prev => {
+                        const next = new Set(prev);
+                        if (next.has(i)) next.delete(i); else next.add(i);
+                        return next;
+                      });
+                    }}
+                    className={`w-full text-left bg-background rounded-lg border p-3 transition-colors ${isSelected ? "border-accent/40 bg-accent-light/10" : "border-ink-3/10 hover:border-ink-3/25"}`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${isSelected ? "bg-accent border-accent" : "border-ink-3/30"}`}>
+                        {isSelected && <Check size={10} className="text-white" />}
+                      </div>
+                      <span className="text-[17px] text-ink font-medium">{d.name}</span>
+                    </div>
+                    <p className="text-[15px] text-ink-2 leading-relaxed ml-6 line-clamp-3">{d.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => {
+                  if (selectedDescIndices.size === genDescriptions.length) {
+                    setSelectedDescIndices(new Set());
+                  } else {
+                    setSelectedDescIndices(new Set(genDescriptions.map((_, i) => i)));
+                  }
+                }}
+                className="text-[16px] text-accent hover:underline"
+              >
+                {selectedDescIndices.size === genDescriptions.length ? t("ai.deselectAll") : t("ai.selectAll")}
+              </button>
+              <span className="text-[16px] text-ink-3">{selectedDescIndices.size} {t("ai.of")} {genDescriptions.length}</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleConfirmDescriptions}
+                disabled={confirmingDescs || selectedDescIndices.size === 0}
+                className="flex-1 py-2.5 bg-accent text-white rounded-md text-[18px] flex items-center justify-center gap-2 hover:bg-accent/90 disabled:opacity-50"
+              >
+                {confirmingDescs ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                {t("ai.applyDescriptions")} {selectedDescIndices.size}
+              </button>
+              <button
+                onClick={() => { setGenDescriptions([]); setSelectedDescIndices(new Set()); setAction(null); }}
+                className="px-4 py-2.5 bg-background border border-ink-3/20 text-ink-2 rounded-md text-[18px] hover:text-ink"
+              >
+                {t("ai.reject")}
               </button>
             </div>
           </div>
