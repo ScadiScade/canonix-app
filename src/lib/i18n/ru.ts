@@ -174,6 +174,7 @@ const ru = {
   "createUniverse.namePlaceholder": "Star Wars, Мой мир, DnD-кампания…",
   "createUniverse.descriptionPlaceholder": "Краткое описание вселенной",
   "createUniverse.template": "Шаблон",
+  "createUniverse.next": "Далее",
   // Templates
   "templates.empty": "Пустая",
   "templates.emptyDesc": "Начать с нуля — добавить группы вручную",

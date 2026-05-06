@@ -176,6 +176,7 @@ const en: Translations = {
   "createUniverse.namePlaceholder": "Star Wars, My world, DnD campaign…",
   "createUniverse.descriptionPlaceholder": "Brief universe description",
   "createUniverse.template": "Template",
+  "createUniverse.next": "Next",
   // Templates
   "templates.empty": "Empty",
   "templates.emptyDesc": "Start from scratch — add groups manually",
