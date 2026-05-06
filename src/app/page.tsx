@@ -1,48 +1,79 @@
 ﻿"use client";
 
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
+import { ENTITY_COLORS } from "@/lib/ui/constants";
+import { Button } from "@/components/ui";
 import {
   Map, Users, Globe, Zap, Building2, LayoutGrid, GitBranch,
   Clock, ArrowRight, ChevronRight, Sparkles, Crown, X,
 } from "lucide-react";
+import { Illustration } from "@/components/ui";
 
-const entityTypes: { icon: typeof Users; typeKey: TranslationKey; descKey: TranslationKey; color: string }[] = [
-  { icon: Users, typeKey: "landing.etCharacter", descKey: "landing.etCharacterDesc", color: "#2D5BE3" },
-  { icon: Globe, typeKey: "landing.etPlace", descKey: "landing.etPlaceDesc", color: "#16A34A" },
-  { icon: Zap, typeKey: "landing.etEvent", descKey: "landing.etEventDesc", color: "#D97706" },
-  { icon: Building2, typeKey: "landing.etOrg", descKey: "landing.etOrgDesc", color: "#9333EA" },
+// ── Typed data arrays (no 'as' casts needed) ──
+interface EntityTypeItem {
+  icon: typeof Users;
+  typeKey: TranslationKey;
+  descKey: TranslationKey;
+  colorKey: keyof typeof ENTITY_COLORS;
+}
+
+interface ViewItem {
+  icon: typeof LayoutGrid;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
+  colorKey: keyof typeof ENTITY_COLORS;
+}
+
+interface StepItem {
+  num: string;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
+}
+
+interface PreviewEntity {
+  nameKey: TranslationKey;
+  typeKey: TranslationKey;
+  colorKey: keyof typeof ENTITY_COLORS;
+}
+
+const entityTypes: EntityTypeItem[] = [
+  { icon: Users, typeKey: "landing.etCharacter", descKey: "landing.etCharacterDesc", colorKey: "character" },
+  { icon: Globe, typeKey: "landing.etPlace", descKey: "landing.etPlaceDesc", colorKey: "place" },
+  { icon: Zap, typeKey: "landing.etEvent", descKey: "landing.etEventDesc", colorKey: "event" },
+  { icon: Building2, typeKey: "landing.etOrg", descKey: "landing.etOrgDesc", colorKey: "org" },
 ];
 
-const views: { icon: typeof LayoutGrid; titleKey: TranslationKey; descKey: TranslationKey; color: string }[] = [
-  { icon: LayoutGrid, titleKey: "landing.fBento", descKey: "landing.fBentoDesc", color: "#2D5BE3" },
-  { icon: GitBranch, titleKey: "landing.fGraph", descKey: "landing.fGraphDesc", color: "#16A34A" },
-  { icon: Clock, titleKey: "landing.fTimeline", descKey: "landing.fTimelineDesc", color: "#D97706" },
+const views: ViewItem[] = [
+  { icon: LayoutGrid, titleKey: "landing.fBento", descKey: "landing.fBentoDesc", colorKey: "character" },
+  { icon: GitBranch, titleKey: "landing.fGraph", descKey: "landing.fGraphDesc", colorKey: "place" },
+  { icon: Clock, titleKey: "landing.fTimeline", descKey: "landing.fTimelineDesc", colorKey: "event" },
 ];
 
-const steps: { num: string; titleKey: TranslationKey; descKey: TranslationKey }[] = [
+const steps: StepItem[] = [
   { num: "01", titleKey: "landing.s1Title", descKey: "landing.s1Desc" },
   { num: "02", titleKey: "landing.s2Title", descKey: "landing.s2Desc" },
   { num: "03", titleKey: "landing.s3Title", descKey: "landing.s3Desc" },
 ];
 
-const previewEntities: { nameKey: TranslationKey; typeKey: TranslationKey; color: string }[] = [
-  { nameKey: "landing.peAnakin", typeKey: "landing.etCharacter", color: "#2D5BE3" },
-  { nameKey: "landing.peTatooine", typeKey: "landing.etPlace", color: "#16A34A" },
-  { nameKey: "landing.peOrder66", typeKey: "landing.etEvent", color: "#D97706" },
-  { nameKey: "landing.peJedi", typeKey: "landing.etOrg", color: "#9333EA" },
-  { nameKey: "landing.peObiwan", typeKey: "landing.etCharacter", color: "#2D5BE3" },
-  { nameKey: "landing.peCoruscant", typeKey: "landing.etPlace", color: "#16A34A" },
-  { nameKey: "landing.peRepublic", typeKey: "landing.etEvent", color: "#D97706" },
-  { nameKey: "landing.peEmpire", typeKey: "landing.etOrg", color: "#9333EA" },
+const previewEntities: PreviewEntity[] = [
+  { nameKey: "landing.peAnakin", typeKey: "landing.etCharacter", colorKey: "character" },
+  { nameKey: "landing.peTatooine", typeKey: "landing.etPlace", colorKey: "place" },
+  { nameKey: "landing.peOrder66", typeKey: "landing.etEvent", colorKey: "event" },
+  { nameKey: "landing.peJedi", typeKey: "landing.etOrg", colorKey: "org" },
+  { nameKey: "landing.peObiwan", typeKey: "landing.etCharacter", colorKey: "character" },
+  { nameKey: "landing.peCoruscant", typeKey: "landing.etPlace", colorKey: "place" },
+  { nameKey: "landing.peRepublic", typeKey: "landing.etEvent", colorKey: "event" },
+  { nameKey: "landing.peEmpire", typeKey: "landing.etOrg", colorKey: "org" },
 ];
 
-const faqItems = [
-  { qKey: "landing.faq1q" as TranslationKey, aKey: "landing.faq1a" as TranslationKey },
-  { qKey: "landing.faq2q" as TranslationKey, aKey: "landing.faq2a" as TranslationKey },
-  { qKey: "landing.faq3q" as TranslationKey, aKey: "landing.faq3a" as TranslationKey },
-  { qKey: "landing.faq4q" as TranslationKey, aKey: "landing.faq4a" as TranslationKey },
+interface FaqItem { qKey: TranslationKey; aKey: TranslationKey; }
+
+const faqItems: FaqItem[] = [
+  { qKey: "landing.faq1q", aKey: "landing.faq1a" },
+  { qKey: "landing.faq2q", aKey: "landing.faq2a" },
+  { qKey: "landing.faq3q", aKey: "landing.faq3a" },
+  { qKey: "landing.faq4q", aKey: "landing.faq4a" },
 ];
 
 export default function Home() {
@@ -91,7 +122,10 @@ export default function Home() {
       />
       <main id="main-content">
         {/* ═══ Hero: Pain → Solution ═══ */}
-        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-20 md:pt-32 pb-14 md:pb-20 text-center reveal">
+        <section className="max-w-3xl mx-auto px-4 md:px-7 pt-16 md:pt-24 pb-14 md:pb-20 text-center reveal">
+          <div className="flex justify-center mb-6 reveal-delay-1">
+            <Illustration name="universe" width={120} height={120} />
+          </div>
           <p className="text-[13px] tracking-[0.2em] uppercase text-ink-3 mb-4 reveal-delay-1">{t("landing.heroTag")}</p>
           <h1 className="font-serif text-[34px] sm:text-[48px] md:text-[60px] font-light text-ink leading-[1.08] mb-5 reveal-delay-2">
             {t("landing.heroTitle1")}<br />{t("landing.heroTitle2")}
@@ -100,20 +134,28 @@ export default function Home() {
             {t("landing.heroDesc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center reveal-delay-4">
-            <Link
+            <Button
+              as="link"
               href={session ? "/dashboard" : "/login"}
-              className="bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline inline-flex items-center gap-2 shadow-lg shadow-accent/15 w-full sm:w-auto justify-center btn-press hover-glow accent-shimmer"
+              variant="primary"
+              icon={ArrowRight}
+              iconRight
+              fullWidth
+              className="sm:w-auto sm:justify-center"
             >
               {session ? t("landing.myUniverses") : t("landing.startFree")}
-              <ArrowRight size={14} />
-            </Link>
-            <Link
+            </Button>
+            <Button
+              as="link"
               href="/marketplace"
-              className="bg-surface text-ink border border-ink-3/20 rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:border-ink-3/40 hover:bg-ink-3/3 transition-colors no-underline inline-flex items-center gap-2 w-full sm:w-auto justify-center btn-press"
+              variant="secondary"
+              icon={ChevronRight}
+              iconRight
+              fullWidth
+              className="sm:w-auto sm:justify-center"
             >
               {t("landing.marketplace")}
-              <ChevronRight size={14} />
-            </Link>
+            </Button>
           </div>
           <p className="text-[13px] text-ink-3 mt-4 reveal-delay-5">{t("landing.heroSub")}</p>
         </section>
@@ -136,7 +178,7 @@ export default function Home() {
               {previewEntities.map(e => (
                 <div key={e.nameKey} className="bg-background rounded-lg p-3 border border-ink-3/8 hover-lift">
                   <div className="flex items-center gap-1.5 mb-1">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: e.color }} />
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: ENTITY_COLORS[e.colorKey].hex }} />
                     <span className="text-[11px] tracking-[0.12em] uppercase text-ink-3">{t(e.typeKey)}</span>
                   </div>
                   <span className="font-serif text-[17px] font-light text-ink leading-snug">{t(e.nameKey)}</span>
@@ -181,10 +223,10 @@ export default function Home() {
             <p className="text-ink-2 text-[15px] sm:text-[17px] mt-2 max-w-md mx-auto">{t("landing.entityTypesDesc")}</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {entityTypes.map(({ icon: Icon, typeKey, descKey, color }) => (
+            {entityTypes.map(({ icon: Icon, typeKey, descKey, colorKey }) => (
               <div key={typeKey} className="bg-surface rounded-lg p-4 border border-ink-3/10 hover:border-ink-3/25 transition-all hover-lift">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: color + "12" }}>
-                  <Icon size={15} style={{ color }} />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: ENTITY_COLORS[colorKey].bg }}>
+                  <Icon size={15} style={{ color: ENTITY_COLORS[colorKey].hex }} />
                 </div>
                 <h3 className="font-serif text-[17px] sm:text-[20px] font-light text-ink mb-1">{t(typeKey)}</h3>
                 <p className="text-[13px] sm:text-[14px] text-ink-2 leading-relaxed">{t(descKey)}</p>
@@ -200,10 +242,10 @@ export default function Home() {
             <p className="text-ink-2 text-[15px] sm:text-[17px] mt-2 max-w-md mx-auto">{t("landing.featuresDesc")}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {views.map(({ icon: Icon, titleKey, descKey, color }) => (
+            {views.map(({ icon: Icon, titleKey, descKey, colorKey }) => (
               <div key={titleKey} className="bg-surface rounded-lg p-5 border border-ink-3/10 hover:border-ink-3/25 transition-all hover-lift">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: color + "12" }}>
-                  <Icon size={15} style={{ color }} />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: ENTITY_COLORS[colorKey].bg }}>
+                  <Icon size={15} style={{ color: ENTITY_COLORS[colorKey].hex }} />
                 </div>
                 <h3 className="font-serif text-[17px] sm:text-[20px] font-light text-ink mb-1">{t(titleKey)}</h3>
                 <p className="text-[13px] sm:text-[14px] text-ink-2 leading-relaxed">{t(descKey)}</p>
@@ -256,13 +298,15 @@ export default function Home() {
           <p className="text-ink-2 text-[16px] md:text-[17px] max-w-md mx-auto leading-relaxed mb-6">
             {t("landing.ctaDesc")}
           </p>
-          <Link
+          <Button
+            as="link"
             href={session ? "/dashboard" : "/login"}
-            className="inline-flex items-center gap-2 bg-accent text-white rounded-xl px-8 py-3.5 text-[15px] tracking-[0.1em] uppercase hover:bg-accent/90 transition-colors no-underline shadow-lg shadow-accent/15 btn-press hover-glow accent-shimmer"
+            variant="primary"
+            icon={ArrowRight}
+            iconRight
           >
             {session ? t("landing.myUniverses") : t("landing.createUniverse")}
-            <ArrowRight size={14} />
-          </Link>
+          </Button>
           <p className="text-[13px] text-ink-3 mt-4">{t("landing.ctaSub")}</p>
         </section>
       </main>

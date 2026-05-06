@@ -20,6 +20,12 @@ export async function GET(req: Request) {
     return new Response("Not found", { status: 404 });
   }
 
+  const description = universe.description
+    ? universe.description.length > 140
+      ? universe.description.slice(0, 140) + "…"
+      : universe.description
+    : null;
+
   return new ImageResponse(
     (
       <div style={{
@@ -29,19 +35,97 @@ export async function GET(req: Request) {
         flexDirection: "column",
         alignItems: "flex-start",
         justifyContent: "center",
-        backgroundColor: "#0f0f23",
+        background: "linear-gradient(135deg, #1C1917 0%, #292524 50%, #1C1917 100%)",
         padding: "60px",
+        position: "relative",
       }}>
-        <div style={{ display: "flex", fontSize: 28, color: "#818cf8", marginBottom: 16 }}>CANONIX</div>
-        <div style={{ fontSize: 52, fontWeight: 700, color: "#fff", marginBottom: 16, lineHeight: 1.2 }}>{universe.name}</div>
-        {universe.description && (
-          <div style={{ fontSize: 22, color: "#a1a1aa", lineHeight: 1.5, maxWidth: 800 }}>
-            {universe.description.length > 160 ? universe.description.slice(0, 160) + "…" : universe.description}
+        {/* Decorative gradient orb */}
+        <div style={{
+          position: "absolute",
+          top: "-100px",
+          right: "-100px",
+          width: "400px",
+          height: "400px",
+          background: "radial-gradient(circle, rgba(45,91,227,0.15) 0%, transparent 70%)",
+          borderRadius: "50%",
+        }} />
+        <div style={{
+          position: "absolute",
+          bottom: "-80px",
+          left: "-80px",
+          width: "300px",
+          height: "300px",
+          background: "radial-gradient(circle, rgba(45,91,227,0.08) 0%, transparent 70%)",
+          borderRadius: "50%",
+        }} />
+
+        {/* Brand */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "32px",
+          zIndex: 1,
+        }}>
+          <div style={{
+            width: "32px",
+            height: "32px",
+            background: "#2D5BE3",
+            borderRadius: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="1 6 1 22 8 18 16 22 21 18 21 2 14 6 8 2 3 6" />
+            </svg>
+          </div>
+          <span style={{ fontSize: 22, fontWeight: 600, color: "#F2EEE8", letterSpacing: "0.05em" }}>CANONIX</span>
+        </div>
+
+        {/* Title */}
+        <div style={{
+          fontSize: 56,
+          fontWeight: 300,
+          color: "#F2EEE8",
+          marginBottom: description ? 20 : 32,
+          lineHeight: 1.15,
+          fontFamily: "Georgia, serif",
+          zIndex: 1,
+          maxWidth: "900px",
+        }}>
+          {universe.name}
+        </div>
+
+        {/* Description */}
+        {description && (
+          <div style={{
+            fontSize: 24,
+            color: "#A8A29E",
+            lineHeight: 1.5,
+            maxWidth: "800px",
+            zIndex: 1,
+            marginBottom: 40,
+          }}>
+            {description}
           </div>
         )}
-        <div style={{ display: "flex", marginTop: 32, gap: 24 }}>
-          <div style={{ fontSize: 18, color: "#818cf8" }}>{universe._count.entities} entities</div>
-          <div style={{ fontSize: 18, color: "#818cf8" }}>{universe._count.relations} relations</div>
+
+        {/* Stats */}
+        <div style={{
+          display: "flex",
+          marginTop: "auto",
+          gap: "32px",
+          zIndex: 1,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#2D5BE3" }} />
+            <span style={{ fontSize: 18, color: "#78716C" }}>{universe._count.entities} entities</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#16A34A" }} />
+            <span style={{ fontSize: 18, color: "#78716C" }}>{universe._count.relations} relations</span>
+          </div>
         </div>
       </div>
     ),
