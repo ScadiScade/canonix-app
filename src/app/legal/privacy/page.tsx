@@ -138,10 +138,6 @@ export default function PrivacyPage() {
           </section>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-ink-3/15 flex flex-col sm:flex-row gap-4 text-[17px] text-ink-3">
-          <Link href="/legal/terms" className="hover:text-accent transition-colors no-underline">Пользовательское соглашение</Link>
-          <Link href="/legal/consent" className="hover:text-accent transition-colors no-underline">Согласие на обработку персональных данных</Link>
-        </div>
       </main>
     </div>
   );

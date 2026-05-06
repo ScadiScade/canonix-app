@@ -267,22 +267,6 @@ function MarketplaceDetailInner() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-ink-3/12 bg-surface">
-        <div className="max-w-5xl mx-auto px-4 md:px-7 py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Map size={12} className="text-accent" />
-              <span className="font-serif text-[16px] font-light text-ink-2">Canonix</span>
-            </div>
-            <nav className="flex items-center gap-4 text-[11px] tracking-[0.15em] uppercase text-ink-3" aria-label="Footer">
-              <Link href="/legal/terms" className="hover:text-accent transition-colors no-underline">{t("login.terms")}</Link>
-              <Link href="/legal/privacy" className="hover:text-accent transition-colors no-underline">{t("login.privacy")}</Link>
-              <span>canonix · {new Date().getFullYear()}</span>
-            </nav>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

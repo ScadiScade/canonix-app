@@ -267,30 +267,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-ink-3/12 bg-surface">
-        <div className="max-w-4xl mx-auto px-4 md:px-7 py-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <Link href="/" className="inline-flex items-center gap-2 no-underline mb-1">
-                <Map size={12} className="text-accent" />
-                <span className="font-serif text-[16px] font-light text-ink">Canonix</span>
-              </Link>
-              <p className="text-[14px] text-ink-3 max-w-xs">{t("landing.footerDesc")}</p>
-            </div>
-            <nav className="flex flex-col gap-1.5" aria-label="Footer">
-              <Link href="/marketplace" className="text-[14px] tracking-[0.1em] uppercase text-ink-3 hover:text-accent transition-colors no-underline">{t("landing.marketplace")}</Link>
-              <Link href="/legal/terms" className="text-[14px] tracking-[0.1em] uppercase text-ink-3 hover:text-accent transition-colors no-underline">{t("landing.termsOfUse")}</Link>
-              <Link href="/legal/privacy" className="text-[14px] tracking-[0.1em] uppercase text-ink-3 hover:text-accent transition-colors no-underline">{t("login.privacy")}</Link>
-              <Link href="/legal/consent" className="text-[14px] tracking-[0.1em] uppercase text-ink-3 hover:text-accent transition-colors no-underline">{t("landing.dataProcessing")}</Link>
-            </nav>
-          </div>
-          <div className="mt-6 pt-4 border-t border-ink-3/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="text-[13px] tracking-[0.2em] uppercase text-ink-3">canonix · {new Date().getFullYear()}</span>
-            <span className="text-[13px] text-ink-3">{t("landing.madeWith")}</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
