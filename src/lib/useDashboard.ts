@@ -86,6 +86,13 @@ export function useDashboard() {
     }
   }, [fetchUniverses, toast, t]);
 
+  const duplicateUniverse = useCallback(async (id: string) => {
+    const res = await fetch(`/api/universes?id=${id}`, { method: "PATCH" });
+    fetchUniverses();
+    if (res.ok) toast(t("dashboard.universeDuplicated"));
+    else toast(t("common.error"), "error");
+  }, [fetchUniverses, toast, t]);
+
   const confirmDeleteUniverse = useCallback(async () => {
     if (!deleteTarget) return;
     const res = await fetch(`/api/universes?id=${deleteTarget.id}`, { method: "DELETE" });
@@ -129,7 +136,7 @@ export function useDashboard() {
     showCreate, setShowCreate,
     editingName, setEditingName, userName, setUserName, saveName,
     editingBio, setEditingBio, userBio, setUserBio, saveBio,
-    deleteTarget, setDeleteTarget, handleCreate, confirmDeleteUniverse,
+    deleteTarget, setDeleteTarget, handleCreate, duplicateUniverse, confirmDeleteUniverse,
     totalEntities, totalRelations, listedCount,
     fetchProfile,
   };

@@ -194,3 +194,144 @@ export async function DELETE(req: Request) {
   await prisma.universe.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
+
+export async function PATCH(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "id required" }, { status: 400 });
+  }
+
+  if (!(await canAccessUniverse(id, session.user.id))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const source = await prisma.universe.findUnique({
+    where: { id },
+    include: {
+      groups: true,
+      entities: { include: { sourceRelations: true, targetRelations: true } },
+      relations: true,
+      timelineScales: true,
+    },
+  });
+
+  if (!source) {
+    return NextResponse.json({ error: "Universe not found" }, { status: 404 });
+  }
+
+  // Generate unique slug
+  const baseSlug = source.slug + "-copy";
+  const existing = await prisma.universe.findUnique({ where: { slug: baseSlug } });
+  const slug = existing ? `${baseSlug}-${Date.now()}` : baseSlug;
+
+  // Map old group IDs to new group IDs
+  const groupIdMap = new Map<string, string>();
+
+  // Create the duplicated universe with groups
+  const newUniverse = await prisma.universe.create({
+    data: {
+      name: source.name + " (copy)",
+      slug,
+      description: source.description,
+      visibility: "private",
+      userId: session.user.id,
+      groups: {
+        createMany: {
+          data: source.groups.map(g => ({
+            name: g.name,
+            slug: g.slug,
+            color: g.color,
+            icon: g.icon,
+            fields: g.fields,
+            isContainer: g.isContainer,
+          })),
+        },
+      },
+    },
+    include: { groups: true },
+  });
+
+  // Build group ID mapping
+  source.groups.forEach((oldGroup, i) => {
+    const newGroup = newUniverse.groups[i];
+    if (newGroup) groupIdMap.set(oldGroup.id, newGroup.id);
+  });
+
+  // Map old entity IDs to new entity IDs
+  const entityIdMap = new Map<string, string>();
+
+  // Create entities
+  for (const entity of source.entities) {
+    const newEntity = await prisma.entity.create({
+      data: {
+        name: entity.name,
+        type: entity.type,
+        universeId: newUniverse.id,
+        groupId: entity.groupId ? (groupIdMap.get(entity.groupId) || null) : null,
+        description: entity.description,
+        customFields: entity.customFields,
+        notes: entity.notes,
+        date: entity.date,
+        imageUrl: entity.imageUrl,
+        position: entity.position,
+      },
+    });
+    entityIdMap.set(entity.id, newEntity.id);
+  }
+
+  // Set parent relationships (second pass — parentId references new entities)
+  for (const entity of source.entities) {
+    if (entity.parentId) {
+      const newEntityId = entityIdMap.get(entity.id);
+      const newParentId = entityIdMap.get(entity.parentId);
+      if (newEntityId && newParentId) {
+        await prisma.entity.update({
+          where: { id: newEntityId },
+          data: { parentId: newParentId },
+        });
+      }
+    }
+  }
+
+  // Create relations
+  for (const rel of source.relations) {
+    const newSourceId = entityIdMap.get(rel.sourceId);
+    const newTargetId = entityIdMap.get(rel.targetId);
+    if (newSourceId && newTargetId) {
+      await prisma.relation.create({
+        data: {
+          sourceId: newSourceId,
+          targetId: newTargetId,
+          label: rel.label,
+          universeId: newUniverse.id,
+        },
+      });
+    }
+  }
+
+  // Create timeline scales
+  for (const ts of source.timelineScales) {
+    const newSlug = ts.slug;
+    const existingTs = await prisma.timelineScale.findUnique({
+      where: { slug_universeId: { slug: newSlug, universeId: newUniverse.id } },
+    });
+    await prisma.timelineScale.create({
+      data: {
+        name: ts.name,
+        slug: existingTs ? `${newSlug}-${Date.now()}` : newSlug,
+        universeId: newUniverse.id,
+        eras: ts.eras,
+        isDefault: ts.isDefault,
+      },
+    });
+  }
+
+  return NextResponse.json(newUniverse, { status: 201 });
+}

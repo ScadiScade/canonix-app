@@ -9,7 +9,7 @@ import { useLocale } from "@/lib/i18n";
 import { useDashboard } from "@/lib/useDashboard";
 import {
   Map, Plus, Globe, Lock, Link2, Trash2, ExternalLink,
-  User, ShoppingBag, Unlock, Edit3, Check, X, LogOut,
+  User, ShoppingBag, Unlock, Edit3, Check, X, LogOut, Copy,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,7 +22,7 @@ function DashboardInner() {
     showCreate, setShowCreate,
     editingName, setEditingName, userName, setUserName, saveName,
     editingBio, setEditingBio, userBio, setUserBio, saveBio,
-    deleteTarget, setDeleteTarget, handleCreate, confirmDeleteUniverse,
+    deleteTarget, setDeleteTarget, handleCreate, duplicateUniverse, confirmDeleteUniverse,
     totalEntities, totalRelations, listedCount,
   } = useDashboard();
 
@@ -240,6 +240,13 @@ function DashboardInner() {
                           <ExternalLink size={14} />
                         </Link>
                       )}
+                      <button
+                        onClick={() => duplicateUniverse(u.id)}
+                        className="p-1.5 rounded-md hover:bg-ink-3/10 text-ink-3 hover:text-accent transition-colors"
+                        title={t("dashboard.duplicate")}
+                      >
+                        <Copy size={14} />
+                      </button>
                       <button
                         onClick={() => setDeleteTarget({ id: u.id, name: u.name })}
                         className="p-1.5 rounded-md hover:bg-red-50 text-ink-3 hover:text-red-500 transition-colors"
