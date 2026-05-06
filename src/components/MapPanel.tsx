@@ -158,6 +158,7 @@ export function MapPanel({ universeId, maps, onRefresh, toast }: MapPanelProps) 
             >
               <div className="aspect-video bg-ink-3/5 flex items-center justify-center relative">
                 {m.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={m.imageUrl} alt={m.name} className="w-full h-full object-cover" />
                 ) : (
                   <FileImage size={24} className="text-ink-3/30" />

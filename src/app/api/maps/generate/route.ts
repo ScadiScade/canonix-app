@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Universe not found" }, { status: 404 });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = await (prisma as any).map.create({
     data: {
       name: `Карта вселенной «${universe.name}»`,

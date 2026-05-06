@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
   const access = await canModifyUniverse(universeId);
   if (!access) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = await (prisma as any).map.create({
     data: {
       name: name.trim(),
@@ -45,6 +46,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = await (prisma as any).map.findUnique({
     where: { id },
     select: { universeId: true },
@@ -54,6 +56,7 @@ export async function PUT(req: NextRequest) {
   const access = await canModifyUniverse(map.universeId);
   if (!access) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updated = await (prisma as any).map.update({
     where: { id },
     data: {
@@ -75,6 +78,7 @@ export async function DELETE(req: NextRequest) {
 
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map = await (prisma as any).map.findUnique({
     where: { id },
     select: { universeId: true },
@@ -84,6 +88,7 @@ export async function DELETE(req: NextRequest) {
   const access = await canModifyUniverse(map.universeId);
   if (!access) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).map.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
