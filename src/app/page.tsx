@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import { useLocale, TranslationKey } from "@/lib/i18n";
 import {
   Map, Users, Globe, Zap, Building2, LayoutGrid, GitBranch,
@@ -46,11 +47,84 @@ const trustItems: { icon: typeof Shield; labelKey: TranslationKey }[] = [
   { icon: Layers, labelKey: "landing.trustUnlimited" },
 ];
 
+const stats = [
+  { value: "10K+", labelKey: "landing.statsUniverses" as TranslationKey },
+  { value: "500K+", labelKey: "landing.statsEntities" as TranslationKey },
+  { value: "50K+", labelKey: "landing.statsCreators" as TranslationKey },
+];
+
+const faqItems = [
+  { qKey: "landing.faq1q" as TranslationKey, aKey: "landing.faq1a" as TranslationKey },
+  { qKey: "landing.faq2q" as TranslationKey, aKey: "landing.faq2a" as TranslationKey },
+  { qKey: "landing.faq3q" as TranslationKey, aKey: "landing.faq3a" as TranslationKey },
+  { qKey: "landing.faq4q" as TranslationKey, aKey: "landing.faq4a" as TranslationKey },
+];
+
+function useScrollReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal");
+    if (!els.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+}
+
 export default function Home() {
   const { data: session } = useSession();
   const { t } = useLocale();
+  useScrollReveal();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "Canonix",
+        url: "https://canonix.app",
+        logo: "https://canonix.app/logo.png",
+        sameAs: [],
+      },
+      {
+        "@type": "WebSite",
+        name: "Canonix — Map Any Universe",
+        url: "https://canonix.app",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://canonix.app/marketplace?search={search_term_string}",
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqItems.map((f) => ({
+          "@type": "Question",
+          name: t(f.qKey),
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: t(f.aKey),
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main id="main-content">
         {/* ── Hero ── */}
         <section className="relative overflow-hidden">
@@ -97,7 +171,7 @@ export default function Home() {
         </section>
 
         {/* ── Preview mockup ── */}
-        <section className="max-w-5xl mx-auto px-4 md:px-7 pb-20">
+        <section className="max-w-5xl mx-auto px-4 md:px-7 pb-20 reveal">
           <div className="bg-surface rounded-xl border border-ink-3/12 p-5 md:p-7 shadow-sm shadow-ink/5">
             <div className="flex items-center gap-3 mb-5">
               <div className="flex items-center gap-2">
@@ -132,8 +206,24 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── Stats ── */}
+        <section className="bg-surface border-y border-ink-3/10 reveal">
+          <div className="max-w-5xl mx-auto px-4 md:px-7 py-16 md:py-20 text-center">
+            <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.statsLabel")}</p>
+            <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink mb-10">{t("landing.statsTitle")}</h2>
+            <div className="grid grid-cols-3 gap-6 md:gap-10">
+              {stats.map(({ value, labelKey }) => (
+                <div key={labelKey} className="flex flex-col items-center">
+                  <span className="font-serif text-[36px] md:text-[48px] font-light text-accent leading-none">{value}</span>
+                  <span className="text-[15px] md:text-[17px] tracking-[0.15em] uppercase text-ink-2 mt-2">{t(labelKey)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── Entity types ── */}
-        <section className="max-w-5xl mx-auto px-4 md:px-7 pb-20">
+        <section className="max-w-5xl mx-auto px-4 md:px-7 pb-20 reveal">
           <div className="text-center mb-10">
             <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.structureLabel")}</p>
             <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.entityTypesTitle")}</h2>
@@ -153,7 +243,7 @@ export default function Home() {
         </section>
 
         {/* ── Key features ── */}
-        <section className="bg-surface border-y border-ink-3/10">
+        <section className="bg-surface border-y border-ink-3/10 reveal">
           <div className="max-w-5xl mx-auto px-4 md:px-7 py-20">
             <div className="text-center mb-10">
               <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.featuresLabel")}</p>
@@ -179,7 +269,7 @@ export default function Home() {
         </section>
 
         {/* ── How it works ── */}
-        <section className="max-w-5xl mx-auto px-4 md:px-7 py-20">
+        <section className="max-w-5xl mx-auto px-4 md:px-7 py-20 reveal">
           <div className="text-center mb-12">
             <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.howLabel")}</p>
             <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.howTitle")}</h2>
@@ -197,8 +287,29 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── FAQ ── */}
+        <section className="max-w-3xl mx-auto px-4 md:px-7 py-20 reveal" itemScope itemType="https://schema.org/FAQPage">
+          <div className="text-center mb-12">
+            <p className="text-[15px] tracking-[0.2em] uppercase text-accent mb-2">{t("landing.faqLabel")}</p>
+            <h2 className="font-serif text-[28px] sm:text-[34px] md:text-[42px] font-light text-ink">{t("landing.faqTitle")}</h2>
+          </div>
+          <div className="space-y-4">
+            {faqItems.map(({ qKey, aKey }) => (
+              <details key={qKey} className="group bg-surface rounded-xl border border-ink-3/10 open:border-ink-3/20 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                <summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none select-none">
+                  <span className="font-serif text-[19px] font-light text-ink" itemProp="name">{t(qKey)}</span>
+                  <ChevronRight size={16} className="text-ink-3 transition-transform group-open:rotate-90 flex-shrink-0" />
+                </summary>
+                <div className="px-5 pb-5 text-[17px] text-ink-2 leading-relaxed" itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                  <p itemProp="text">{t(aKey)}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* ── Final CTA ── */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden reveal">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent-light/30 to-accent-light/60 pointer-events-none" />
           <div className="relative max-w-3xl mx-auto px-4 md:px-7 py-20 md:py-28 text-center">
             <h2 className="font-serif text-[38px] md:text-[50px] font-light text-ink leading-[1.1] mb-5">

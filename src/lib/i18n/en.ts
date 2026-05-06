@@ -642,6 +642,23 @@ const en: Translations = {
   "landing.peCoruscant": "Coruscant",
   "landing.peRepublic": "Fall of the Republic",
   "landing.peEmpire": "Galactic Empire",
+  // Stats
+  "landing.statsLabel": "Community",
+  "landing.statsTitle": "Join world builders",
+  "landing.statsUniverses": "Universes",
+  "landing.statsEntities": "Entities",
+  "landing.statsCreators": "Creators",
+  // FAQ
+  "landing.faqLabel": "FAQ",
+  "landing.faqTitle": "Frequently asked questions",
+  "landing.faq1q": "Is Canonix free?",
+  "landing.faq1a": "Yes, the core functionality is completely free. You can create unlimited universes, entities and relations. Paid features include marketplace publishing with paid licenses and advanced AI features.",
+  "landing.faq2q": "Can I use it for DnD and tabletop games?",
+  "landing.faq2a": "Absolutely. Canonix is perfect for running DnD, Pathfinder and other RPG campaigns. You can structure NPCs, locations, events and factions, then visualize their relationships on a graph.",
+  "landing.faq3q": "Can I share a universe without publishing to the marketplace?",
+  "landing.faq3a": "Yes. Every universe has a public link you can share with friends or embed in a blog. The marketplace is an optional platform for monetization.",
+  "landing.faq4q": "Can I export my data?",
+  "landing.faq4a": "Yes, you can export your entire universe in JSON format at any time. Your data belongs to you.",
 };
 
 export { en };
