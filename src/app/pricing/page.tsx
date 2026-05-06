@@ -198,7 +198,7 @@ export default function PricingPage() {
       )}
 
       {/* HERO */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-20">
+      <section className="pt-24 pb-16 md:pt-32 md:pb-20 reveal">
         <div className="max-w-3xl mx-auto px-4 md:px-7 text-center">
           <div className="inline-flex items-center gap-2 bg-accent/8 border border-accent/15 rounded-full px-4 py-1.5 mb-6">
             <Star size={14} className="text-accent" />
@@ -233,7 +233,7 @@ export default function PricingPage() {
       </section>
 
       {/* PLANS */}
-      <section className="pb-20">
+      <section className="pb-20 reveal">
         <div className="max-w-5xl mx-auto px-4 md:px-7">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch">
             {PLANS.map(p => {
@@ -311,7 +311,7 @@ export default function PricingPage() {
       </section>
 
       {/* CREDITS + WALLET */}
-      <section id="credits" className="pb-20 scroll-mt-20">
+      <section id="credits" className="pb-20 scroll-mt-20 reveal">
         <div className="max-w-5xl mx-auto px-4 md:px-7">
           <div className="text-center mb-10">
             <h2 className="font-serif text-[30px] md:text-[36px] font-light text-ink mb-3">{t("pricing.buyCredits")}</h2>
@@ -376,7 +376,7 @@ export default function PricingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="pb-20">
+      <section className="pb-20 reveal">
         <div className="max-w-2xl mx-auto px-4 md:px-7">
           <h2 className="font-serif text-[30px] md:text-[36px] font-light text-ink mb-8 text-center">{t("pricing.faq")}</h2>
           <div className="space-y-3">

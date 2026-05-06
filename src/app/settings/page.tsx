@@ -132,7 +132,7 @@ function SettingsInner() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main id="main-content" className="max-w-2xl mx-auto px-4 md:px-7 py-8 md:py-12">
+      <main id="main-content" className="max-w-2xl mx-auto px-4 md:px-7 py-8 md:py-12 reveal">
         {/* Page header */}
         <div className="flex items-center gap-3 mb-8">
           <Settings size={20} className="text-accent" />

@@ -80,7 +80,7 @@ function DashboardInner() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main id="main-content" className="max-w-4xl mx-auto px-4 md:px-7 py-8 md:py-12">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 md:px-7 py-8 md:py-12 reveal">
         {/* Profile header */}
         <div className="bg-surface rounded-xl border border-ink-3/10 p-6 md:p-8 mb-8">
           <div className="flex flex-col sm:flex-row items-start gap-5">

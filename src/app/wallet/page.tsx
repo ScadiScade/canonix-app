@@ -122,7 +122,7 @@ export default function WalletPage() {
         </div>
       )}
 
-      <section className="pt-24 pb-6 md:pt-32 md:pb-8">
+      <section className="pt-24 pb-6 md:pt-32 md:pb-8 reveal">
         <div className="max-w-lg mx-auto px-4 md:px-7">
           <Link href="/pricing" className="inline-flex items-center gap-1.5 text-ink-3 hover:text-accent transition-colors text-[15px] mb-6 no-underline">
             <ArrowLeft size={14} />{t("pricing.title")}

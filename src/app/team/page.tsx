@@ -196,7 +196,7 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main id="main-content" className="max-w-3xl mx-auto px-4 md:px-7 py-10">
+      <main id="main-content" className="max-w-3xl mx-auto px-4 md:px-7 py-10 reveal">
         {/* Messages */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md px-3 py-2 text-[18px] text-red-600 dark:text-red-400 mb-4 flex items-center gap-2" role="alert"><AlertCircle size={14} className="flex-shrink-0" />{error}</div>

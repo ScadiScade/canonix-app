@@ -75,7 +75,7 @@ export default function MarketplacePage() {
     <div className="min-h-screen bg-background">
       <main id="main-content">
         {/* Hero */}
-        <section className="relative overflow-hidden border-b border-ink-3/10">
+        <section className="relative overflow-hidden border-b border-ink-3/10 reveal">
           <div className="absolute inset-0 bg-gradient-to-b from-accent-light/20 via-transparent to-transparent pointer-events-none" />
           <div className="relative max-w-5xl mx-auto px-4 md:px-7 pt-10 md:pt-16 pb-8 md:pb-12">
           <div className="inline-flex items-center gap-2 bg-accent-light text-accent rounded-full px-3.5 py-1 text-[15px] tracking-[0.2em] uppercase mb-4 border border-accent/10">
@@ -141,7 +141,7 @@ export default function MarketplacePage() {
         </section>
 
         {/* Grid */}
-        <section className="max-w-5xl mx-auto px-4 md:px-7 py-8 md:py-12">
+        <section className="max-w-5xl mx-auto px-4 md:px-7 py-8 md:py-12 reveal">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-7 h-7 rounded-full border-2 border-accent border-t-transparent animate-spin" />

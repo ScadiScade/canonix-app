@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LocaleProvider } from "@/lib/i18n";
 import { HtmlLang } from "@/components/HtmlLang";
 import Topbar from "@/components/Topbar";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import "./globals.css";
 
 const geistMono = localFont({
@@ -51,7 +52,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistMono.variable} antialiased bg-background text-ink pt-topbar`}>
         <a href="#main-content" className="skip-to-content">Skip to content</a>
-        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider><Topbar /><div className="page-enter">{children}</div></CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
+        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider><Topbar /><ScrollReveal><div className="page-enter">{children}</div></ScrollReveal></CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
       </body>
     </html>
   );
