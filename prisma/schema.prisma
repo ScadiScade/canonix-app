@@ -85,6 +85,7 @@ model Universe {
   notes         Note[]
   storylines    Storyline[]
   books         Book[]
+  maps          Map[]
   tags          String          @default("[]") // JSON array of tag strings
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -226,6 +227,19 @@ model Book {
   type        String    @default("novel") // novel | comic | guide
   content     String    @default("[]") // JSON: array of chapters/panels
   coverUrl    String?
+  universeId  String
+  universe    Universe  @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([universeId])
+}
+
+model Map {
+  id          String    @id @default(cuid())
+  name        String
+  description String    @default("")
+  imageUrl    String?
   universeId  String
   universe    Universe  @relation(fields: [universeId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())

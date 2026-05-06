@@ -14,8 +14,7 @@ import { AiAssistant } from "@/components/AiAssistant";
 import { GroupForm } from "@/components/GroupForm";
 import { TimelineScaleForm } from "@/components/TimelineScaleForm";
 import { NotesPanel } from "@/components/NotesPanel";
-import { StorylinesPanel } from "@/components/StorylinesPanel";
-import { BooksPanel } from "@/components/BooksPanel";
+import { MapPanel } from "@/components/MapPanel";
 import { useLocale } from "@/lib/i18n";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useModalBehavior } from "@/lib/useModalBehavior";
@@ -30,7 +29,7 @@ import {
   Share2,
   X,
   FileText,
-  BookOpen,
+  Map,
 } from "lucide-react";
 
 const GraphView = dynamic(() => import("@/components/GraphView").then(m => ({ default: m.GraphView })), {
@@ -38,7 +37,7 @@ const GraphView = dynamic(() => import("@/components/GraphView").then(m => ({ de
   loading: () => <div className="flex items-center justify-center h-full text-ink-3 text-[13px]">Loading graph…</div>,
 });
 
-type ViewMode = "grid" | "graph" | "timeline" | "notes" | "storylines" | "books";
+type ViewMode = "grid" | "graph" | "timeline" | "notes" | "map";
 
 interface Entity {
   id: string;
@@ -149,39 +148,15 @@ interface UniverseData {
   groups: GroupData[];
   timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
   notes?: NoteData[];
-  storylines?: StorylineData[];
-  books?: BookData[];
+  maps?: MapData[];
   tags?: string;
 }
 
-interface ChapterData {
+interface MapData {
   id: string;
-  title: string;
-  content: string;
-  sortOrder: number;
-  entityId: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface StorylineData {
-  id: string;
-  title: string;
+  name: string;
   description: string;
-  color: string;
-  sortOrder: number;
-  chapters: ChapterData[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface BookData {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  content: string;
-  coverUrl: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -374,8 +349,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                     ["graph", GitBranch, t("universe.graph")],
                     ["timeline", Clock, t("universe.timeline")],
                     ["notes", FileText, t("notes.title")],
-                    ["storylines", BookOpen, t("storylines.title")],
-                    ["books", BookOpen, t("books.title")],
+                    ["map", Map, t("map.title")],
                   ] as const).map(([mode, Icon, label]) => (
                     <button
                       key={mode}
@@ -548,20 +522,10 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
               />
             )}
 
-            {view === "storylines" && (
-              <StorylinesPanel
+            {view === "map" && (
+              <MapPanel
                 universeId={universe.id}
-                storylines={universe.storylines || []}
-                entities={universe.entities.map(e => ({ id: e.id, name: e.name, type: e.type }))}
-                onRefresh={fetchUniverse}
-                toast={toast}
-              />
-            )}
-
-            {view === "books" && (
-              <BooksPanel
-                universeId={universe.id}
-                books={universe.books || []}
+                maps={universe.maps || []}
                 onRefresh={fetchUniverse}
                 toast={toast}
               />

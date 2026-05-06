@@ -77,7 +77,7 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
   ];
 
   return (
-    <div className="fixed inset-0 bg-ink/40 dark:bg-white/20 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("createUniverse.title")}>
+    <div className="fixed inset-0 bg-ink/60 dark:bg-white/30 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onCancel} role="dialog" aria-modal="true" aria-label={t("createUniverse.title")}>
       <form
         onClick={e => e.stopPropagation()}
         onSubmit={e => { e.preventDefault(); if (step === "visibility") handleSubmit(); else goNext(); }}

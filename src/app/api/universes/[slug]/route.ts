@@ -31,6 +31,7 @@ export async function GET(
       notes: { orderBy: { sortOrder: "asc" } },
       storylines: { orderBy: { sortOrder: "asc" }, include: { chapters: { orderBy: { sortOrder: "asc" } } } },
       books: { orderBy: { createdAt: "desc" } },
+      maps: { orderBy: { createdAt: "desc" } },
     },
   });
 
