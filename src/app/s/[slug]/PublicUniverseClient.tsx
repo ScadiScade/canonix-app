@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { EntityGroupData } from "@/lib/types";
 import { EntityCard } from "@/components/EntityCard";
 import { Timeline } from "@/components/Timeline";
-import { Map, LayoutGrid, GitBranch, Clock, Share2, X } from "lucide-react";
+import { LayoutGrid, GitBranch, Clock, X } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 import { useModalBehavior } from "@/lib/useModalBehavior";
 import { safeJsonParse } from "@/lib/safeJson";
@@ -55,13 +55,6 @@ export default function PublicUniverseClient({ universe }: PublicUniverseClientP
   });
 
   const selected = selectedId ? universe.entities.find(e => e.id === selectedId) : null;
-
-  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/s/${universe.slug}` : "";
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
-    alert(t("public.linkCopied"));
-  };
 
   return (
     <div className="min-h-screen bg-background">

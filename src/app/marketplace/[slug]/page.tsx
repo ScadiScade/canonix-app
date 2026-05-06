@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Map, Unlock, Lock, ShoppingBag, ArrowRight, Copy, ChevronRight, Users, Globe, Zap, Building2, GitBranch, Loader2 } from "lucide-react";
+import { Map, Unlock, Lock, ShoppingBag, ArrowRight, Copy, Users, Globe, Zap, Building2, GitBranch, Loader2 } from "lucide-react";
 import { resolveGroup } from "@/lib/types";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useLocale, TranslationKey } from "@/lib/i18n";
