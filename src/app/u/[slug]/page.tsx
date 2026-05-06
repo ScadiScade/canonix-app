@@ -15,6 +15,7 @@ import { GroupForm } from "@/components/GroupForm";
 import { TimelineScaleForm } from "@/components/TimelineScaleForm";
 import { NotesPanel } from "@/components/NotesPanel";
 import { StorylinesPanel } from "@/components/StorylinesPanel";
+import { BooksPanel } from "@/components/BooksPanel";
 import { useLocale } from "@/lib/i18n";
 import { useToast, ToastProvider } from "@/components/Toast";
 import { useModalBehavior } from "@/lib/useModalBehavior";
@@ -37,7 +38,7 @@ const GraphView = dynamic(() => import("@/components/GraphView").then(m => ({ de
   loading: () => <div className="flex items-center justify-center h-full text-ink-3 text-[13px]">Loading graph…</div>,
 });
 
-type ViewMode = "grid" | "graph" | "timeline" | "notes" | "storylines";
+type ViewMode = "grid" | "graph" | "timeline" | "notes" | "storylines" | "books";
 
 interface Entity {
   id: string;
@@ -149,6 +150,7 @@ interface UniverseData {
   timelineScales?: { id: string; name: string; slug: string; eras: string; isDefault: boolean }[];
   notes?: NoteData[];
   storylines?: StorylineData[];
+  books?: BookData[];
   tags?: string;
 }
 
@@ -169,6 +171,17 @@ interface StorylineData {
   color: string;
   sortOrder: number;
   chapters: ChapterData[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BookData {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  content: string;
+  coverUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -362,6 +375,7 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                     ["timeline", Clock, t("universe.timeline")],
                     ["notes", FileText, t("notes.title")],
                     ["storylines", BookOpen, t("storylines.title")],
+                    ["books", BookOpen, t("books.title")],
                   ] as const).map(([mode, Icon, label]) => (
                     <button
                       key={mode}
@@ -539,6 +553,15 @@ function UniversePageInner({ params }: { params: { slug: string } }) {
                 universeId={universe.id}
                 storylines={universe.storylines || []}
                 entities={universe.entities.map(e => ({ id: e.id, name: e.name, type: e.type }))}
+                onRefresh={fetchUniverse}
+                toast={toast}
+              />
+            )}
+
+            {view === "books" && (
+              <BooksPanel
+                universeId={universe.id}
+                books={universe.books || []}
                 onRefresh={fetchUniverse}
                 toast={toast}
               />

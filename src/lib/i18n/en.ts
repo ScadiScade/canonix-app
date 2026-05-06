@@ -229,6 +229,28 @@ const en: Translations = {
   "storylines.chapterContentPlaceholder": "Chapter content...",
   "storylines.empty": "No storylines yet. Create your first storyline!",
 
+  // Books
+  "books.title": "Books",
+  "books.created": "Book created",
+  "books.deleted": "Book deleted",
+  "books.confirmDelete": "Delete this book?",
+  "books.titlePlaceholder": "Book title",
+  "books.create": "Create book",
+  "books.novel": "Novel",
+  "books.comic": "Comic",
+  "books.guide": "Guide",
+  "books.noContent": "No content yet",
+  "books.page": "Page",
+  "books.compiled": "Compiled",
+  "books.compiledDesc": "Auto-compiled from universe data",
+  "books.compiledOk": "Book compiled from universe",
+  "books.compileNovel": "Compile novel",
+  "books.compileGuide": "Compile guide",
+  "books.aiGenerate": "AI generate",
+  "books.aiPromptPlaceholder": "Additional instructions (optional)",
+  "books.aiGenerated": "AI book generated",
+  "books.empty": "No books yet. Create, compile, or AI-generate your first book!",
+
   // AI Assistant
   "ai.title": "AI Assistant",
   "ai.generateEntities": "Cards",

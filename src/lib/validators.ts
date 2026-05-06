@@ -277,6 +277,43 @@ export const deleteChapterSchema = z.object({
   id: z.string().cuid(),
 });
 
+export const createBookSchema = z.object({
+  universeId: z.string().cuid(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  type: z.enum(["novel", "comic", "guide"]).optional(),
+});
+
+export const updateBookSchema = z.object({
+  id: z.string().cuid(),
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().max(5000).optional(),
+  type: z.enum(["novel", "comic", "guide"]).optional(),
+  content: z.string().max(200000).optional(),
+  coverUrl: z.string().max(500).nullable().optional(),
+});
+
+export const deleteBookSchema = z.object({
+  id: z.string().cuid(),
+});
+
+export const compileBookSchema = z.object({
+  universeId: z.string().cuid(),
+  type: z.enum(["novel", "comic", "guide"]).optional(),
+  storylineIds: z.array(z.string().cuid()).optional(),
+});
+
+export const generateBookSchema = z.object({
+  universeId: z.string().cuid(),
+  type: z.enum(["novel", "comic", "guide"]).optional(),
+  prompt: z.string().max(5000).optional(),
+});
+
+export const exportBookSchema = z.object({
+  id: z.string().cuid(),
+  format: z.enum(["markdown", "pdf"]),
+});
+
 // ── Helper ──
 export function validateBody<T extends z.ZodType>(schema: T, body: unknown): { success: true; data: z.infer<T> } | { success: false; error: string } {
   const result = schema.safeParse(body);

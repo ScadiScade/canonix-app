@@ -227,6 +227,28 @@ const ru = {
   "storylines.chapterContentPlaceholder": "Содержание главы...",
   "storylines.empty": "Сюжетов пока нет. Создайте первый сюжет!",
 
+  // Books
+  "books.title": "Книги",
+  "books.created": "Книга создана",
+  "books.deleted": "Книга удалена",
+  "books.confirmDelete": "Удалить эту книгу?",
+  "books.titlePlaceholder": "Название книги",
+  "books.create": "Создать книгу",
+  "books.novel": "Роман",
+  "books.comic": "Комикс",
+  "books.guide": "Справочник",
+  "books.noContent": "Пока нет содержания",
+  "books.page": "Страница",
+  "books.compiled": "Скомпилирована",
+  "books.compiledDesc": "Автосборка из данных вселенной",
+  "books.compiledOk": "Книга скомпилирована из вселенной",
+  "books.compileNovel": "Собрать роман",
+  "books.compileGuide": "Собрать справочник",
+  "books.aiGenerate": "AI-генерация",
+  "books.aiPromptPlaceholder": "Дополнительные указания (необязательно)",
+  "books.aiGenerated": "AI-книга сгенерирована",
+  "books.empty": "Книг пока нет. Создайте, скомпилируйте или сгенерируйте первую книгу!",
+
   // AI Assistant
   "ai.title": "AI-ассистент",
   "ai.generateEntities": "Карточки",

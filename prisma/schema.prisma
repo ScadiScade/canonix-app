@@ -84,6 +84,7 @@ model Universe {
   timelineScales TimelineScale[]
   notes         Note[]
   storylines    Storyline[]
+  books         Book[]
   tags          String          @default("[]") // JSON array of tag strings
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -216,6 +217,21 @@ model Chapter {
 
   @@index([storylineId])
   @@index([entityId])
+}
+
+model Book {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @default("")
+  type        String    @default("novel") // novel | comic | guide
+  content     String    @default("[]") // JSON: array of chapters/panels
+  coverUrl    String?
+  universeId  String
+  universe    Universe  @relation(fields: [universeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([universeId])
 }
 
 model AiCredit {
