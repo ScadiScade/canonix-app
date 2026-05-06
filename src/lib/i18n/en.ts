@@ -171,6 +171,18 @@ const en: Translations = {
   "createUniverse.title": "New universe",
   "createUniverse.namePlaceholder": "Star Wars, My world, DnD campaign…",
   "createUniverse.descriptionPlaceholder": "Brief universe description",
+  "createUniverse.template": "Template",
+  // Templates
+  "templates.empty": "Empty",
+  "templates.emptyDesc": "Start from scratch — add groups manually",
+  "templates.fantasy": "Fantasy",
+  "templates.fantasyDesc": "Characters, places, events, organizations, races, magic",
+  "templates.scifi": "Sci-Fi",
+  "templates.scifiDesc": "Characters, planets, events, factions, technologies, ships",
+  "templates.dnd": "DnD Campaign",
+  "templates.dndDesc": "NPCs, locations, quests, factions, items, monsters",
+  "templates.real": "Real world",
+  "templates.realDesc": "Persons, countries, events, organizations",
 
   // AI Assistant
   "ai.title": "AI Assistant",

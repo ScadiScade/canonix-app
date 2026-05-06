@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { validateBody, createUniverseSchema, updateUniverseSchema } from "@/lib/validators";
+import { TEMPLATES } from "@/lib/templates";
 
 async function canAccessUniverse(universeId: string, userId: string): Promise<boolean> {
   const existing = await prisma.universe.findUnique({ where: { id: universeId } });
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const parsed = validateBody(createUniverseSchema, body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  const { name, description, visibility } = parsed.data;
+  const { name, description, visibility, templateId } = parsed.data;
 
   const slug = name
     .toLowerCase()
@@ -113,6 +114,8 @@ export async function POST(req: Request) {
   const existing = await prisma.universe.findUnique({ where: { slug: finalSlug } });
   const uniqueSlug = existing ? `${finalSlug}-${Date.now()}` : finalSlug;
 
+  const template = templateId ? TEMPLATES.find(t => t.id === templateId) : null;
+
   const universe = await prisma.universe.create({
     data: {
       name,
@@ -120,6 +123,20 @@ export async function POST(req: Request) {
       description: description || null,
       visibility: visibility || "private",
       userId: session.user.id,
+      ...(template && template.groups.length > 0 && {
+        groups: {
+          createMany: {
+            data: template.groups.map(g => ({
+              name: g.name,
+              slug: g.slug,
+              color: g.color,
+              icon: g.icon,
+              fields: JSON.stringify(g.fields),
+              isContainer: g.isContainer || false,
+            })),
+          },
+        },
+      }),
     },
     include: { groups: true },
   });

@@ -169,6 +169,18 @@ const ru = {
   "createUniverse.title": "Новая вселенная",
   "createUniverse.namePlaceholder": "Star Wars, Мой мир, DnD-кампания…",
   "createUniverse.descriptionPlaceholder": "Краткое описание вселенной",
+  "createUniverse.template": "Шаблон",
+  // Templates
+  "templates.empty": "Пустая",
+  "templates.emptyDesc": "Начать с нуля — добавить группы вручную",
+  "templates.fantasy": "Фэнтези",
+  "templates.fantasyDesc": "Персонажи, места, события, организации, расы, магия",
+  "templates.scifi": "Sci-Fi",
+  "templates.scifiDesc": "Персонажи, планеты, события, фракции, технологии, корабли",
+  "templates.dnd": "DnD-кампания",
+  "templates.dndDesc": "NPC, локации, квесты, фракции, предметы, монстры",
+  "templates.real": "Реальный мир",
+  "templates.realDesc": "Персоны, страны, события, организации",
 
   // AI Assistant
   "ai.title": "AI-ассистент",

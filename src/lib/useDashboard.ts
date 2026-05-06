@@ -67,7 +67,7 @@ export function useDashboard() {
     if (sessionStatus === "authenticated") { fetchProfile(); fetchUniverses(); }
   }, [sessionStatus, fetchProfile, fetchUniverses]);
 
-  const handleCreate = useCallback(async (data: { name: string; description: string; visibility: string }) => {
+  const handleCreate = useCallback(async (data: { name: string; description: string; visibility: string; templateId?: string }) => {
     const res = await fetch("/api/universes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

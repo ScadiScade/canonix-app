@@ -23,6 +23,7 @@ export const createUniverseSchema = z.object({
   name: z.string().min(1).max(200),
   description: z.string().max(5000).optional(),
   visibility: z.enum(["private", "link", "public"]).optional(),
+  templateId: z.string().max(50).optional(),
 });
 
 export const updateUniverseSchema = z.object({

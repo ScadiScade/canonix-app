@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { X, Globe, Lock, Link2 } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
 import { useModalBehavior } from "@/lib/useModalBehavior";
+import { TEMPLATES } from "@/lib/templates";
 
 interface UniverseCreateFormProps {
-  onSubmit: (data: { name: string; description: string; visibility: string }) => Promise<string | null>;
+  onSubmit: (data: { name: string; description: string; visibility: string; templateId?: string }) => Promise<string | null>;
   onCancel: () => void;
 }
 
@@ -18,6 +19,7 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [visibility, setVisibility] = useState("private");
+  const [templateId, setTemplateId] = useState("empty");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,12 +28,18 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
     if (!name.trim() || submitting) return;
     setSubmitting(true);
     setError(null);
-    const slug = await onSubmit({ name: name.trim(), description: description.trim(), visibility });
+    const slug = await onSubmit({
+      name: name.trim(),
+      description: description.trim(),
+      visibility,
+      templateId: templateId === "empty" ? undefined : templateId,
+    });
     setSubmitting(false);
     if (slug) {
       setName("");
       setDescription("");
       setVisibility("private");
+      setTemplateId("empty");
       router.push(`/u/${slug}`);
     }
   };
@@ -85,6 +93,48 @@ export function UniverseCreateForm({ onSubmit, onCancel }: UniverseCreateFormPro
               className="w-full bg-background border border-ink-3/20 rounded-md px-3 py-2 text-[18px] text-ink focus:outline-none focus:border-accent resize-none"
               placeholder={t("createUniverse.descriptionPlaceholder")}
             />
+          </div>
+
+          <div>
+            <span className="text-[15px] tracking-[0.2em] uppercase text-ink-3 block mb-2">{t("createUniverse.template")}</span>
+            <div className="space-y-2">
+              {TEMPLATES.map(tmpl => (
+                <label
+                  key={tmpl.id}
+                  className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    templateId === tmpl.id
+                      ? "border-accent bg-accent-light"
+                      : "border-ink-3/15 hover:border-ink-3/30"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="template"
+                    value={tmpl.id}
+                    checked={templateId === tmpl.id}
+                    onChange={() => setTemplateId(tmpl.id)}
+                    className="mt-0.5 accent-accent"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[17px] text-ink font-medium">{t(tmpl.nameKey)}</div>
+                    <div className="text-[14px] text-ink-3">{t(tmpl.descKey)}</div>
+                    {tmpl.groups.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {tmpl.groups.map(g => (
+                          <span
+                            key={g.slug}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[12px] text-ink-2 bg-background border border-ink-3/10"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: g.color }} />
+                            {g.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div>
