@@ -53,8 +53,7 @@ export default function RootLayout({
       </head>
       <body className={`${geistMono.variable} antialiased bg-background text-ink pt-topbar min-h-screen flex flex-col`}>
         <a href="#main-content" className="skip-to-content">Skip to content</a>
-        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider><Topbar /><ScrollReveal><div className="page-enter flex-1 min-h-0">{children}</div></ScrollReveal></CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
-        <Footer />
+        <AuthProvider><LocaleProvider><ThemeProvider><HtmlLang /><CreditProvider><Topbar /><ScrollReveal><div className="page-enter flex-1 min-h-0">{children}</div><Footer /></ScrollReveal></CreditProvider></ThemeProvider></LocaleProvider></AuthProvider>
       </body>
     </html>
   );
